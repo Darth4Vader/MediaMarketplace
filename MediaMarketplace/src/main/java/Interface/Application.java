@@ -13,13 +13,13 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import Database.UserController;
+import backend.controllers.UserController;
 
 //@Configuration
 @PropertySource(value = "application.properties")
-@ComponentScan({"Database", "DataStructures"})
-@EntityScan("DataStructures") 
-@EnableJpaRepositories(basePackages = "Database")
+@ComponentScan({"backend"})
+@EntityScan("backend.entities") 
+@EnableJpaRepositories(basePackages = "backend.repositories")
 @SpringBootApplication
 public class Application implements CommandLineRunner {
 	

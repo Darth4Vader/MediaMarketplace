@@ -3,7 +3,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
-@ComponentScan({"DataStructures"})
+@ComponentScan({"backend"})
 public class TestConfig {
 
 	public TestConfig() {

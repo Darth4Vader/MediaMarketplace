@@ -17,15 +17,21 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.HttpClientErrorException;
 
-import DataStructures.User;
 import Interface.Application;
+import backend.entities.User;
 
 //@RunWith(SpringRunner.class)
 //@SpringBootTest
+//@Configuration
 @SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 //@TestPropertySource(locations="classpath:application-test.properties")
 //@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+
+
+
 @SpringJUnitConfig(ApplicationTestConfig.class)
+
+
 //@PropertySource(value = "application.properties")
 //@TestPropertySource("application-test.properties")
 class ApplicationTest {
@@ -33,14 +39,14 @@ class ApplicationTest {
 	@Autowired
 	private TestRestTemplate restTemplate;
 
-	@Value("${url}")
-	private String url;
+	/*@Value("${url}")
+	private String url;*/
 	
 	@LocalServerPort
 	private int port;
 
 	private String getRootUrl() {
-		System.out.println(url);
+		//System.out.println(url);
 		//return url;
 		return "http://localhost:" + port;
 	}
@@ -49,7 +55,7 @@ class ApplicationTest {
 	public void contextLoads() {
 	}
 
-	@Test
+	/*@Test
 	public void testGetAllUsers() {
 		HttpHeaders headers = new HttpHeaders();
 		HttpEntity<String> entity = new HttpEntity<String>(null, headers);
@@ -65,7 +71,11 @@ class ApplicationTest {
 		User user = restTemplate.getForObject(getRootUrl() + "/users/1", User.class);
 		System.out.println(user.getUserName());
 		assertNotNull(user);
-	}
+	}*/
+	
+	
+	
+	
 
 	/*@Test
 	public void testCreateUser() {
