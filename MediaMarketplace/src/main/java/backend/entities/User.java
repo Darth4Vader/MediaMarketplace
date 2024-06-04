@@ -1,7 +1,11 @@
 package backend.entities;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,9 +13,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import jakarta.annotation.Generated;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -24,11 +30,21 @@ public class User implements Serializable, UserDetails{
 	
 	@Column(name = "user_name", nullable = false, unique = true)
 	private String userName;
+	
+	@Column(nullable = false)
 	private String password;
 	
-	public User() {
-		
-		// TODO Auto-generated constructor stub
+    @ManyToMany(fetch=FetchType.EAGER)
+    private Set<Role> authorities;
+	
+	public User(String userName, String password) {
+		this(userName, password, new HashSet<>());
+	}
+	
+	public User(String userName, String password, Set<Role> authorities) {
+		this.userName = userName;
+		this.password = password;
+		this.authorities = authorities;
 	}
 	
 	public String getUserName() {
@@ -37,8 +53,7 @@ public class User implements Serializable, UserDetails{
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.authorities;
 	}
 
 	@Override

@@ -8,26 +8,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import backend.entities.User;
-import backend.services.UserService;
+import backend.services.UserServiceImpl;
 
 @RestController
 @RequestMapping("/market/users")
 public class UserController {
 	
 	
-	private UserService userService; 
+	private UserServiceImpl userService; 
 	
 	public UserController() {
 	}
 
 	@Autowired
-	public UserController(UserService userService) {
+	public UserController(UserServiceImpl userService) {
 		this.userService = userService;
 	}
 	
-	@GetMapping("/users/{id}")
+	@GetMapping("/{id}")
 	public User getUserById(@PathVariable Long id) {
-		return userService.getUserById(id);
+		return null;//userService.getUserById(id);
 	}
 
 }

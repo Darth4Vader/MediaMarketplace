@@ -34,7 +34,7 @@ public class Application implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		System.out.println(userController.getUserById(1l).getUserName());
+		System.out.println(userController.getUserById(1l));
 		// TODO Auto-generated method stub
 		
 	}
