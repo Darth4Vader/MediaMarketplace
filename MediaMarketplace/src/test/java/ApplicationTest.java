@@ -17,13 +17,13 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.HttpClientErrorException;
 
-import Interface.Application;
+import Interface.SApplication;
 import backend.entities.User;
 
 //@RunWith(SpringRunner.class)
 //@SpringBootTest
 //@Configuration
-@SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = SApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 //@TestPropertySource(locations="classpath:application-test.properties")
 //@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 
