@@ -54,6 +54,5 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JavaFX"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/MovieWithDataStructures"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
