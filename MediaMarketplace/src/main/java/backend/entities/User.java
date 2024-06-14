@@ -24,7 +24,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "users")
-public class User implements Serializable, UserDetails{
+public class User implements Serializable, UserDetails {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -75,6 +75,10 @@ public class User implements Serializable, UserDetails{
 	@Override
 	public String getUsername() {
 		return this.userName;
+	}
+
+	public Long getId() {
+		return id;
 	}
 
 }

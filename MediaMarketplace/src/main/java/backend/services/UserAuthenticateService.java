@@ -8,6 +8,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,14 +65,17 @@ public class UserAuthenticateService {
     	String username = loginDto.getUserName();
     	String password = loginDto.getPassword();
     	LogValuesAreIncorrectException.checkForException(username, password);
-    	if(userRepository.findByUserName(username).isPresent())
+    	if(userRepository.findByUserName(username).isEmpty())
     		throw new UserDoesNotExistsException();
     	try {
 	        Authentication auth = authenticationManager.authenticate(
 	            new UsernamePasswordAuthenticationToken(username, password));
+	        SecurityContextHolder.getContext().setAuthentication(auth);
 	        String token = tokenService.generateJwt(auth);
+	        System.out.println("Token: " + token);
 	        return new LogInResponseDto(userRepository.findByUserName(username).get(), token);
     } catch(AuthenticationException e) {
+        SecurityContextHolder.getContext().setAuthentication(null);
         throw new UserPasswordIsIncorrectException();
     }
     }

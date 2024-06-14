@@ -1,5 +1,6 @@
 package backend;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,6 +20,8 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -33,6 +36,11 @@ import backend.auth.RSAKeysPair;
 @EnableWebSecurity
 public class SecurityConfig /*extends WebSecurityConfiguration*/ {
 
+	/*private PersistentTokenRepository persistenceTokenRepository;
+	
+	@Autowired
+	private UserDetailsService userDetailsService;*/
+	
     private final RSAKeysPair rsaKeys;
 
     public SecurityConfig(RSAKeysPair rsaKeys){
@@ -98,6 +106,13 @@ public class SecurityConfig /*extends WebSecurityConfiguration*/ {
                 .anyRequest().authenticated()
     		)
         	.formLogin(Customizer.withDefaults());
+    		/*.rememberMe(c -> c
+                    .tokenRepository(persistenceTokenRepository)
+                    .rememberMeCookieName("rememberme")
+                    .tokenValiditySeconds(60 * 60 * 24) 
+                    .alwaysRemember(true)
+                    .useSecureCookie(true)
+    		);*/
             /*.formLogin(formLogin -> formLogin
 	            //.loginPage("/login.html")
 	            .loginProcessingUrl("/login")
@@ -112,14 +127,24 @@ public class SecurityConfig /*extends WebSecurityConfiguration*/ {
                 .logoutUrl("/api/logout")
                 .permitAll()
         	)*/
-    	//.rememberMe(Customizer.withDefaults());
+    		//.rememberMe(Customizer.withDefaults());
     	
         http.oauth2ResourceServer(oauth2 -> oauth2
         		.jwt(jwt -> jwt
+        		//.decoder(jwtDecoder())
         		.jwtAuthenticationConverter(jwtAuthenticationConverter())));
     	
     	return http.build();
     }
+    
+    /*@Bean
+    public PersistentTokenBasedRememberMeServices getPersistentTokenBasedRememberMeServices() {
+        PersistentTokenBasedRememberMeServices persistenceTokenBasedservice = new PersistentTokenBasedRememberMeServices("rememberme", userDetailsService, persistenceTokenRepository);
+        persistenceTokenBasedservice.setAlwaysRemember(true);
+        return persistenceTokenBasedservice;
+      }*/
+    
+    
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

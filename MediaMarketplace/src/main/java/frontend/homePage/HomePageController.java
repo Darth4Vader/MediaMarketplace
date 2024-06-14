@@ -9,9 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import backend.controllers.CartController;
 import backend.controllers.MediaProductController;
+import backend.dto.cart.AddProductToCartDto;
 import backend.entities.MediaProduct;
+import backend.exceptions.EntityNotFoundException;
 import backend.services.MediaProductService;
+import backend.services.TokenService;
 import javafx.beans.property.DoubleProperty;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -45,6 +49,12 @@ public class HomePageController {
 	
 	@Autowired
 	private MediaProductController productController;
+	
+	@Autowired
+	private CartController cartController;
+	
+	@Autowired
+	private TokenService tokenService;
 
 	@FXML
 	private void initialize() throws MalformedURLException {
@@ -92,6 +102,23 @@ public class HomePageController {
 			//b.maxWidthProperty().bind(mainPane.heightProperty().multiply(0.4));
 			b.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
 		            new BorderWidths(1))));
+			
+			Button addToCart = new Button("Add to Cart");
+			
+			addToCart.setOnAction(e -> {
+				AddProductToCartDto dto = new AddProductToCartDto();
+				dto.setProductId(product.getId());
+				try {
+					cartController.addProductToCart(dto);
+				} catch (EntityNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			});
+			
+			b.setTop(addToCart);
+			
+			
 			gridPane.add(b, currentCols, row);
 			System.out.println(currentCols + " " + cols);
 			System.out.println("("+currentCols+","+row+")");

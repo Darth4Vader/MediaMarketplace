@@ -13,7 +13,7 @@ public class MediaProductDto {
 	
 	private String imagePath;
 	
-	private String price;
+	private double price;
 	
 	private List<String> genresIDList;
 	
@@ -23,7 +23,7 @@ public class MediaProductDto {
 		
 	}
 	
-	public MediaProductDto(String tmdbID, String mediaName, String imagePath, String price, List<String> genresIDList,
+	public MediaProductDto(String tmdbID, String mediaName, String imagePath, double price, List<String> genresIDList,
 			String synopsis) {
 		super();
 		this.tmdbID = tmdbID;
@@ -46,7 +46,7 @@ public class MediaProductDto {
 		return imagePath;
 	}
 
-	public String getPrice() {
+	public double getPrice() {
 		return price;
 	}
 	
@@ -66,7 +66,7 @@ public class MediaProductDto {
 		this.imagePath = imagePath;
 	}
 
-	public void setPrice(String price) {
+	public void setPrice(double price) {
 		this.price = price;
 	}
 

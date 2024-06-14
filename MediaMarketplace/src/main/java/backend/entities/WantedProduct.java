@@ -1,8 +1,8 @@
 package backend.entities;
 
-public class UserCart {
+public class WantedProduct {
 
-	public UserCart() {
+	public WantedProduct() {
 		// TODO Auto-generated constructor stub
 	}
 

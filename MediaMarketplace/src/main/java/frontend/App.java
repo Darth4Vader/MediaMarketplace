@@ -4,6 +4,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import backend.ActivateSpringApplication;
 import frontend.auth.LogInUserController;
@@ -37,14 +38,14 @@ public class App extends Application {
 	public void init() throws Exception {
 		applicationInstance = this;
 		String[] args = getParameters().getRaw().toArray(new String[0]);
-		//appContext = ActivateSpringApplication.create(args);
+		appContext = ActivateSpringApplication.create(args);
 	}
 	
 	@Override
 	public void start(Stage stage) throws IOException {
 		this.stage = stage;
-		changeStageToFXML(HomePageController.PATH
-				/*LogInUserController.PATH*/);
+		changeStageToFXML(/*HomePageController.PATH*/
+				LogInUserController.PATH);
 		this.stage.show();
 		/*FXMLLoader loader = new FXMLLoader(getClass().getResource("/frontend/auth/RegisterUser.fxml"));
 	    //System.out.println(getClass().getResource("/frontend/auth/RegisterUser.fxml"));
@@ -58,7 +59,7 @@ public class App extends Application {
 	
 	public Parent loadFXML(String fxmlPath) throws IOException {
 		FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-	    //loader.setControllerFactory(appContext::getBean);
+	    loader.setControllerFactory(appContext::getBean);
 	    return loader.load();
 	}
 	

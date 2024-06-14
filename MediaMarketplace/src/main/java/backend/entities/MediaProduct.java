@@ -37,7 +37,7 @@ public class MediaProduct {
 	
 	@Column(nullable = false)
 	@NotBlank
-	private String price;
+	private double price;
 	
 	@Column(length = 1000)
 	private String synopsis;
@@ -67,7 +67,7 @@ public class MediaProduct {
 		return imagePath;
 	}
 
-	public String getPrice() {
+	public double getPrice() {
 		return price;
 	}
 
@@ -91,7 +91,7 @@ public class MediaProduct {
 		this.imagePath = imagePath;
 	}
 
-	public void setPrice(String price) {
+	public void setPrice(double price) {
 		this.price = price;
 	}
 

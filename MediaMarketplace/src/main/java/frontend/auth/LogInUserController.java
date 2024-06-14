@@ -6,16 +6,21 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import DataStructures.UserLogInfo;
 import backend.controllers.UserAuthenticateController;
+import backend.dto.users.LogInDto;
+import backend.dto.users.LogInResponseDto;
 import backend.dto.users.RegisterDto;
 import backend.exceptions.LogValuesAreIncorrectException;
 import backend.exceptions.UserAlreadyExistsException;
 import backend.exceptions.UserDoesNotExistsException;
 import backend.exceptions.UserPasswordIsIncorrectException;
+import backend.services.TokenService;
 import frontend.App;
+import frontend.homePage.HomePageController;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -60,6 +65,9 @@ public class LogInUserController implements Serializable {
 	
 	@Autowired
 	private UserAuthenticateController userAuth;
+	
+	@Autowired
+	private TokenService tokenService;
 	
 	@FXML
 	private void initialize() {
@@ -109,11 +117,15 @@ public class LogInUserController implements Serializable {
 	}
 	
 	@FXML
-	void createAccount() {
+	void createAccount() throws IOException {
 		String name = nameField.getText();
 		String password = passwordField.getText();
 		try {
-			this.userAuth.loginUser(null);
+			LogInDto dto =new LogInDto(name, password);
+			LogInResponseDto d = this.userAuth.loginUser(dto);
+			App.getApplicationInstance().changeStageToFXML(HomePageController.PATH);
+			//tokenService.invalidateJwt(d.getJwt());
+			//System.out.println(tokenService.getCurrentUser(d.getJwt()));
 		} catch (UserDoesNotExistsException e) {
 			nameField.setText("");
 			passwordField.setText("");

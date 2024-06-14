@@ -19,11 +19,20 @@ public class UserServiceImpl implements UserDetailsService {
         this.userRepository = userRepository;
     }
 	
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public User getUserByUserName(String username) throws UsernameNotFoundException {
     	return userRepository
         		.findByUserName(username)
         		.orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    	/*User user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found");
+        }
+        return user;*/
+    }
+	
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    	return getUserByUserName(username);
     	/*User user = userRepository.findByUsername(username);
         if (user == null) {
             throw new UsernameNotFoundException("User not found");

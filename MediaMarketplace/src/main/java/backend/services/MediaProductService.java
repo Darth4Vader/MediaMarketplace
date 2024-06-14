@@ -37,7 +37,7 @@ public class MediaProductService {
     public void addMediaProduct(MediaProductDto mediaDto) throws EntityAlreadyExistsException, EntityNotFoundException {
     	String mediaID = mediaDto.getMediaID();
     	try {	
-    		getMediaByID(mediaID);
+    		getMediaByNameID(mediaID);
     		throw new EntityAlreadyExistsException("The MediaProduct with id: ("+mediaID+") does already exists");
     	}
     	catch (EntityNotFoundException e) {}
@@ -67,9 +67,14 @@ public class MediaProductService {
         return product;
     }
     
-    public MediaProduct getMediaByID(String mediaID) throws EntityNotFoundException {
+    public MediaProduct getMediaByNameID(String mediaID) throws EntityNotFoundException {
     	return mediaProductRepository.findByMediaID(mediaID).
     			orElseThrow(() -> new EntityNotFoundException("The MediaProduct with id: ("+mediaID+") does not exists"));
+    }
+    
+    public MediaProduct getMediaByID(Long id) throws EntityNotFoundException {
+    	return mediaProductRepository.findById(id).
+    			orElseThrow(() -> new EntityNotFoundException("The MediaProduct with id: ("+id+") does not exists"));
     }
     
 }
