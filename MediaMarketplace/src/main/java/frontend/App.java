@@ -3,10 +3,18 @@ import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 import backend.ActivateSpringApplication;
+import backend.controllers.UserAuthenticateController;
+import backend.dto.users.LogInDto;
+import backend.dto.users.LogInResponseDto;
+import backend.exceptions.LogValuesAreIncorrectException;
+import backend.exceptions.UserDoesNotExistsException;
+import backend.exceptions.UserPasswordIsIncorrectException;
 import frontend.auth.LogInUserController;
 import frontend.homePage.HomePageController;
 import javafx.application.Application;
@@ -15,6 +23,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 public class App extends Application {
@@ -25,6 +34,8 @@ public class App extends Application {
     private static App applicationInstance;
     
     private Stage stage;
+    
+    private BorderPane appPane;
 
     public static App getApplicationInstance() {
         return applicationInstance;
@@ -42,10 +53,14 @@ public class App extends Application {
 	}
 	
 	@Override
-	public void start(Stage stage) throws IOException {
+	public void start(Stage stage) throws IOException, UserDoesNotExistsException, UserPasswordIsIncorrectException, LogValuesAreIncorrectException {
 		this.stage = stage;
-		changeStageToFXML(/*HomePageController.PATH*/
-				LogInUserController.PATH);
+		
+		UserAuthenticateController userAuth = appContext.getBean(UserAuthenticateController.class);
+		LogInDto dto =new LogInDto("bilbo", "bag");
+		LogInResponseDto d = userAuth.loginUser(dto);
+		//changeStageToFXML(LogInUserController.PATH);
+		changeAppPanel(HomePageController.PATH);
 		this.stage.show();
 		/*FXMLLoader loader = new FXMLLoader(getClass().getResource("/frontend/auth/RegisterUser.fxml"));
 	    //System.out.println(getClass().getResource("/frontend/auth/RegisterUser.fxml"));
@@ -67,6 +82,18 @@ public class App extends Application {
 		Parent root = loadFXML(fxmlPath);
 		Scene scene = new Scene(root);
 		stage.setScene(scene);
+	}
+	
+	public void changeAppPanel(String fxmlPath) throws IOException {
+		if(appPane == null) {
+			appPane = new BorderPane();
+			Parent toolBar = loadFXML("/frontend/AppBar.fxml");
+			appPane.setTop(toolBar);
+			Scene scene = new Scene(appPane);
+			stage.setScene(scene);
+		}
+		Parent root = loadFXML(fxmlPath);
+		appPane.setCenter(root);
 	}
 	
 	@Override

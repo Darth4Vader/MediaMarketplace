@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import backend.dto.cart.AddProductToCartDto;
 import backend.entities.Cart;
@@ -39,15 +40,34 @@ public class CartService {
     @Autowired
     private MediaProductService productService;
     
-    public void addProductToCart(AddProductToCartDto dto, User user) throws EntityNotFoundException {
+    public List<CartProduct> getCartProducts(User user) {
+    	Cart cart = getUserCart(user);
+    	return cart.getCartProducts();
+    }
+    
+    @Transactional
+    public void addProductToCart(AddProductToCartDto dto, User user) throws EntityNotFoundException, EntityAlreadyExistsException {
     	MediaProduct product = productService.getMediaByID(dto.getProductId());
     	Cart cart = getUserCart(user);
+    	List<CartProduct> cartProducts = cart.getCartProducts();
+    	System.out.println(cartProducts);
+    	for(CartProduct cartProduct : cartProducts) {
+    		System.out.println(cartProduct.getProduct());
+    		System.out.println(product);
+    		System.out.println();
+    		if(cartProduct.getProduct().equals(product))
+    			throw new EntityAlreadyExistsException("The product is already in the cart");
+    	}
     	CartProduct cartProduct = new CartProduct(product, cart);
     	cartProductRepository.save(cartProduct);
+    	cartProducts.add(cartProduct);
     }
     
     public Cart getUserCart(User user) {
+    	System.out.println(user.getUserName());
+    	System.out.println(user.getId());
     	Optional<Cart> cartOpt = cartRepository.findByUser(user);
+    	System.out.println(cartOpt);
     	if (cartOpt.isPresent())
     		return cartOpt.get();
     	Cart cart = new Cart(user);

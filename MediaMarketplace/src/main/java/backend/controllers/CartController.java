@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import backend.dto.cart.AddProductToCartDto;
+import backend.entities.Cart;
+import backend.entities.CartProduct;
 import backend.entities.MediaGenre;
 import backend.entities.User;
 import backend.exceptions.EntityAlreadyExistsException;
@@ -37,8 +39,14 @@ public class CartController {
 	@Autowired
 	private UserServiceImpl userService;
 	
+	@GetMapping("/get/cart_products")
+	public List<CartProduct> getCartProducts() {
+		User user = tokenService.getCurretUser();
+		return cartService.getCartProducts(user);
+    }
+	
 	@GetMapping("/add")
-    public ResponseEntity<String> addProductToCart(AddProductToCartDto dto) throws EntityNotFoundException  {
+    public ResponseEntity<String> addProductToCart(AddProductToCartDto dto) throws EntityNotFoundException, EntityAlreadyExistsException  {
 		//String userName = tokenService.getCurrentUserName(token);
 		//User user = userService.getUserByUserName(userName);
 		User user = tokenService.getCurretUser();

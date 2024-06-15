@@ -123,7 +123,7 @@ public class LogInUserController implements Serializable {
 		try {
 			LogInDto dto =new LogInDto(name, password);
 			LogInResponseDto d = this.userAuth.loginUser(dto);
-			App.getApplicationInstance().changeStageToFXML(HomePageController.PATH);
+			App.getApplicationInstance().changeAppPanel(HomePageController.PATH);
 			//tokenService.invalidateJwt(d.getJwt());
 			//System.out.println(tokenService.getCurrentUser(d.getJwt()));
 		} catch (UserDoesNotExistsException e) {

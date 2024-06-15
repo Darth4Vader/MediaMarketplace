@@ -26,8 +26,8 @@ public class Cart {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@OneToMany(fetch = FetchType.LAZY, targetEntity = CartProduct.class)
-	@JoinColumn(name = "cart_products", insertable = false, updatable = false)
+	@OneToMany(fetch = FetchType.EAGER, targetEntity = CartProduct.class)
+	@JoinColumn(name = "cart_products")
 	private List<CartProduct> cartProducts;
 	
 	@ManyToOne(targetEntity = User.class, fetch = FetchType.EAGER)

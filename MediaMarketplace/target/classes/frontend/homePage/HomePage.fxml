@@ -10,14 +10,14 @@
 
 <VBox fx:id="mainPane" prefHeight="562.0" prefWidth="818.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="frontend.homePage.HomePageController">
    <children>
-      <BorderPane prefHeight="200.0" prefWidth="200.0">
-         <top>
+      <BorderPane>
+         <center>
             <Label text="Welcome" BorderPane.alignment="CENTER">
                <font>
                   <Font size="96.0" />
                </font>
             </Label>
-         </top></BorderPane>
+         </center></BorderPane>
       <ScrollPane fitToWidth="true">
          <content>
             <GridPane fx:id="gridPane" alignment="CENTER" hgap="5.0" vgap="5.0">

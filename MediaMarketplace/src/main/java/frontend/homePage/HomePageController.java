@@ -13,6 +13,7 @@ import backend.controllers.CartController;
 import backend.controllers.MediaProductController;
 import backend.dto.cart.AddProductToCartDto;
 import backend.entities.MediaProduct;
+import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
 import backend.services.MediaProductService;
 import backend.services.TokenService;
@@ -111,6 +112,9 @@ public class HomePageController {
 				try {
 					cartController.addProductToCart(dto);
 				} catch (EntityNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (EntityAlreadyExistsException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
