@@ -1,5 +1,6 @@
 package backend.entities;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -42,6 +43,12 @@ public class MediaProduct {
 	@Column(length = 1000)
 	private String synopsis;
 	
+	private String year;
+	
+	@OneToMany(fetch = FetchType.LAZY, targetEntity = ActorRole.class)
+	@JoinColumn(name = "genres")
+	private List<ActorRole> actorsRoles;
+	
 	//@ManyToOne(targetEntity=MediaGenre.class, fetch = FetchType.LAZY, optional = false)
 	//@JoinColumn(name = "genre_id", nullable = false)
 	@OneToMany(fetch = FetchType.LAZY, targetEntity = MediaGenre.class)
@@ -49,6 +56,7 @@ public class MediaProduct {
 	private List<MediaGenre> genres;
 
 	public MediaProduct() {
+		this.actorsRoles = new ArrayList<>();
 	}
 
 	public Long getId() {
@@ -105,6 +113,18 @@ public class MediaProduct {
 
 	public void setSynopsis(String synopsis) {
 		this.synopsis = synopsis;
+	}
+
+	public String getYear() {
+		return year;
+	}
+
+	public List<ActorRole> getActorsRoles() {
+		return actorsRoles;
+	}
+
+	public void setYear(String year) {
+		this.year = year;
 	}
 	
 	

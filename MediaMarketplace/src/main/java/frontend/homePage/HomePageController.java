@@ -17,6 +17,7 @@ import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
 import backend.services.MediaProductService;
 import backend.services.TokenService;
+import frontend.AppUtils;
 import javafx.beans.property.DoubleProperty;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -84,8 +85,7 @@ public class HomePageController {
 		//}
 		//list = paths.toArray(new String[paths.size()]);
 		//for(String path : list) {
-			String path = new File(product.getImagePath()).toURI().toURL().toExternalForm();
-			ImageView view = new ImageView(path);
+			ImageView view = AppUtils.loadImageFromClass(product.getImagePath());
 			view.setPreserveRatio(true);
 			//Button view = new Button();
 			//view.maxWidth(Double.MAX_VALUE);

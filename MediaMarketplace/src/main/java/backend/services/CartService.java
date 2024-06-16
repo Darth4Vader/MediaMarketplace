@@ -63,6 +63,21 @@ public class CartService {
     	cartProducts.add(cartProduct);
     }
     
+    @Transactional
+    public void removeProductFromCart(AddProductToCartDto dto, User user) throws EntityNotFoundException {
+    	MediaProduct product = productService.getMediaByID(dto.getProductId());
+    	Cart cart = getUserCart(user);
+    	List<CartProduct> cartProducts = cart.getCartProducts();
+    	for(CartProduct cartProduct : cartProducts) {
+    		if(cartProduct.getProduct().equals(product)) {
+    	    	cartProducts.add(cartProduct);
+    	    	cartProductRepository.delete(cartProduct);
+    	    	return;
+    		}
+    	}
+    	throw new EntityNotFoundException("The product is not in the cart");
+    }
+    
     public Cart getUserCart(User user) {
     	System.out.println(user.getUserName());
     	System.out.println(user.getId());

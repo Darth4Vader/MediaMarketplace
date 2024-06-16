@@ -32,7 +32,8 @@ public class createDatabaseFromJSONData {
 	private static ConfigurableApplicationContext context;
 	
 	public static void main(String... args) throws BeansException, Exception {
-		context = ActivateSpringApplication.create(args);
+		
+		//context = ActivateSpringApplication.create(args);
 		//addGenres();
 		//addMovies();
 		//validateMovies();

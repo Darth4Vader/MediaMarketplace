@@ -55,6 +55,16 @@ public class CartController {
         return new ResponseEntity<>("Added Succssesfully", HttpStatus.OK);
     }
 	
+	@GetMapping("/remove")
+    public ResponseEntity<String> removeProductFromCart(AddProductToCartDto dto) throws EntityNotFoundException {
+		//String userName = tokenService.getCurrentUserName(token);
+		//User user = userService.getUserByUserName(userName);
+		User user = tokenService.getCurretUser();
+		cartService.removeProductFromCart(dto, user);
+		//List<MediaGenre> body = cartService.
+        return new ResponseEntity<>("Added Succssesfully", HttpStatus.OK);
+    }
+	
 	/*@GetMapping("/create")
     public ResponseEntity<String> createGenre(@Valid @RequestBody MediaGenre genre) throws EntityAlreadyExistsException {
 		mediaGenreService.createGenre(genre);
