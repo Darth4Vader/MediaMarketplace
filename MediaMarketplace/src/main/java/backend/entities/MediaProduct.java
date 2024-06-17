@@ -45,8 +45,8 @@ public class MediaProduct {
 	
 	private String year;
 	
-	@OneToMany(fetch = FetchType.LAZY, targetEntity = ActorRole.class)
-	@JoinColumn(name = "genres")
+	@OneToMany(fetch = FetchType.EAGER, targetEntity = ActorRole.class)
+	@JoinColumn(name = "actors_roles_id")
 	private List<ActorRole> actorsRoles;
 	
 	//@ManyToOne(targetEntity=MediaGenre.class, fetch = FetchType.LAZY, optional = false)

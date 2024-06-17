@@ -20,6 +20,7 @@ import frontend.homePage.HomePageController;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.ImageView;
@@ -85,6 +86,10 @@ public class App extends Application {
 	}
 	
 	public void changeAppPanel(String fxmlPath) throws IOException {
+		changeAppPanel(loadFXML(fxmlPath));
+	}
+	
+	public void changeAppPanel(Node component) throws IOException {
 		if(appPane == null) {
 			appPane = new BorderPane();
 			Parent toolBar = loadFXML("/frontend/AppBar.fxml");
@@ -92,8 +97,7 @@ public class App extends Application {
 			Scene scene = new Scene(appPane);
 			stage.setScene(scene);
 		}
-		Parent root = loadFXML(fxmlPath);
-		appPane.setCenter(root);
+		appPane.setCenter(component);
 	}
 	
 	@Override
