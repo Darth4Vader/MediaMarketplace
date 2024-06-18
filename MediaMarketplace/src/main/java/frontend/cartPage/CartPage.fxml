@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.VBox?>
@@ -16,5 +17,6 @@
             <VBox fx:id="cartItems" />
          </content>
       </ScrollPane>
+      <Button fx:id="purchaseButton" mnemonicParsing="false" onAction="#purchaseCart" text="Purchase" />
    </children>
 </VBox>

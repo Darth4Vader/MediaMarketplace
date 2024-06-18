@@ -1,5 +1,6 @@
 package backend.entities;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -33,8 +34,8 @@ public class Order {
 	@Column(name = "purchased_price")
 	private Date purchasedDate;
 	
-	@OneToMany(fetch = FetchType.LAZY, targetEntity = MediaPurchased.class)
-	@JoinColumn(name = "genres", insertable = false, updatable = false)
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "order", cascade = CascadeType.ALL)
+	//@JoinColumn(name = "media_purchased_id", insertable = false, updatable = false)
 	private List<MediaPurchased> purchasedItems;
 	
 	@ManyToOne
@@ -42,6 +43,7 @@ public class Order {
 	private User user;
 
 	public Order() {
+		this.purchasedItems = new ArrayList<>();
 	}
 
 	public Long getId() {
@@ -74,10 +76,13 @@ public class Order {
 
 	public void setPurchasedDate(Date purchasedDate) {
 		this.purchasedDate = purchasedDate;
+		for(MediaPurchased purchased : this.purchasedItems)
+			purchased.setPurchaseDate(purchasedDate);
 	}
 
-	public void setPurchasedItems(List<MediaPurchased> purchasedItems) {
-		this.purchasedItems = purchasedItems;
+	public void addToPurchasedItems(MediaPurchased purchasedItems) {
+		this.purchasedItems.add(purchasedItems);
+		purchasedItems.setOrder(this);
 	}
 
 	public void setUser(User user) {

@@ -9,11 +9,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import backend.controllers.CartController;
+import backend.controllers.OrderController;
 import backend.dto.cart.AddProductToCartDto;
 import backend.entities.CartProduct;
 import backend.entities.MediaProduct;
+import backend.entities.MediaPurchased;
+import backend.entities.Order;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
+import backend.repositories.CartProductRepository;
 import frontend.AppUtils;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -46,8 +50,17 @@ public class CartPageController {
 	@FXML
 	private Label emptyLabel;
 	
+	@FXML
+	private Button purchaseButton;
+	
 	@Autowired
 	private CartController cartController;
+	
+	@Autowired
+	private CartProductRepository cartProductRepository;
+	
+	@Autowired
+	private OrderController orderController;
 	
 	@FXML
 	private void initialize() throws MalformedURLException {
@@ -96,6 +109,10 @@ public class CartPageController {
 				try {
 					cartController.removeProductFromCart(dto);
 					cartItems.getChildren().remove(b);
+					List<CartProduct> listt = cartProductRepository.findAll();
+					for(CartProduct car : listt) {
+						System.out.println(car.getCart().getUser().getUsername() + " " + car.getProduct().getMediaName());
+					}
 				} catch (EntityNotFoundException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -103,6 +120,20 @@ public class CartPageController {
 			});
 			b.setTop(removeFromCart);
 			cartItems.getChildren().add(b);
+		}
+	}
+	
+	@FXML
+	private void purchaseCart() {
+		orderController.placeOrder();
+		List<Order> orders = orderController.getUserOrders();
+		for(Order order : orders) {
+			System.out.println(order.getUser().getUserName());
+			System.out.println(order.getTotalPrice());
+			System.out.println(order.getId());
+			for(MediaPurchased purchase : order.getPurchasedItems()) {
+				System.out.println(purchase.getMediaProduct().getMediaName());
+			}
 		}
 	}
 }

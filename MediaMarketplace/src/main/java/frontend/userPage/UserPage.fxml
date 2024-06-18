@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane fx:id="mainPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="562.0" prefWidth="818.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="frontend.userPage.UserPageController">
+   <left>
+      <VBox prefHeight="400.0" prefWidth="191.0" spacing="10.0" BorderPane.alignment="CENTER">
+         <children>
+            <BorderPane onMouseClicked="#enterOrderHistoryPage">
+               <right>
+                  <Label text="Order History" BorderPane.alignment="CENTER" />
+               </right>
+               <left>
+                  <ImageView fitHeight="71.0" fitWidth="77.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
+                     <image>
+                        <Image url="@../orders_history.png" />
+                     </image>
+                  </ImageView>
+               </left>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </BorderPane>
+            <BorderPane onMouseClicked="#enterMediaLibraryPage">
+               <right>
+                  <Label text="Your Media" BorderPane.alignment="CENTER" />
+               </right>
+               <left>
+                  <ImageView fitHeight="71.0" fitWidth="77.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
+                     <image>
+                        <Image url="@../media_collection.png" />
+                     </image>
+                  </ImageView>
+               </left>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </BorderPane>
+            <BorderPane onMouseClicked="#enterUserInfoPage">
+               <right>
+                  <Label text="User Information" BorderPane.alignment="CENTER" />
+               </right>
+               <left>
+                  <ImageView fitHeight="71.0" fitWidth="77.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER">
+                     <image>
+                        <Image url="@../user_info.png" />
+                     </image>
+                     <BorderPane.margin>
+                        <Insets />
+                     </BorderPane.margin>
+                  </ImageView>
+               </left>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </BorderPane>
+         </children>
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+         <BorderPane.margin>
+            <Insets />
+         </BorderPane.margin>
+      </VBox>
+   </left>
+</BorderPane>

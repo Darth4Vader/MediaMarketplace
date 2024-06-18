@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import backend.entities.MediaProduct;
 import frontend.cartPage.CartPageController;
 import frontend.homePage.HomePageController;
+import frontend.userPage.UserPageController;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -30,6 +31,11 @@ public class AppBarController {
 	@FXML
 	private void enterHome() throws IOException {
 		App.getApplicationInstance().changeAppPanel(HomePageController.PATH);
+	}
+	
+	@FXML
+	private void enterUserPage() throws IOException {
+		App.getApplicationInstance().changeAppPanel(UserPageController.PATH);
 	}
 	
 	@FXML

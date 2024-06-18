@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="frontend.userPage.OrderHistoryController">
+   <children>
+      <Label text="Your Previous Orders" />
+      <ScrollPane fitToWidth="true">
+         <content>
+            <VBox fx:id="ordersPanel" spacing="5.0" />
+         </content>
+      </ScrollPane>
+   </children>
+</VBox>
