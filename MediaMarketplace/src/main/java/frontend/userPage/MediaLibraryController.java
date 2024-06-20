@@ -1,24 +1,15 @@
 package frontend.userPage;
 
 import java.net.MalformedURLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import backend.controllers.CartController;
-import backend.controllers.MediaProductController;
 import backend.controllers.MediaPurchasedController;
-import backend.dto.cart.AddProductToCartDto;
 import backend.entities.MediaProduct;
-import backend.exceptions.EntityAlreadyExistsException;
-import backend.exceptions.EntityNotFoundException;
-import backend.services.MediaPurchasedService;
-import backend.services.TokenService;
 import frontend.AppUtils;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Border;

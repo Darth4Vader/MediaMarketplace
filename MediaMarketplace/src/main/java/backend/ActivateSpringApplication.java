@@ -20,7 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import backend.controllers.UserAuthenticateController;
 import backend.controllers.UserController;
-import backend.dto.users.RegisterDto;
+import backend.dto.users.UserInformationDto;
 import backend.entities.Role;
 import backend.repositories.RoleRepository;
 import backend.repositories.UserRepository;

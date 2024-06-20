@@ -1,27 +1,31 @@
 package backend.services;
 
+import java.util.Objects;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import backend.dto.users.UserInformationDto;
 import backend.entities.User;
+import backend.exceptions.UserNotLoggedInException;
+import backend.exceptions.UserPasswordIsIncorrectException;
 import backend.repositories.UserRepository;
 
 @Service
 public class UserServiceImpl implements UserDetailsService {
 
-	private final UserRepository userRepository;
-    
 	@Autowired
-	public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+	private UserRepository userRepository;
+    
+    @Autowired
+    private TokenService tokenService;
 	
-    public User getUserByUserName(String username) throws UsernameNotFoundException {
+    public User getUserByUsername(String username) throws UsernameNotFoundException {
     	return userRepository
-        		.findByUserName(username)
+        		.findByUsername(username)
         		.orElseThrow(() -> new UsernameNotFoundException("User not found"));
     	/*User user = userRepository.findByUsername(username);
         if (user == null) {
@@ -32,7 +36,7 @@ public class UserServiceImpl implements UserDetailsService {
 	
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    	return getUserByUserName(username);
+    	return getUserByUsername(username);
     	/*User user = userRepository.findByUsername(username);
         if (user == null) {
             throw new UsernameNotFoundException("User not found");

@@ -12,7 +12,7 @@ import backend.entities.User;
 @Repository
 public interface UserRepository extends JpaRepository<User,Long> {
 	
-	Optional<User> findByUserName(@Param("user_name") String userName);
+	Optional<User> findByUsername(@Param("user_name") String userName);
 	
 
     //List<User> findByFirstName(@Param("firstName") String firstName);

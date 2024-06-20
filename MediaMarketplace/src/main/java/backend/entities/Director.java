@@ -1,39 +1,21 @@
 package backend.entities;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 
 @Entity
-@Table(name = "actors")
-public class Actor {
-	
-	/*@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	
-	@NotBlank
-	private String name;
-	
-	@Column(name = "image_path")
-	private String imagePath;
-	
-	@OneToMany(fetch = FetchType.EAGER, targetEntity = ActorRole.class)
-	@JoinColumn(name = "actor_roles")
-	private List<ActorRole> actorRoles;*/
-	
+@Table(name = "directors")
+public class Director {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -49,8 +31,8 @@ public class Actor {
 	
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name = "actor_id", referencedColumnName = "id", nullable = false)
-	private Person actor;
+    @JoinColumn(name = "director_id", nullable = false)
+	private Person director;
 
 	public Long getId() {
 		return id;
@@ -64,8 +46,8 @@ public class Actor {
 		return media;
 	}
 
-	public Person getActor() {
-		return actor;
+	public Person getDirector() {
+		return director;
 	}
 
 	public void setRoleName(String roleName) {
@@ -76,10 +58,8 @@ public class Actor {
 		this.media = media;
 	}
 
-	public void setActor(Person actor) {
-		this.actor = actor;
+	public void setDirector(Person director) {
+		this.director = director;
 	}
-    
-    
-	
+
 }

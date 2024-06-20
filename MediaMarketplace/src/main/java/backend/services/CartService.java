@@ -79,7 +79,7 @@ public class CartService {
     }
     
     public Cart getUserCart(User user) {
-    	System.out.println(user.getUserName());
+    	System.out.println(user.getUsername());
     	System.out.println(user.getId());
     	Optional<Cart> cartOpt = cartRepository.findByUser(user);
     	System.out.println(cartOpt);

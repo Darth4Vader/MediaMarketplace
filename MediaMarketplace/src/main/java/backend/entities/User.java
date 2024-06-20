@@ -31,10 +31,12 @@ public class User implements Serializable, UserDetails {
 	private Long id;
 	
 	@Column(name = "user_name", nullable = false, unique = true)
-	private String userName;
+	private String username;
 	
 	@Column(nullable = false)
 	private String password;
+	
+	private String name;
 	
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -53,13 +55,9 @@ public class User implements Serializable, UserDetails {
 	}
 	
 	public User(String userName, String password, Set<Role> authorities) {
-		this.userName = userName;
+		this.username = userName;
 		this.password = password;
 		this.authorities = authorities;
-	}
-	
-	public String getUserName() {
-		return this.userName;
 	}
 
 	@Override
@@ -74,11 +72,23 @@ public class User implements Serializable, UserDetails {
 
 	@Override
 	public String getUsername() {
-		return this.userName;
+		return this.username;
 	}
 
 	public Long getId() {
 		return id;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 }

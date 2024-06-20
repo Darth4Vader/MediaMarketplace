@@ -1,9 +1,11 @@
 package backend.exceptions;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import DataStructures.UserLogInfo;
+import backend.dto.users.UserInformationDto;
 
 public class LogValuesAreIncorrectException extends Exception {
 
@@ -25,6 +27,22 @@ public class LogValuesAreIncorrectException extends Exception {
 		}
 		if(password == null || password.isEmpty())
 			logInfoSet.add(UserLogInfo.PASWORD);
+		if(!logInfoSet.isEmpty())
+			throw new LogValuesAreIncorrectException(logInfoSet, "one or more values are missing");
+	}
+	
+	public static void checkForException(UserInformationDto userInformationDto) throws LogValuesAreIncorrectException {
+		Set<UserLogInfo> logInfoSet = new HashSet<>();
+		String username = userInformationDto.getUsername();
+		String password = userInformationDto.getPassword();
+		String passwordConfirm = userInformationDto.getPasswordConfirm();
+		if(username == null || username.isEmpty()) {
+			logInfoSet.add(UserLogInfo.NAME);
+		}
+		if(password == null || password.isEmpty())
+			logInfoSet.add(UserLogInfo.PASWORD);
+		if(passwordConfirm == null || passwordConfirm.isEmpty())
+			logInfoSet.add(UserLogInfo.PASSWORD_CONFIRM);
 		if(!logInfoSet.isEmpty())
 			throw new LogValuesAreIncorrectException(logInfoSet, "one or more values are missing");
 	}

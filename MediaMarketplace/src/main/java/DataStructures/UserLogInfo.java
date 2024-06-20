@@ -2,5 +2,7 @@ package DataStructures;
 
 public enum UserLogInfo {
 	NAME,
-	PASWORD;
+	PASWORD,
+	PASSWORD_CONFIRM,
+	;
 }

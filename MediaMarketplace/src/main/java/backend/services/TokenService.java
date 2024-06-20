@@ -15,6 +15,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
 import backend.entities.User;
+import backend.exceptions.UserNotLoggedInException;
 
 @Service
 public class TokenService {
@@ -54,8 +55,14 @@ public class TokenService {
     	return (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
     
-    public User getCurretUser() {
-    	return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public User getCurretUser() throws UserNotLoggedInException {
+    	Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    	if(auth == null)
+    		throw new UserNotLoggedInException();
+    	User g = (User) auth.getPrincipal();
+    	System.out.println("User: " + g.getUsername() + " Password: " + g.getPassword() + " Name: " + g.getName());
+    	return g;
+    	//return (User) auth.getPrincipal();
     }
     
     public String getCurrentUserName(String token) {

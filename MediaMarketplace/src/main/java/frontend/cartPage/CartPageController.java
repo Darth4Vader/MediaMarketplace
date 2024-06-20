@@ -1,8 +1,6 @@
 package frontend.cartPage;
 
-import java.io.File;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +13,6 @@ import backend.entities.CartProduct;
 import backend.entities.MediaProduct;
 import backend.entities.MediaPurchased;
 import backend.entities.Order;
-import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
 import backend.repositories.CartProductRepository;
 import frontend.AppUtils;
@@ -128,7 +125,7 @@ public class CartPageController {
 		orderController.placeOrder();
 		List<Order> orders = orderController.getUserOrders();
 		for(Order order : orders) {
-			System.out.println(order.getUser().getUserName());
+			System.out.println(order.getUser().getUsername());
 			System.out.println(order.getTotalPrice());
 			System.out.println(order.getId());
 			for(MediaPurchased purchase : order.getPurchasedItems()) {

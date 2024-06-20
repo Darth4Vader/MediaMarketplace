@@ -1,10 +1,12 @@
 package frontend;
 import java.io.IOException;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.NestedExceptionUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +16,7 @@ import backend.dto.users.LogInDto;
 import backend.dto.users.LogInResponseDto;
 import backend.exceptions.LogValuesAreIncorrectException;
 import backend.exceptions.UserDoesNotExistsException;
+import backend.exceptions.UserNotLoggedInException;
 import backend.exceptions.UserPasswordIsIncorrectException;
 import frontend.auth.LogInUserController;
 import frontend.homePage.HomePageController;
@@ -54,12 +57,38 @@ public class App extends Application {
 	}
 	
 	@Override
-	public void start(Stage stage) throws IOException, UserDoesNotExistsException, UserPasswordIsIncorrectException, LogValuesAreIncorrectException {
+	public void start(Stage stage) throws IOException {
+		Thread curThread = Thread.currentThread();
+		UncaughtExceptionHandler catchExp = curThread.getUncaughtExceptionHandler();
+		curThread.setUncaughtExceptionHandler((thread, throwable) -> {
+			if(isCausedBy(throwable, UserNotLoggedInException.class)) {
+				System.out.println("user is not logged to the system");
+			}
+			else {
+				catchExp.uncaughtException(thread, throwable);
+			}
+			/*Throwable exp = throwable;
+			while(exp != null) {
+				if(exp instanceof UserNotLoggedInException) {
+					break;
+				}
+				exp = exp.getCause();
+			}
+			if(exp == null)
+				catchExp.uncaughtException(thread, throwable);
+			else {
+				System.out.println("user is not logged to the system");
+			}*/
+        });
 		this.stage = stage;
-		
 		UserAuthenticateController userAuth = appContext.getBean(UserAuthenticateController.class);
-		LogInDto dto =new LogInDto("bilbo", "bag");
-		LogInResponseDto d = userAuth.loginUser(dto);
+		LogInDto dto = new LogInDto("bilbo", "Bill");
+		try {
+			LogInResponseDto d = userAuth.loginUser(dto);
+		} catch (UserDoesNotExistsException | UserPasswordIsIncorrectException | LogValuesAreIncorrectException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		//changeStageToFXML(LogInUserController.PATH);
 		changeAppPanel(HomePageController.PATH);
 		this.stage.show();
@@ -71,6 +100,12 @@ public class App extends Application {
 		Scene scene = new Scene(root);
 		stage.setScene(scene);
 		stage.show();*/
+	}
+	
+	private boolean isCausedBy(Throwable caught, Class<? extends Throwable> isOfOrCausedBy) {
+		if (caught == null) return false;
+		else if (isOfOrCausedBy.isAssignableFrom(caught.getClass())) return true;
+	    else return isCausedBy(caught.getCause(), isOfOrCausedBy);
 	}
 	
 	public Parent loadFXML(String fxmlPath) throws IOException {

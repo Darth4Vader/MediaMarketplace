@@ -328,7 +328,7 @@ public class SearchUtils {
         		movieList.add(media);
         	}
         	List<ActorRole> actors = media.getActorsRoles();
-        	List<ActorRole> movieRoles = getActorsList(actors, name, true);
+        	List<ActorRole> movieRoles = null;//getActorsList(actors, name, true);
         	if(!bol)for(ActorRole actor : movieRoles) {
         		Long keyId = actor.getActor().getId();
         		if(!actorKeys.contains(keyId) && !roleKeys.contains(movieId)) {
@@ -346,7 +346,9 @@ public class SearchUtils {
         return mainMap;
 	}
 	
-	@Transactional
+	
+	
+	/*@Transactional
 	public static List<ActorRole> getActorsList(List<ActorRole> actors, String name, boolean b) {
 		List<ActorRole> list = new ArrayList<>();
 		int cur1, cur2;
@@ -372,7 +374,10 @@ public class SearchUtils {
 			}
 		}
 		return list;
-	}
+	}*/
+	
+	
+	
 	
 	/*public static JsonNode loadFile(String path) {
 		ObjectMapper mapper = new ObjectMapper();

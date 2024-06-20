@@ -3,46 +3,29 @@ package frontend.auth;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Set;
-import java.util.function.Predicate;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import DataStructures.UserLogInfo;
 import backend.controllers.UserAuthenticateController;
 import backend.dto.users.LogInDto;
 import backend.dto.users.LogInResponseDto;
-import backend.dto.users.RegisterDto;
 import backend.exceptions.LogValuesAreIncorrectException;
-import backend.exceptions.UserAlreadyExistsException;
 import backend.exceptions.UserDoesNotExistsException;
 import backend.exceptions.UserPasswordIsIncorrectException;
 import backend.services.TokenService;
 import frontend.App;
 import frontend.homePage.HomePageController;
-import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 
 @Component
 public class LogInUserController implements Serializable {
