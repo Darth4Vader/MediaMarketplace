@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import backend.dto.mediaProduct.MediaProductDto;
-import backend.entities.MediaProduct;
+import backend.entities.Movie;
 import backend.entities.User;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
-import backend.services.MediaProductService;
+import backend.services.MovieService;
 import backend.services.UserServiceImpl;
 import jakarta.validation.Valid;
 
@@ -26,12 +26,12 @@ import jakarta.validation.Valid;
 public class MediaProductController {
 
 	@Autowired
-	private MediaProductService mediaProductService; 
+	private MovieService mediaProductService; 
 	
 	@GetMapping("/")
 	@ResponseStatus(code = HttpStatus.OK)
-    public List<MediaProduct> getAllMediaProducts() {
-        List<MediaProduct> body = mediaProductService.getAllMediaProducts();
+    public List<Movie> getAllMediaProducts() {
+        List<Movie> body = mediaProductService.getAllMovies();
         return body;
         //return new ResponseEntity<>(body, HttpStatus.OK);
     }

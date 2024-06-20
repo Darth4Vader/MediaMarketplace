@@ -82,7 +82,7 @@ public class App extends Application {
         });
 		this.stage = stage;
 		UserAuthenticateController userAuth = appContext.getBean(UserAuthenticateController.class);
-		LogInDto dto = new LogInDto("bilbo", "Bill");
+		LogInDto dto = new LogInDto("frodo", "bag");
 		try {
 			LogInResponseDto d = userAuth.loginUser(dto);
 		} catch (UserDoesNotExistsException | UserPasswordIsIncorrectException | LogValuesAreIncorrectException e) {

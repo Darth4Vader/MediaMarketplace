@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import backend.entities.MediaGenre;
+import backend.entities.Genre;
 import backend.entities.User;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.services.MediaGenreService;
@@ -26,13 +26,13 @@ public class MediaGenreController {
 	private MediaGenreService mediaGenreService; 
 	
 	@GetMapping("/")
-    public ResponseEntity<List<MediaGenre>> getAllGenres() {
-        List<MediaGenre> body = mediaGenreService.getAllGenres();
+    public ResponseEntity<List<Genre>> getAllGenres() {
+        List<Genre> body = mediaGenreService.getAllGenres();
         return new ResponseEntity<>(body, HttpStatus.OK);
     }
 	
 	@GetMapping("/create")
-    public ResponseEntity<String> createGenre(@Valid @RequestBody MediaGenre genre) throws EntityAlreadyExistsException {
+    public ResponseEntity<String> createGenre(@Valid @RequestBody Genre genre) throws EntityAlreadyExistsException {
 		mediaGenreService.createGenre(genre);
         return new ResponseEntity<>("Created Successfully", HttpStatus.OK);
     }

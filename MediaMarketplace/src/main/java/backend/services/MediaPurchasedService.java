@@ -10,8 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import backend.entities.Cart;
 import backend.entities.CartProduct;
-import backend.entities.MediaProduct;
-import backend.entities.MediaPurchased;
+import backend.entities.Movie;
+import backend.entities.MoviePurchased;
 import backend.entities.Order;
 import backend.entities.User;
 import backend.repositories.MediaPurchasedRepository;
@@ -23,13 +23,13 @@ public class MediaPurchasedService {
 	@Autowired
 	private MediaPurchasedRepository mediaPurchasedRepository;
 	
-    public List<MediaProduct> getAllActiveMediaProductsOfUser(User user) {
-    	List<MediaPurchased> purchasedList = mediaPurchasedRepository.findByOrderUser(user);
+    public List<Movie> getAllActiveMediaProductsOfUser(User user) {
+    	List<MoviePurchased> purchasedList = mediaPurchasedRepository.findByOrderUser(user);
     	System.out.println(purchasedList);
-    	List<MediaProduct> mediaProducts = new ArrayList<>();
-    	for(MediaPurchased purchased : purchasedList) {
+    	List<Movie> mediaProducts = new ArrayList<>();
+    	for(MoviePurchased purchased : purchasedList) {
     		if(purchased.isUseable()) {
-    			MediaProduct media = purchased.getMediaProduct();
+    			Movie media = purchased.getMovie();
     			if(!mediaProducts.contains(media)) {
     				mediaProducts.add(media);
     			}

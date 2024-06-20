@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import backend.controllers.OrderController;
-import backend.entities.MediaProduct;
-import backend.entities.MediaPurchased;
+import backend.entities.Movie;
+import backend.entities.MoviePurchased;
 import backend.entities.Order;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -34,11 +34,11 @@ public class OrderHistoryController {
 			BorderPane pane = new BorderPane();
 			Label lbl = new Label("Order Number: " + order.getId());
 			VBox orderPanel = new VBox();
-			List<MediaPurchased> orderItems = order.getPurchasedItems();
-			for(MediaPurchased orderItem : orderItems) {
+			List<MoviePurchased> orderItems = order.getPurchasedItems();
+			for(MoviePurchased orderItem : orderItems) {
 				BorderPane itemPane = new BorderPane();
-				MediaProduct product = orderItem.getMediaProduct();
-				Label itemName = new Label(product.getMediaName());
+				Movie product = orderItem.getMovie();
+				Label itemName = new Label(product.getName());
 				Label priceLbl = new Label(""+orderItem.getPurchasePrice());
 				itemPane.setLeft(itemName);
 				itemPane.setRight(priceLbl);

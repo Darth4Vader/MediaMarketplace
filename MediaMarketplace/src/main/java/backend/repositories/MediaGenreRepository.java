@@ -6,15 +6,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import backend.entities.MediaGenre;
-import backend.entities.MediaProduct;
+import backend.entities.Genre;
+import backend.entities.Movie;
 import backend.entities.Role;
 import backend.entities.User;
 
 @Repository
-public interface MediaGenreRepository extends JpaRepository<MediaGenre, Long> {
+public interface MediaGenreRepository extends JpaRepository<Genre, Long> {
 	
-	Optional<MediaGenre> findByGenreName(@Param("genre_name") String genreName);
+	//Optional<MediaGenre> findByGenreName(@Param("genre_name") String genreName);
 	
-	Optional<MediaGenre> findByGenreID(@Param("genre_id") String genreID);
+	Optional<Genre> findByName(String name);
+	
+	//Optional<MediaGenre> findByGenreID(@Param("genre_id") String genreID);
 }

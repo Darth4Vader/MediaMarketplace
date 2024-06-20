@@ -14,14 +14,16 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 
 @Entity
-@Table(name = "media_products")
-public class MediaProduct {
+@Table(name = "movies")
+public class Movie {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,36 +32,34 @@ public class MediaProduct {
 	@Column(name = "media_id", nullable = false, unique = true)
 	private String mediaID;
 	
-	@Column(name = "media_name", nullable = false)
 	@NotBlank
-	private String mediaName;
+	private String name;
 	
 	@Column(name = "image_path")
 	private String imagePath;
-	
-	@Column(nullable = false)
-	@NotBlank
-	private double price;
 	
 	@Column(length = 1000)
 	private String synopsis;
 	
 	private String year;
 	
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "media", cascade = CascadeType.ALL)
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "movie", cascade = CascadeType.ALL)
 	private List<Director> directors;
 	
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "media", cascade = CascadeType.ALL)
-	//@JoinColumn(name = "actors_roles_id")
-	private List<ActorRole> actorsRoles;
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "movie", cascade = CascadeType.ALL)
+	private List<Actor> actorsRoles;
 	
-	//@ManyToOne(targetEntity=MediaGenre.class, fetch = FetchType.LAZY, optional = false)
-	//@JoinColumn(name = "genre_id", nullable = false)
-	@OneToMany(fetch = FetchType.LAZY, targetEntity = MediaGenre.class)
-	@JoinColumn(name = "genres", insertable = false, updatable = false)
-	private List<MediaGenre> genres;
+	//@OneToMany(fetch = FetchType.LAZY, targetEntity = MediaGenre.class)
+	//@JoinColumn(name = "genres", insertable = false, updatable = false)
+	//@OneToMany(fetch = FetchType.LAZY, mappedBy = "media", cascade = CascadeType.ALL)
+	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "movie_genres",
+            joinColumns = @JoinColumn(name = "movie_id"),
+            inverseJoinColumns = @JoinColumn(name = "genre_id"))
+	private List<Genre> genres;
 
-	public MediaProduct() {
+	public Movie() {
 		this.actorsRoles = new ArrayList<>();
 	}
 
@@ -71,19 +71,15 @@ public class MediaProduct {
 		return mediaID;
 	}
 
-	public String getMediaName() {
-		return mediaName;
+	public String getName() {
+		return name;
 	}
 
 	public String getImagePath() {
 		return imagePath;
 	}
 
-	public double getPrice() {
-		return price;
-	}
-
-	public List<MediaGenre> getGenres() {
+	public List<Genre> getGenres() {
 		return genres;
 	}
 
@@ -95,19 +91,15 @@ public class MediaProduct {
 		this.mediaID = mediaID;
 	}
 
-	public void setMediaName(String mediaName) {
-		this.mediaName = mediaName;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public void setImagePath(String imagePath) {
 		this.imagePath = imagePath;
 	}
 
-	public void setPrice(double price) {
-		this.price = price;
-	}
-
-	public void setGenres(List<MediaGenre> genres) {
+	public void setGenres(List<Genre> genres) {
 		this.genres = genres;
 	}
 
@@ -123,7 +115,7 @@ public class MediaProduct {
 		return year;
 	}
 
-	public List<ActorRole> getActorsRoles() {
+	public List<Actor> getActorsRoles() {
 		return actorsRoles;
 	}
 
@@ -144,7 +136,7 @@ public class MediaProduct {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		MediaProduct other = (MediaProduct) obj;
+		Movie other = (Movie) obj;
 		return Objects.equals(id, other.id);
 	}
 	

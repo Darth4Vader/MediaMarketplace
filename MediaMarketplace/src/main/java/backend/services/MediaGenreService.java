@@ -13,7 +13,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
-import backend.entities.MediaGenre;
+import backend.entities.Genre;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
 import backend.repositories.MediaGenreRepository;
@@ -24,23 +24,23 @@ public class MediaGenreService {
     @Autowired
     private MediaGenreRepository mediaGenreRepository;
     
-    public List<MediaGenre> getAllGenres() {
+    public List<Genre> getAllGenres() {
     	return mediaGenreRepository.findAll();
     }
 	
-    public void createGenre(MediaGenre genre) throws EntityAlreadyExistsException {
-    	String genreID = genre.getGenreID();
+    public void createGenre(Genre genre) throws EntityAlreadyExistsException {
+    	String name = genre.getName();
     	try {	
-    		getGenreByID(genreID);
-    		throw new EntityAlreadyExistsException("The Genre with id: ("+genreID+") does already exists");
+    		getGenreByName(name);
+    		throw new EntityAlreadyExistsException("The Genre with id: ("+name+") does already exists");
     	}
     	catch (EntityNotFoundException e) {}
     	mediaGenreRepository.save(genre);
     }
     
-    public MediaGenre getGenreByID(String genreID) throws EntityNotFoundException {
-    	return mediaGenreRepository.findByGenreID(genreID).
-    			orElseThrow(() -> new EntityNotFoundException("The Genre with id: ("+genreID+") does not exists"));
+    public Genre getGenreByName(String genreName) throws EntityNotFoundException {
+    	return mediaGenreRepository.findByName(genreName).
+    			orElseThrow(() -> new EntityNotFoundException("The Genre with name: ("+genreName+") does not exists"));
     }
     
 }

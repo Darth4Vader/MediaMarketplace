@@ -1,6 +1,7 @@
 package backend.entities;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -23,8 +24,8 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 
 @Entity
-@Table(name = "media_purchased")
-public class MediaPurchased {
+@Table(name = "movie_purchased")
+public class MoviePurchased {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,19 +37,25 @@ public class MediaPurchased {
 	@Column(name = "purchased_date", nullable = false)
 	private Date purchaseDate;
 	
-	@Column(name = "expiration_date", nullable = false)
-	private Date expirationDate;
+	@Column(name = "is_rented")
+	private boolean isRented;
+	
+	@Column(name = "rent_time")
+	private LocalDateTime rentTime;
+	
+	/*@Column(name = "expiration_date", nullable = false)
+	private Date expirationDate;*/
 	
     @ManyToOne
-    @JoinColumn(name = "media_product_id", referencedColumnName = "id", nullable = false)
-    private MediaProduct mediaProduct;
+    @JoinColumn(name = "movie_id", referencedColumnName = "id", nullable = false)
+    private Movie movie;
     
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     //@JsonIgnore
-    @JoinColumn(name = "order_id")
+    @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
-	public MediaPurchased() {
+	public MoviePurchased() {
 		Date date = null;
 		//Calendar c = Calendar.Builder().
 	}
@@ -61,8 +68,8 @@ public class MediaPurchased {
 		return purchasePrice;
 	}
 
-	public MediaProduct getMediaProduct() {
-		return mediaProduct;
+	public Movie getMovie() {
+		return movie;
 	}
 
 	public Order getOrder() {
@@ -77,8 +84,8 @@ public class MediaPurchased {
 		this.purchasePrice = purchasePrice;
 	}
 
-	public void setMediaProduct(MediaProduct mediaProduct) {
-		this.mediaProduct = mediaProduct;
+	public void setMovie(Movie movie) {
+		this.movie = movie;
 	}
 
 	public void setOrder(Order order) {
@@ -93,7 +100,8 @@ public class MediaPurchased {
 	}
 
 	public Date getExpirationDate() {
-		return expirationDate;
+		return null;
+		//return expirationDate;
 	}
 
 	public void setPurchaseDate(@Nonnull Date purchaseDate) {
@@ -101,11 +109,12 @@ public class MediaPurchased {
 	    Calendar cal = Calendar.getInstance();
 	    cal.setTime(purchaseDate);
 	    cal.add(Calendar.MINUTE, 1);
-		this.expirationDate = cal.getTime();
+		//this.expirationDate = cal.getTime();
 	}
 	
 	public boolean isUseable() {
-		return new Date().before(expirationDate);
+		return false;
+		//return new Date().before(expirationDate);
 	}
 
 }

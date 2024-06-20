@@ -3,6 +3,8 @@ package backend.entities;
 import java.util.Date;
 import java.util.List;
 
+import jakarta.annotation.Nonnull;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -22,6 +24,7 @@ public class Person {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
+	@Column(nullable = false)
 	@NotBlank
 	private String name;
 	
@@ -31,11 +34,15 @@ public class Person {
 	@Column(name = "birth_date")
 	private Date birthDate;
 	
-	@OneToMany(fetch = FetchType.EAGER, targetEntity = ActorRole.class)
-	@JoinColumn(name = "actor_roles")
-	private List<ActorRole> actorRoles;
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "actor", cascade = CascadeType.ALL)
+	//@JoinColumn(name = "actors_roles_id")
+	private List<Actor> actorRoles;
+	
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "director", cascade = CascadeType.ALL)
+	//@JoinColumn(name = "actors_roles_id")
+	private List<Director> directedMedia;
 
-	public Person(Long id, @NotBlank String name, List<ActorRole> actorRoles) {
+	public Person(Long id, @NotBlank String name, List<Actor> actorRoles) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -50,7 +57,7 @@ public class Person {
 		return name;
 	}
 
-	public List<ActorRole> getActorRoles() {
+	public List<Actor> getActorRoles() {
 		return actorRoles;
 	}
 
@@ -62,7 +69,7 @@ public class Person {
 		this.name = name;
 	}
 
-	public void setActorRoles(List<ActorRole> actorRoles) {
+	public void setActorRoles(List<Actor> actorRoles) {
 		this.actorRoles = actorRoles;
 	}
 	

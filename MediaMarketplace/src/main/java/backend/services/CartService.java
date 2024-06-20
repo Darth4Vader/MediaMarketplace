@@ -18,8 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import backend.dto.cart.AddProductToCartDto;
 import backend.entities.Cart;
 import backend.entities.CartProduct;
-import backend.entities.MediaGenre;
-import backend.entities.MediaProduct;
+import backend.entities.Genre;
+import backend.entities.Movie;
 import backend.entities.User;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
@@ -38,7 +38,7 @@ public class CartService {
     private CartProductRepository cartProductRepository;
     
     @Autowired
-    private MediaProductService productService;
+    private MovieService productService;
     
     public List<CartProduct> getCartProducts(User user) {
     	Cart cart = getUserCart(user);
@@ -47,7 +47,7 @@ public class CartService {
     
     @Transactional
     public void addProductToCart(AddProductToCartDto dto, User user) throws EntityNotFoundException, EntityAlreadyExistsException {
-    	MediaProduct product = productService.getMediaByID(dto.getProductId());
+    	Movie product = productService.getMediaByID(dto.getProductId());
     	Cart cart = getUserCart(user);
     	List<CartProduct> cartProducts = cart.getCartProducts();
     	System.out.println(cartProducts);
@@ -58,14 +58,15 @@ public class CartService {
     		if(cartProduct.getProduct().equals(product))
     			throw new EntityAlreadyExistsException("The product is already in the cart");
     	}
-    	CartProduct cartProduct = new CartProduct(product, cart);
+    	//update
+    	/*CartProduct cartProduct = new CartProduct(product, cart);
     	cartProductRepository.save(cartProduct);
-    	cartProducts.add(cartProduct);
+    	cartProducts.add(cartProduct);*/
     }
     
     @Transactional
     public void removeProductFromCart(AddProductToCartDto dto, User user) throws EntityNotFoundException {
-    	MediaProduct product = productService.getMediaByID(dto.getProductId());
+    	Movie product = productService.getMediaByID(dto.getProductId());
     	Cart cart = getUserCart(user);
     	List<CartProduct> cartProducts = cart.getCartProducts();
     	for(CartProduct cartProduct : cartProducts) {

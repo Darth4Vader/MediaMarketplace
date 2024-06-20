@@ -19,13 +19,13 @@ import backend.ActivateSpringApplication;
 import backend.controllers.MediaGenreController;
 import backend.controllers.MediaProductController;
 import backend.dto.mediaProduct.MediaProductDto;
-import backend.entities.MediaGenre;
-import backend.entities.MediaProduct;
+import backend.entities.Genre;
+import backend.entities.Movie;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
 import backend.repositories.MediaGenreRepository;
-import backend.repositories.MediaProductRepository;
-import backend.services.MediaProductService;
+import backend.repositories.MovieRepository;
+import backend.services.MovieService;
 
 public class createDatabaseFromJSONData {
 	

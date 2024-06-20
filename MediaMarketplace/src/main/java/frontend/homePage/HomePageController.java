@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import backend.controllers.CartController;
 import backend.controllers.MediaProductController;
 import backend.dto.cart.AddProductToCartDto;
-import backend.entities.MediaProduct;
+import backend.entities.Movie;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
 import backend.services.TokenService;
@@ -69,9 +69,9 @@ public class HomePageController {
 		/*for(ColumnConstraints cc : gridPane.getColumnConstraints())
 			cc.setPercentWidth(100/5);*/
 			//cc.setPercentHeight(0.3);
-		List<MediaProduct> resp = productController.getAllMediaProducts();
+		List<Movie> resp = productController.getAllMediaProducts();
 		List<String> paths = new ArrayList<>();
-		for(MediaProduct product : resp) {
+		for(Movie product : resp) {
 			//paths.add(new File(product.getImagePath()).toURI().toURL().toExternalForm());
 		//}
 		//list = paths.toArray(new String[paths.size()]);
@@ -88,7 +88,7 @@ public class HomePageController {
 			//view.fitWidthProperty().bind(gridPane.getColumnConstraints().get(currentCols).prefWidthProperty());
 			//view.fitHeightProperty().bind(gridPane.getRowConstraints().get(row).prefHeightProperty());
 			b.setCenter(view);
-			Label name = new Label(product.getMediaName());
+			Label name = new Label(product.getName());
 			b.setBottom(name);
 			//b.prefWidthProperty().bind(mainPane.widthProperty());
 			//b.maxWidthProperty().bind(mainPane.heightProperty().multiply(0.4));

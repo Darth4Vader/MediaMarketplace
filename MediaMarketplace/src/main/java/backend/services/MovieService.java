@@ -15,23 +15,23 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
 import backend.dto.mediaProduct.MediaProductDto;
-import backend.entities.MediaGenre;
-import backend.entities.MediaProduct;
+import backend.entities.Genre;
+import backend.entities.Movie;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
-import backend.repositories.MediaProductRepository;
+import backend.repositories.MovieRepository;
 
 @Service
-public class MediaProductService {
+public class MovieService {
 	
     @Autowired
-    private MediaProductRepository mediaProductRepository;
+    private MovieRepository movieRepository;
     
     @Autowired
     private MediaGenreService mediaGenreService;
     
-    public List<MediaProduct> getAllMediaProducts() {
-    	return mediaProductRepository.findAll();
+    public List<Movie> getAllMovies() {
+    	return movieRepository.findAll();
     }
 	
     public void addMediaProduct(MediaProductDto mediaDto) throws EntityAlreadyExistsException, EntityNotFoundException {
@@ -42,38 +42,37 @@ public class MediaProductService {
     	}
     	catch (EntityNotFoundException e) {}
 		List<String> genres = mediaDto.getGenresIDList();
-		List<MediaGenre> list = new ArrayList<>();
+		List<Genre> list = new ArrayList<>();
 		for(String genre : genres) {
 			try {
-				String genreID = MediaGenre.convertGenreNameToID(genre);
-				list.add(mediaGenreService.getGenreByID(genreID));
+				list.add(mediaGenreService.getGenreByName(genre));
 			}
     		catch (EntityNotFoundException e) {
     			throw new EntityNotFoundException("MediaProductService.addMediaProduct: The Genre with id: ("+genre+") does not exists");
 			}
 		}
-		MediaProduct mediaProduct = getProductFromDto(mediaDto, list);
-    	mediaProductRepository.save(mediaProduct);
+		Movie mediaProduct = getProductFromDto(mediaDto, list);
+    	movieRepository.save(mediaProduct);
     }
     
-    public static MediaProduct getProductFromDto(MediaProductDto mediaDto, List<MediaGenre> genres) {
-        MediaProduct product = new MediaProduct();
+    public static Movie getProductFromDto(MediaProductDto mediaDto, List<Genre> genres) {
+        Movie product = new Movie();
         product.setMediaID(mediaDto.getMediaID());
         product.setSynopsis(mediaDto.getSynopsis());
         product.setImagePath(mediaDto.getImagePath());
-        product.setPrice(mediaDto.getPrice());
-        product.setMediaName(mediaDto.getMediaName());
+        //product.setPrice(mediaDto.getPrice());
+        product.setName(mediaDto.getMediaName());
         product.setGenres(genres);
         return product;
     }
     
-    public MediaProduct getMediaByNameID(String mediaID) throws EntityNotFoundException {
-    	return mediaProductRepository.findByMediaID(mediaID).
+    public Movie getMediaByNameID(String mediaID) throws EntityNotFoundException {
+    	return movieRepository.findByMediaID(mediaID).
     			orElseThrow(() -> new EntityNotFoundException("The MediaProduct with id: ("+mediaID+") does not exists"));
     }
     
-    public MediaProduct getMediaByID(Long id) throws EntityNotFoundException {
-    	return mediaProductRepository.findById(id).
+    public Movie getMediaByID(Long id) throws EntityNotFoundException {
+    	return movieRepository.findById(id).
     			orElseThrow(() -> new EntityNotFoundException("The MediaProduct with id: ("+id+") does not exists"));
     }
     

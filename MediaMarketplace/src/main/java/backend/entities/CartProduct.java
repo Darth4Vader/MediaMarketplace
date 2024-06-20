@@ -2,6 +2,9 @@ package backend.entities;
 
 import java.util.List;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.CascadeType;
@@ -25,18 +28,23 @@ public class CartProduct {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@ManyToOne
-	@JoinColumn(name = "product_id", referencedColumnName = "id", nullable = false)
-	private MediaProduct product;
+	@JoinColumn(name = "is_buying", nullable = false)
+	private boolean isBuying;
+	
+	//not working, not deleting, check google bookmark from jan 29 2024
+	@ManyToOne(cascade = CascadeType.REFRESH)
+	@JoinColumn(name = "product_id", nullable = false)
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	private Product product;
 	
 	@ManyToOne
-	@JoinColumn(name = "cart_id", referencedColumnName = "id")
+	@JoinColumn(name = "cart_id", referencedColumnName = "id", nullable = false)
 	private Cart cart;
 
 	public CartProduct() {
 	}
 
-	public CartProduct(MediaProduct product, Cart cart) {
+	public CartProduct(Product product, Cart cart) {
 		this.product = product;
 		this.cart = cart;
 	}
@@ -45,7 +53,7 @@ public class CartProduct {
 		return id;
 	}
 
-	public MediaProduct getProduct() {
+	public Product getProduct() {
 		return product;
 	}
 
@@ -57,7 +65,7 @@ public class CartProduct {
 		this.id = id;
 	}
 
-	public void setProduct(MediaProduct product) {
+	public void setProduct(Product product) {
 		this.product = product;
 	}
 

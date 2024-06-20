@@ -5,14 +5,14 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import backend.entities.MediaPurchased;
+import backend.entities.MoviePurchased;
 import backend.entities.Order;
 import backend.entities.User;
 
 @Repository
-public interface MediaPurchasedRepository extends JpaRepository<MediaPurchased, Long> {
+public interface MediaPurchasedRepository extends JpaRepository<MoviePurchased, Long> {
 	
-	List<MediaPurchased> findByOrder(Order order);
+	List<MoviePurchased> findByOrder(Order order);
 	
-	List<MediaPurchased> findByOrderUser(User user);
+	List<MoviePurchased> findByOrderUser(User user);
 }

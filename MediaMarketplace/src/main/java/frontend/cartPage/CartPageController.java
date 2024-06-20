@@ -10,8 +10,8 @@ import backend.controllers.CartController;
 import backend.controllers.OrderController;
 import backend.dto.cart.AddProductToCartDto;
 import backend.entities.CartProduct;
-import backend.entities.MediaProduct;
-import backend.entities.MediaPurchased;
+import backend.entities.Movie;
+import backend.entities.MoviePurchased;
 import backend.entities.Order;
 import backend.exceptions.EntityNotFoundException;
 import backend.repositories.CartProductRepository;
@@ -79,7 +79,7 @@ public class CartPageController {
 		emptyLabel.visibleProperty().bind(cartItems.visibleProperty().not());
 		List<CartProduct> resp = cartController.getCartProducts();
 		for(CartProduct cartProduct : resp) {
-			MediaProduct product = cartProduct.getProduct();
+			Movie product = null;//cartProduct.getProduct();
 			ImageView view = AppUtils.loadImageFromClass(product.getImagePath());
 			view.setPreserveRatio(true);
 			//Button view = new Button();
@@ -92,7 +92,7 @@ public class CartPageController {
 			//view.fitWidthProperty().bind(gridPane.getColumnConstraints().get(currentCols).prefWidthProperty());
 			//view.fitHeightProperty().bind(gridPane.getRowConstraints().get(row).prefHeightProperty());
 			b.setCenter(view);
-			Label name = new Label(product.getMediaName());
+			Label name = new Label(product.getName());
 			b.setBottom(name);
 			//b.prefWidthProperty().bind(mainPane.widthProperty());
 			//b.maxWidthProperty().bind(mainPane.heightProperty().multiply(0.4));
@@ -108,7 +108,7 @@ public class CartPageController {
 					cartItems.getChildren().remove(b);
 					List<CartProduct> listt = cartProductRepository.findAll();
 					for(CartProduct car : listt) {
-						System.out.println(car.getCart().getUser().getUsername() + " " + car.getProduct().getMediaName());
+						//System.out.println(car.getCart().getUser().getUsername() + " " + car.getProduct().getName());
 					}
 				} catch (EntityNotFoundException e1) {
 					// TODO Auto-generated catch block
@@ -128,8 +128,8 @@ public class CartPageController {
 			System.out.println(order.getUser().getUsername());
 			System.out.println(order.getTotalPrice());
 			System.out.println(order.getId());
-			for(MediaPurchased purchase : order.getPurchasedItems()) {
-				System.out.println(purchase.getMediaProduct().getMediaName());
+			for(MoviePurchased purchase : order.getPurchasedItems()) {
+				System.out.println(purchase.getMovie().getName());
 			}
 		}
 	}

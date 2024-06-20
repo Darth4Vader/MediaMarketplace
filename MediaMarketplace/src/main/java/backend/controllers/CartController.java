@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import backend.dto.cart.AddProductToCartDto;
 import backend.entities.Cart;
 import backend.entities.CartProduct;
-import backend.entities.MediaGenre;
+import backend.entities.Genre;
 import backend.entities.User;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;

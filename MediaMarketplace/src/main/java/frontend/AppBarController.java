@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
-import backend.entities.MediaProduct;
+import backend.entities.Movie;
 import frontend.cartPage.CartPageController;
 import frontend.homePage.HomePageController;
 import frontend.userPage.UserPageController;
@@ -45,7 +45,7 @@ public class AppBarController {
 		List<?> movies = (List<?>) movie.get("Movies");
 		VBox box = new VBox();
 		for(Object obj : movies) {
-			MediaProduct product = (MediaProduct) obj;
+			Movie product = (Movie) obj;
 			ImageView view = AppUtils.loadImageFromClass(product.getImagePath());
 			view.setPreserveRatio(true);
 			//Button view = new Button();
@@ -58,7 +58,7 @@ public class AppBarController {
 			//view.fitWidthProperty().bind(gridPane.getColumnConstraints().get(currentCols).prefWidthProperty());
 			//view.fitHeightProperty().bind(gridPane.getRowConstraints().get(row).prefHeightProperty());
 			//b.setCenter(view);
-			Label name = new Label(product.getMediaName());
+			Label name = new Label(product.getName());
 			b.setBottom(name);
 			box.getChildren().add(b);
 			

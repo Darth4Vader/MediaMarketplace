@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import backend.entities.Actor;
-import backend.entities.MediaGenre;
+import backend.entities.Genre;
 import backend.entities.User;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.services.ActorService;

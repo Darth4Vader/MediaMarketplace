@@ -20,42 +20,30 @@ public class Director {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@Column(name = "role_name", nullable = false)
-	@NotBlank
-	private String roleName;
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "movie_id", nullable = false)
+	private Movie movie;
 	
     @ManyToOne
     @JsonIgnore
-    @JoinColumn(name = "media_id", referencedColumnName = "id", nullable = false)
-	private MediaProduct media;
-	
-    @ManyToOne
-    @JsonIgnore
-    @JoinColumn(name = "director_id", nullable = false)
+    @JoinColumn(name = "person_id", nullable = false)
 	private Person director;
 
 	public Long getId() {
 		return id;
 	}
 
-	public String getRoleName() {
-		return roleName;
-	}
-
-	public MediaProduct getMedia() {
-		return media;
+	public Movie getMedia() {
+		return movie;
 	}
 
 	public Person getDirector() {
 		return director;
 	}
 
-	public void setRoleName(String roleName) {
-		this.roleName = roleName;
-	}
-
-	public void setMedia(MediaProduct media) {
-		this.media = media;
+	public void setMedia(Movie media) {
+		this.movie = media;
 	}
 
 	public void setDirector(Person director) {

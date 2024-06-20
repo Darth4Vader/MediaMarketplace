@@ -10,8 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import backend.entities.Cart;
 import backend.entities.CartProduct;
-import backend.entities.MediaProduct;
-import backend.entities.MediaPurchased;
+import backend.entities.Movie;
+import backend.entities.MoviePurchased;
 import backend.entities.Order;
 import backend.entities.User;
 import backend.repositories.MediaPurchasedRepository;
@@ -41,12 +41,12 @@ public class OrderService {
     	double totalPrice = 0;
     	Order order = new Order();
     	for(CartProduct cartProduct : cartProducts) {
-    		MediaPurchased orderItem = new MediaPurchased();
-    		MediaProduct product = cartProduct.getProduct();
+    		MoviePurchased orderItem = new MoviePurchased();
+    		/*Movie product = cartProduct.getProduct();
     		double price = product.getPrice();
     		orderItem.setMediaProduct(product);
     		orderItem.setPurchasePrice(price);
-    		totalPrice += price;
+    		totalPrice += price;*/
     		order.addToPurchasedItems(orderItem);
     	}
     	order.setPurchasedDate(new Date());

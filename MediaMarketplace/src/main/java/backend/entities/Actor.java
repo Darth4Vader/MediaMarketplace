@@ -43,13 +43,11 @@ public class Actor {
 	private String roleName;
 	
     @ManyToOne
-    @JsonIgnore
-    @JoinColumn(name = "media_id", referencedColumnName = "id", nullable = false)
-	private MediaProduct media;
+    @JoinColumn(name = "movie_id", referencedColumnName = "id", nullable = false)
+	private Movie movie;
 	
     @ManyToOne
-    @JsonIgnore
-    @JoinColumn(name = "actor_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "person_id", referencedColumnName = "id", nullable = false)
 	private Person actor;
 
 	public Long getId() {
@@ -60,8 +58,8 @@ public class Actor {
 		return roleName;
 	}
 
-	public MediaProduct getMedia() {
-		return media;
+	public Movie getMedia() {
+		return movie;
 	}
 
 	public Person getActor() {
@@ -72,8 +70,8 @@ public class Actor {
 		this.roleName = roleName;
 	}
 
-	public void setMedia(MediaProduct media) {
-		this.media = media;
+	public void setMedia(Movie media) {
+		this.movie = media;
 	}
 
 	public void setActor(Person actor) {

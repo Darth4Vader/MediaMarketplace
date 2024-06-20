@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import backend.controllers.MediaPurchasedController;
-import backend.entities.MediaProduct;
+import backend.entities.Movie;
 import frontend.AppUtils;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -41,8 +41,8 @@ public class MediaLibraryController {
 		final int cols = gridPane.getColumnCount();
 		int row = 0;
 		int currentCols = 0;
-		List<MediaProduct> resp = mediaPurchasedController.getAllActiveMediaProductsOfUser();
-		for(MediaProduct product : resp) {
+		List<Movie> resp = mediaPurchasedController.getAllActiveMediaProductsOfUser();
+		for(Movie product : resp) {
 			//paths.add(new File(product.getImagePath()).toURI().toURL().toExternalForm());
 		//}
 		//list = paths.toArray(new String[paths.size()]);
@@ -59,7 +59,7 @@ public class MediaLibraryController {
 			//view.fitWidthProperty().bind(gridPane.getColumnConstraints().get(currentCols).prefWidthProperty());
 			//view.fitHeightProperty().bind(gridPane.getRowConstraints().get(row).prefHeightProperty());
 			b.setCenter(view);
-			Label name = new Label(product.getMediaName());
+			Label name = new Label(product.getName());
 			b.setBottom(name);
 			//b.prefWidthProperty().bind(mainPane.widthProperty());
 			//b.maxWidthProperty().bind(mainPane.heightProperty().multiply(0.4));

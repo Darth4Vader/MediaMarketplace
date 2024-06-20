@@ -23,9 +23,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import backend.controllers.ActorController;
 import backend.controllers.MediaProductController;
 import backend.entities.Actor;
-import backend.entities.ActorRole;
-import backend.entities.MediaProduct;
-import backend.services.MediaProductService;
+import backend.entities.Movie;
+import backend.services.MovieService;
 import jakarta.transaction.Transactional;
 
 @Component
@@ -310,14 +309,14 @@ public class SearchUtils {
 	private static ActorController actorController;
 	
 	public static Map<String, List<?>> searchMoviesSort(String name) {
-		List<MediaProduct> movieList = new ArrayList<>();
-		List<MediaProduct> roleList = new ArrayList<>();
+		List<Movie> movieList = new ArrayList<>();
+		List<Movie> roleList = new ArrayList<>();
 		Set<Object> roleKeys = new HashSet<>();
 		Set<Object> actorKeys = new HashSet<>();
 		List<Actor> actorList = new ArrayList<>();
-    	List<MediaProduct> list = mediaProductController.getAllMediaProducts();
-    	for(MediaProduct media : list) { 
-    		String movieName = media.getMediaName();
+    	List<Movie> list = mediaProductController.getAllMediaProducts();
+    	for(Movie media : list) { 
+    		String movieName = media.getName();
         	String movieId = ""+media.getId();
         	//if(sortMovieQualify(media, sortByList)) {
         	//movie name
@@ -327,9 +326,9 @@ public class SearchUtils {
         		bol = true;
         		movieList.add(media);
         	}
-        	List<ActorRole> actors = media.getActorsRoles();
-        	List<ActorRole> movieRoles = null;//getActorsList(actors, name, true);
-        	if(!bol)for(ActorRole actor : movieRoles) {
+        	List<Actor> actors = media.getActorsRoles();
+        	List<Actor> movieRoles = null;//getActorsList(actors, name, true);
+        	if(!bol)for(Actor actor : movieRoles) {
         		Long keyId = actor.getActor().getId();
         		if(!actorKeys.contains(keyId) && !roleKeys.contains(movieId)) {
         			roleKeys.add(movieId);

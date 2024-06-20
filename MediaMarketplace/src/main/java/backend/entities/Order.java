@@ -31,12 +31,12 @@ public class Order {
 	@Column(name = "total_price")
 	private double totalPrice;
 	
-	@Column(name = "purchased_price")
+	@Column(name = "purchased_price", nullable = false)
 	private Date purchasedDate;
 	
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "order", cascade = CascadeType.ALL)
 	//@JoinColumn(name = "media_purchased_id", insertable = false, updatable = false)
-	private List<MediaPurchased> purchasedItems;
+	private List<MoviePurchased> purchasedItems;
 	
 	@ManyToOne
 	@JoinColumn(name = "user_id", referencedColumnName = "id")
@@ -58,7 +58,7 @@ public class Order {
 		return purchasedDate;
 	}
 
-	public List<MediaPurchased> getPurchasedItems() {
+	public List<MoviePurchased> getPurchasedItems() {
 		return purchasedItems;
 	}
 
@@ -76,11 +76,11 @@ public class Order {
 
 	public void setPurchasedDate(Date purchasedDate) {
 		this.purchasedDate = purchasedDate;
-		for(MediaPurchased purchased : this.purchasedItems)
+		for(MoviePurchased purchased : this.purchasedItems)
 			purchased.setPurchaseDate(purchasedDate);
 	}
 
-	public void addToPurchasedItems(MediaPurchased purchasedItems) {
+	public void addToPurchasedItems(MoviePurchased purchasedItems) {
 		this.purchasedItems.add(purchasedItems);
 		purchasedItems.setOrder(this);
 	}
