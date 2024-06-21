@@ -9,21 +9,22 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
-/*import Interface.helpAction;
+import Interface.helpAction;
 import MediaData.CreateMovie;
 import MediaData.MediaSimple;
 import MediaData.MediaUtils;
 import MediaData.Movie;
-import MediaData.CreateData.TmdbGoogleScrapper;*/
+import MediaData.CreateData.TmdbGoogleScrapper;
 import backend.ActivateSpringApplication;
-import backend.controllers.MediaGenreController;
-import backend.controllers.MediaProductController;
-import backend.dto.mediaProduct.MediaProductDto;
+import backend.controllers.GenreController;
+import backend.controllers.MovieController;
+import backend.controllers.ProductController;
+import backend.dto.mediaProduct.MovieDto;
+import backend.dto.mediaProduct.ProductDto;
 import backend.entities.Genre;
-import backend.entities.Movie;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
-import backend.repositories.MediaGenreRepository;
+import backend.repositories.GenreRepository;
 import backend.repositories.MovieRepository;
 import backend.services.MovieService;
 
@@ -33,14 +34,17 @@ public class createDatabaseFromJSONData {
 	
 	public static void main(String... args) throws BeansException, Exception {
 		
-		//context = ActivateSpringApplication.create(args);
-		//addGenres();
-		//addMovies();
-		//validateMovies();
+		context = ActivateSpringApplication.create(args);
+		addGenres();
+		addMovies();
+		addProducts();
+		validateMovies();
+		
+		//validateMovies0222();
 	}
 	
-	/*public static void addGenres() throws IOException {
-		MediaGenreController genreRep = context.getBean(MediaGenreController.class);
+	public static void addGenres() throws IOException {
+		GenreController genreRep = context.getBean(GenreController.class);
 		System.out.println(genreRep.getAllGenres());
 		
 		
@@ -51,7 +55,7 @@ public class createDatabaseFromJSONData {
 			List<String> genres = movie.getGenres();
 			if(genres != null) for(String genre : genres) {
 				try {
-					genreRep.createGenre(new MediaGenre(genre));
+					genreRep.createGenre(genre);
 				}
 				catch (Exception e) {
 					System.err.println(e.getMessage());
@@ -61,28 +65,42 @@ public class createDatabaseFromJSONData {
 	}
 	
 	public static void addMovies() throws IOException {
-		MediaProductController mediaCont = context.getBean(MediaProductController.class);
+		MovieController movieController = context.getBean(MovieController.class);
 		List<Movie> list = MediaUtils.getAll(Movie.class);
-		
-		System.out.println(mediaCont.getAllMediaProducts());
-		
 		for(Movie movie : list) {
-	        MediaProductDto mediaDto = new MediaProductDto();
+	        MovieDto mediaDto = new MovieDto();
 	        mediaDto.setMediaID(movie.getTmdbID());
 	        mediaDto.setSynopsis(movie.getSynopsis());
 	        mediaDto.setImagePath("posters/"+movie.getImdbID()+".jpg");
 	        //mediaDto.setPrice(mediaDto.getPrice());
 	        mediaDto.setMediaName(movie.getName());
 	        mediaDto.setGenres(movie.getGenres());
-	        mediaDto.setPrice("10");
+	        //mediaDto.setPrice("10");
 	        try {
 	        	System.out.println(movie.getName());
 	        	System.out.println(mediaDto.getMediaID());
 	        	System.out.println(movie.getGenres());
-				mediaCont.addMediaProduct(mediaDto);
+				movieController.addMediaProduct(mediaDto);
 			} catch (EntityAlreadyExistsException e) {
 				// TODO Auto-generated catch block
 				//e.printStackTrace();
+			} catch (EntityNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public static void addProducts() throws IOException {
+		MovieController movieController = context.getBean(MovieController.class);
+		ProductController productController = context.getBean(ProductController.class);
+		for(backend.entities.Movie movie : movieController.getAllMovies()) {
+	        ProductDto productDto = new ProductDto();
+	        productDto.setBuyPrice(0);
+	        productDto.setRentPrice(0);
+	        productDto.setMovieId(movie.getId());
+	        try {
+				productController.addProduct(productDto);
 			} catch (EntityNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -101,11 +119,11 @@ public class createDatabaseFromJSONData {
 	public static final String ANSI_WHITE = "\u001B[37m";
 	
 	public static void validateMovies() throws IOException, EntityNotFoundException {
-		MediaProductService mediaCont = context.getBean(MediaProductService.class);
+		MovieService mediaCont = context.getBean(MovieService.class);
 		List<Movie> list = MediaUtils.getAll(Movie.class);
 		for(Movie movie : list) {
 			try {
-				MediaProduct product = mediaCont.getMediaByID(movie.getTmdbID());
+				mediaCont.getMovieByNameID(movie.getTmdbID());
 			}
 			catch (Exception e) {
 				System.err.println("Error for the media: " + movie);
@@ -114,5 +132,9 @@ public class createDatabaseFromJSONData {
 		}
 		System.out.println(ANSI_GREEN + "All the movies are in the database" + ANSI_RESET);
 	}
-	*/
+	
+	public static void validateMovies0222() throws IOException, EntityNotFoundException {
+		MovieRepository mediaCont = context.getBean(MovieRepository.class);
+		mediaCont.deleteAll();
+	}
 }

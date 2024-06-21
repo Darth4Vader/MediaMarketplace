@@ -16,30 +16,30 @@ import org.springframework.stereotype.Service;
 import backend.entities.Genre;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
-import backend.repositories.MediaGenreRepository;
+import backend.repositories.GenreRepository;
 
 @Service
-public class MediaGenreService {
+public class GenreService {
 	
     @Autowired
-    private MediaGenreRepository mediaGenreRepository;
+    private GenreRepository genreRepository;
     
     public List<Genre> getAllGenres() {
-    	return mediaGenreRepository.findAll();
+    	return genreRepository.findAll();
     }
 	
-    public void createGenre(Genre genre) throws EntityAlreadyExistsException {
-    	String name = genre.getName();
+    public void createGenre(String genreName) throws EntityAlreadyExistsException {
     	try {	
-    		getGenreByName(name);
-    		throw new EntityAlreadyExistsException("The Genre with id: ("+name+") does already exists");
+    		getGenreByName(genreName);
+    		throw new EntityAlreadyExistsException("The Genre with id: ("+genreName+") does already exists");
     	}
     	catch (EntityNotFoundException e) {}
-    	mediaGenreRepository.save(genre);
+    	Genre genre = new Genre(genreName);
+    	genreRepository.save(genre);
     }
     
     public Genre getGenreByName(String genreName) throws EntityNotFoundException {
-    	return mediaGenreRepository.findByName(genreName).
+    	return genreRepository.findByName(genreName).
     			orElseThrow(() -> new EntityNotFoundException("The Genre with name: ("+genreName+") does not exists"));
     }
     

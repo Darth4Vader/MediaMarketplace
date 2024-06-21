@@ -8,9 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import backend.controllers.CartController;
-import backend.controllers.MediaProductController;
-import backend.dto.cart.AddProductToCartDto;
+import backend.controllers.ProductController;
+import backend.dto.cart.CartProductDto;
 import backend.entities.Movie;
+import backend.entities.Product;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
 import backend.services.TokenService;
@@ -41,7 +42,7 @@ public class HomePageController {
 	private VBox mainPane;
 	
 	@Autowired
-	private MediaProductController productController;
+	private ProductController productController;
 	
 	@Autowired
 	private CartController cartController;
@@ -69,14 +70,15 @@ public class HomePageController {
 		/*for(ColumnConstraints cc : gridPane.getColumnConstraints())
 			cc.setPercentWidth(100/5);*/
 			//cc.setPercentHeight(0.3);
-		List<Movie> resp = productController.getAllMediaProducts();
+		List<Product> resp = productController.getAllProducts();
 		List<String> paths = new ArrayList<>();
-		for(Movie product : resp) {
+		for(Product product : resp) {
+			Movie movie = product.getMovie();
 			//paths.add(new File(product.getImagePath()).toURI().toURL().toExternalForm());
 		//}
 		//list = paths.toArray(new String[paths.size()]);
 		//for(String path : list) {
-			ImageView view = AppUtils.loadImageFromClass(product.getImagePath());
+			ImageView view = AppUtils.loadImageFromClass(movie.getImagePath());
 			view.setPreserveRatio(true);
 			//Button view = new Button();
 			//view.maxWidth(Double.MAX_VALUE);
@@ -88,7 +90,7 @@ public class HomePageController {
 			//view.fitWidthProperty().bind(gridPane.getColumnConstraints().get(currentCols).prefWidthProperty());
 			//view.fitHeightProperty().bind(gridPane.getRowConstraints().get(row).prefHeightProperty());
 			b.setCenter(view);
-			Label name = new Label(product.getName());
+			Label name = new Label(movie.getName());
 			b.setBottom(name);
 			//b.prefWidthProperty().bind(mainPane.widthProperty());
 			//b.maxWidthProperty().bind(mainPane.heightProperty().multiply(0.4));
@@ -98,7 +100,7 @@ public class HomePageController {
 			Button addToCart = new Button("Add to Cart");
 			
 			addToCart.setOnAction(e -> {
-				AddProductToCartDto dto = new AddProductToCartDto();
+				CartProductDto dto = new CartProductDto();
 				dto.setProductId(product.getId());
 				try {
 					cartController.addProductToCart(dto);

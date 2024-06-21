@@ -8,12 +8,14 @@ import org.springframework.stereotype.Component;
 
 import backend.controllers.CartController;
 import backend.controllers.OrderController;
-import backend.dto.cart.AddProductToCartDto;
+import backend.dto.cart.CartProductDto;
 import backend.entities.CartProduct;
 import backend.entities.Movie;
 import backend.entities.MoviePurchased;
 import backend.entities.Order;
+import backend.entities.Product;
 import backend.exceptions.EntityNotFoundException;
+import backend.exceptions.PurchaseOrderException;
 import backend.repositories.CartProductRepository;
 import frontend.AppUtils;
 import javafx.beans.InvalidationListener;
@@ -77,10 +79,16 @@ public class CartPageController {
 		if(list.isEmpty())
 			cartItems.setVisible(false);
 		emptyLabel.visibleProperty().bind(cartItems.visibleProperty().not());
+		refreshCart();
+	}
+	
+	private void refreshCart() throws MalformedURLException {
+		cartItems.getChildren().clear();
 		List<CartProduct> resp = cartController.getCartProducts();
 		for(CartProduct cartProduct : resp) {
-			Movie product = null;//cartProduct.getProduct();
-			ImageView view = AppUtils.loadImageFromClass(product.getImagePath());
+			Product product = cartProduct.getProduct();
+			Movie movie = product.getMovie();
+			ImageView view = AppUtils.loadImageFromClass(movie.getImagePath());
 			view.setPreserveRatio(true);
 			//Button view = new Button();
 			//view.maxWidth(Double.MAX_VALUE);
@@ -92,7 +100,7 @@ public class CartPageController {
 			//view.fitWidthProperty().bind(gridPane.getColumnConstraints().get(currentCols).prefWidthProperty());
 			//view.fitHeightProperty().bind(gridPane.getRowConstraints().get(row).prefHeightProperty());
 			b.setCenter(view);
-			Label name = new Label(product.getName());
+			Label name = new Label(movie.getName());
 			b.setBottom(name);
 			//b.prefWidthProperty().bind(mainPane.widthProperty());
 			//b.maxWidthProperty().bind(mainPane.heightProperty().multiply(0.4));
@@ -101,7 +109,7 @@ public class CartPageController {
 			
 			Button removeFromCart = new Button("Remove From Cart");
 			removeFromCart.setOnAction(e -> {
-				AddProductToCartDto dto = new AddProductToCartDto();
+				CartProductDto dto = new CartProductDto();
 				dto.setProductId(product.getId());
 				try {
 					cartController.removeProductFromCart(dto);
@@ -121,8 +129,14 @@ public class CartPageController {
 	}
 	
 	@FXML
-	private void purchaseCart() {
-		orderController.placeOrder();
+	private void purchaseCart() throws MalformedURLException {
+		try {
+			orderController.placeOrder();
+		} catch (PurchaseOrderException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		refreshCart();
 		List<Order> orders = orderController.getUserOrders();
 		for(Order order : orders) {
 			System.out.println(order.getUser().getUsername());

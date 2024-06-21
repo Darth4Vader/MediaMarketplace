@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import backend.dto.cart.AddProductToCartDto;
+import backend.dto.cart.CartProductDto;
 import backend.entities.Cart;
 import backend.entities.CartProduct;
 import backend.entities.Genre;
@@ -26,7 +26,7 @@ import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
 import backend.repositories.UserRepository;
 import backend.services.CartService;
-import backend.services.MediaGenreService;
+import backend.services.GenreService;
 import backend.services.MediaPurchasedService;
 import backend.services.OrderService;
 import backend.services.TokenService;
@@ -34,7 +34,7 @@ import backend.services.UserServiceImpl;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/media_purchaseds")
+@RequestMapping("/media_purchased")
 public class MediaPurchasedController {
 
 	@Autowired
@@ -46,6 +46,6 @@ public class MediaPurchasedController {
 	@GetMapping("/get/user_media_products")
 	public List<Movie> getAllActiveMediaProductsOfUser() {
 		User user = tokenService.getCurretUser();
-		return mediaPurchasedService.getAllActiveMediaProductsOfUser(user);
+		return mediaPurchasedService.getAllActiveMoviesOfUser(user);
     }
 }

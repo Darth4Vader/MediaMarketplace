@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import backend.dto.mediaProduct.MediaProductDto;
+import backend.dto.mediaProduct.MovieDto;
 import backend.entities.Movie;
 import backend.entities.User;
 import backend.exceptions.EntityAlreadyExistsException;
@@ -22,23 +22,23 @@ import backend.services.UserServiceImpl;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/media_products")
-public class MediaProductController {
+@RequestMapping("/movies")
+public class MovieController {
 
 	@Autowired
-	private MovieService mediaProductService; 
+	private MovieService movieService; 
 	
 	@GetMapping("/")
 	@ResponseStatus(code = HttpStatus.OK)
-    public List<Movie> getAllMediaProducts() {
-        List<Movie> body = mediaProductService.getAllMovies();
+    public List<Movie> getAllMovies() {
+        List<Movie> body = movieService.getAllMovies();
         return body;
         //return new ResponseEntity<>(body, HttpStatus.OK);
     }
 	
-	@GetMapping("/create")
-    public ResponseEntity<String> addMediaProduct(@Valid @RequestBody MediaProductDto mediaDto) throws EntityAlreadyExistsException, EntityNotFoundException {
-		mediaProductService.addMediaProduct(mediaDto);
+	@GetMapping("/add")
+    public ResponseEntity<String> addMediaProduct(@Valid @RequestBody MovieDto movieDto) throws EntityAlreadyExistsException, EntityNotFoundException {
+		movieService.addMovie(movieDto);
         return new ResponseEntity<>("Created Successfully", HttpStatus.OK);
     }
 }

@@ -9,31 +9,37 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import backend.entities.Genre;
+import backend.dto.mediaProduct.ProductDto;
+import backend.entities.Movie;
+import backend.entities.Product;
 import backend.entities.User;
 import backend.exceptions.EntityAlreadyExistsException;
-import backend.services.MediaGenreService;
+import backend.exceptions.EntityNotFoundException;
+import backend.services.MovieService;
+import backend.services.ProductService;
 import backend.services.UserServiceImpl;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/media_genres")
-public class MediaGenreController {
+@RequestMapping("/products")
+public class ProductController {
 
 	@Autowired
-	private MediaGenreService mediaGenreService; 
+	private ProductService productService;
 	
 	@GetMapping("/")
-    public ResponseEntity<List<Genre>> getAllGenres() {
-        List<Genre> body = mediaGenreService.getAllGenres();
-        return new ResponseEntity<>(body, HttpStatus.OK);
+	@ResponseStatus(code = HttpStatus.OK)
+    public List<Product> getAllProducts() {
+        List<Product> body = productService.getAllProduct();
+        return body;
     }
 	
-	@GetMapping("/create")
-    public ResponseEntity<String> createGenre(@Valid @RequestBody Genre genre) throws EntityAlreadyExistsException {
-		mediaGenreService.createGenre(genre);
+	@GetMapping("/add")
+    public ResponseEntity<String> addProduct(@Valid @RequestBody ProductDto productDto) throws EntityNotFoundException {
+		productService.addProduct(productDto);
         return new ResponseEntity<>("Created Successfully", HttpStatus.OK);
     }
 }

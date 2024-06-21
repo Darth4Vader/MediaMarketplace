@@ -11,7 +11,7 @@ import backend.entities.User;
 import backend.services.UserServiceImpl;
 
 @RestController
-@RequestMapping("/market/users")
+@RequestMapping("/users")
 public class UserController {
 	
 	

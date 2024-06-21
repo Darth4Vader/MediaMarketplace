@@ -16,7 +16,7 @@ import backend.entities.Genre;
 import backend.entities.User;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.services.ActorService;
-import backend.services.MediaGenreService;
+import backend.services.GenreService;
 import backend.services.UserServiceImpl;
 import jakarta.validation.Valid;
 

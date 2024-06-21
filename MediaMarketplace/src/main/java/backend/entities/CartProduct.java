@@ -28,23 +28,23 @@ public class CartProduct {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@JoinColumn(name = "is_buying", nullable = false)
-	private boolean isBuying;
-	
 	//not working, not deleting, check google bookmark from jan 29 2024
 	@ManyToOne(cascade = CascadeType.REFRESH)
 	@JoinColumn(name = "product_id", nullable = false)
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private Product product;
 	
-	@ManyToOne
+	@ManyToOne()
 	@JoinColumn(name = "cart_id", referencedColumnName = "id", nullable = false)
 	private Cart cart;
+	
+	@JoinColumn(name = "is_buying", nullable = false)
+	private boolean isBuying;
 
 	public CartProduct() {
 	}
 
-	public CartProduct(Product product, Cart cart) {
+	public CartProduct(Product product, Cart cart, boolean isBuying) {
 		this.product = product;
 		this.cart = cart;
 	}
@@ -71,6 +71,19 @@ public class CartProduct {
 
 	public void setCart(Cart cart) {
 		this.cart = cart;
+	}
+
+	public boolean isBuying() {
+		return isBuying;
+	}
+
+	public void setBuying(boolean isBuying) {
+		this.isBuying = isBuying;
+	}
+
+	@Override
+	public String toString() {
+		return "CartProduct [id=" + id + ", product=" + product + ", cart=" + cart + ", isBuying=" + isBuying + "]";
 	}
 
 }

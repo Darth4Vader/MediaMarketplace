@@ -10,7 +10,7 @@ import backend.entities.Order;
 import backend.entities.User;
 
 @Repository
-public interface MediaPurchasedRepository extends JpaRepository<MoviePurchased, Long> {
+public interface MoviePurchasedRepository extends JpaRepository<MoviePurchased, Long> {
 	
 	List<MoviePurchased> findByOrder(Order order);
 	

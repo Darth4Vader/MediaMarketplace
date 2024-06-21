@@ -1,7 +1,10 @@
 package backend.entities;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+import org.hibernate.annotations.Cascade;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -19,7 +22,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 
 @Entity
-@Table(name = "cart")
+@Table(name = "carts")
 public class Cart {
 	
 	@Id
@@ -34,6 +37,7 @@ public class Cart {
 	private User user;
 
 	public Cart() {
+		cartProducts = new ArrayList<>();
 	}
 
 	public Cart(User user) {
@@ -52,9 +56,10 @@ public class Cart {
 	public User getUser() {
 		return user;
 	}
-
-	public void setCartProducts(List<CartProduct> cartProducts) {
-		this.cartProducts = cartProducts;
+	
+	public void addToCartProducts(CartProduct cartProduct) {
+		this.cartProducts.add(cartProduct);
+		cartProduct.setCart(this);
 	}
 
 	public void setUser(User user) {

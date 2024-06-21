@@ -15,17 +15,19 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import backend.dto.cart.AddProductToCartDto;
+import backend.dto.cart.CartProductDto;
 import backend.entities.Cart;
 import backend.entities.CartProduct;
 import backend.entities.Genre;
 import backend.entities.Movie;
+import backend.entities.Product;
 import backend.entities.User;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
 import backend.repositories.CartProductRepository;
 import backend.repositories.CartRepository;
-import backend.repositories.MediaGenreRepository;
+import backend.repositories.GenreRepository;
+import backend.repositories.ProductRepository;
 import backend.repositories.UserRepository;
 
 @Service
@@ -38,7 +40,7 @@ public class CartService {
     private CartProductRepository cartProductRepository;
     
     @Autowired
-    private MovieService productService;
+    private ProductService productService;
     
     public List<CartProduct> getCartProducts(User user) {
     	Cart cart = getUserCart(user);
@@ -46,11 +48,49 @@ public class CartService {
     }
     
     @Transactional
-    public void addProductToCart(AddProductToCartDto dto, User user) throws EntityNotFoundException, EntityAlreadyExistsException {
-    	Movie product = productService.getMediaByID(dto.getProductId());
+    public void addProductToCart(CartProductDto dto, User user) throws EntityNotFoundException, EntityAlreadyExistsException {
+    	Product product = productService.getProductByID(dto.getProductId());
+    	Cart cart = getUserCart(user);
+    	checkIfProductNotInCart(cart, product);
+    	//add product to cart
+    	CartProduct cartProduct = new CartProduct(product, cart, dto.isBuying());
+    	cartProductRepository.save(cartProduct);
+    	List<CartProduct> cartProducts = cart.getCartProducts();
+    	cartProducts.add(cartProduct);
+    }
+    
+    @Transactional
+    public void removeProductFromCart(CartProductDto dto, User user) throws EntityNotFoundException {
+    	Product product = productService.getProductByID(dto.getProductId());
     	Cart cart = getUserCart(user);
     	List<CartProduct> cartProducts = cart.getCartProducts();
+    	for(CartProduct cartProduct : cartProducts) {
+    		if(cartProduct.getProduct().equals(product)) {
+    	    	//System.out.println("Let's remove mr.: " + cartProduct);
+    	    	cartProducts.remove(cartProduct);
+    	    	cartProductRepository.delete(cartProduct);
+    	    	/*try {
+					checkIfProductNotInCart(getUserCart(user), product);
+					System.out.println("Good Green");
+				} catch (EntityAlreadyExistsException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}*/
+    	    	return;
+    		}
+    	} //if we didn't remove the product, then it is not in the cart
+    	throw new EntityNotFoundException("The product is not in the cart");
+    }
+    
+    @Transactional
+    public void removeCartFromUser(Cart cart) {
+    	cartRepository.delete(cart);
+    }
+    
+    private void checkIfProductNotInCart(Cart cart, Product product) throws EntityAlreadyExistsException {
+    	List<CartProduct> cartProducts = cart.getCartProducts();
     	System.out.println(cartProducts);
+    	System.out.println(product.getId());
     	for(CartProduct cartProduct : cartProducts) {
     		System.out.println(cartProduct.getProduct());
     		System.out.println(product);
@@ -58,25 +98,6 @@ public class CartService {
     		if(cartProduct.getProduct().equals(product))
     			throw new EntityAlreadyExistsException("The product is already in the cart");
     	}
-    	//update
-    	/*CartProduct cartProduct = new CartProduct(product, cart);
-    	cartProductRepository.save(cartProduct);
-    	cartProducts.add(cartProduct);*/
-    }
-    
-    @Transactional
-    public void removeProductFromCart(AddProductToCartDto dto, User user) throws EntityNotFoundException {
-    	Movie product = productService.getMediaByID(dto.getProductId());
-    	Cart cart = getUserCart(user);
-    	List<CartProduct> cartProducts = cart.getCartProducts();
-    	for(CartProduct cartProduct : cartProducts) {
-    		if(cartProduct.getProduct().equals(product)) {
-    	    	cartProducts.add(cartProduct);
-    	    	cartProductRepository.delete(cartProduct);
-    	    	return;
-    		}
-    	}
-    	throw new EntityNotFoundException("The product is not in the cart");
     }
     
     public Cart getUserCart(User user) {
@@ -90,24 +111,5 @@ public class CartService {
     	cartRepository.save(cart);
     	return cart;
     }
-    
-    /*public List<MediaGenre> getAllGenres() {
-    	return mediaGenreRepository.findAll();
-    }
-	
-    public void createGenre(MediaGenre genre) throws EntityAlreadyExistsException {
-    	String genreID = genre.getGenreID();
-    	try {	
-    		getGenreByID(genreID);
-    		throw new EntityAlreadyExistsException("The Genre with id: ("+genreID+") does already exists");
-    	}
-    	catch (EntityNotFoundException e) {}
-    	mediaGenreRepository.save(genre);
-    }
-    
-    public MediaGenre getGenreByID(String genreID) throws EntityNotFoundException {
-    	return mediaGenreRepository.findByGenreID(genreID).
-    			orElseThrow(() -> new EntityNotFoundException("The Genre with id: ("+genreID+") does not exists"));
-    }*/
     
 }

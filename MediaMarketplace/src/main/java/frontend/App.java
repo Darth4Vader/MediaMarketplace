@@ -14,7 +14,9 @@ import backend.ActivateSpringApplication;
 import backend.controllers.UserAuthenticateController;
 import backend.dto.users.LogInDto;
 import backend.dto.users.LogInResponseDto;
+import backend.dto.users.UserInformationDto;
 import backend.exceptions.LogValuesAreIncorrectException;
+import backend.exceptions.UserAlreadyExistsException;
 import backend.exceptions.UserDoesNotExistsException;
 import backend.exceptions.UserNotLoggedInException;
 import backend.exceptions.UserPasswordIsIncorrectException;
@@ -82,10 +84,11 @@ public class App extends Application {
         });
 		this.stage = stage;
 		UserAuthenticateController userAuth = appContext.getBean(UserAuthenticateController.class);
-		LogInDto dto = new LogInDto("frodo", "bag");
+		LogInDto dto = new LogInDto("bilbo", "bag");
 		try {
 			LogInResponseDto d = userAuth.loginUser(dto);
-		} catch (UserDoesNotExistsException | UserPasswordIsIncorrectException | LogValuesAreIncorrectException e) {
+			//userAuth.registerUser(new UserInformationDto("bilbo", "", "bag", "bag"));
+		} catch (UserPasswordIsIncorrectException | LogValuesAreIncorrectException | UserDoesNotExistsException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

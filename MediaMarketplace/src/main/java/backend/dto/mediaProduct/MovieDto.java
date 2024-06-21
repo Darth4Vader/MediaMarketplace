@@ -5,7 +5,7 @@ import java.util.List;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 
-public class MediaProductDto {
+public class MovieDto {
 
 	private String tmdbID;
 	
@@ -13,24 +13,21 @@ public class MediaProductDto {
 	
 	private String imagePath;
 	
-	private double price;
-	
-	private List<String> genresIDList;
+	private List<String> genres;
 	
 	private String synopsis;
 
-	public MediaProductDto() {
+	public MovieDto() {
 		
 	}
 	
-	public MediaProductDto(String tmdbID, String mediaName, String imagePath, double price, List<String> genresIDList,
+	public MovieDto(String tmdbID, String mediaName, String imagePath, double price, List<String> genres,
 			String synopsis) {
 		super();
 		this.tmdbID = tmdbID;
 		this.mediaName = mediaName;
 		this.imagePath = imagePath;
-		this.price = price;
-		this.genresIDList = genresIDList;
+		this.genres = genres;
 		this.synopsis = synopsis;
 	}
 
@@ -45,13 +42,9 @@ public class MediaProductDto {
 	public String getImagePath() {
 		return imagePath;
 	}
-
-	public double getPrice() {
-		return price;
-	}
 	
-	public List<String> getGenresIDList() {
-		return genresIDList;
+	public List<String> getGenres() {
+		return genres;
 	}
 
 	public void setMediaID(String movieID) {
@@ -66,10 +59,6 @@ public class MediaProductDto {
 		this.imagePath = imagePath;
 	}
 
-	public void setPrice(double price) {
-		this.price = price;
-	}
-
 	public String getSynopsis() {
 		return synopsis;
 	}
@@ -79,7 +68,7 @@ public class MediaProductDto {
 	}
 
 	public void setGenres(List<String> genres) {
-		this.genresIDList = genres;
+		this.genres = genres;
 	}
 
 }

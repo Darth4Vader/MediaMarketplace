@@ -21,9 +21,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import backend.controllers.ActorController;
-import backend.controllers.MediaProductController;
+import backend.controllers.ProductController;
 import backend.entities.Actor;
 import backend.entities.Movie;
+import backend.entities.Product;
 import backend.services.MovieService;
 import jakarta.transaction.Transactional;
 
@@ -298,11 +299,11 @@ public class SearchUtils {
 		}
 	}*/
 	
-	private static MediaProductController mediaProductController;
+	private static ProductController productController;
 	
     @Autowired
-    public SearchUtils(MediaProductController mediaProductController) {
-        SearchUtils.mediaProductController = mediaProductController;
+    public SearchUtils(ProductController mediaProductController) {
+        SearchUtils.productController = mediaProductController;
     }
 	
 	@Autowired
@@ -314,8 +315,9 @@ public class SearchUtils {
 		Set<Object> roleKeys = new HashSet<>();
 		Set<Object> actorKeys = new HashSet<>();
 		List<Actor> actorList = new ArrayList<>();
-    	List<Movie> list = mediaProductController.getAllMediaProducts();
-    	for(Movie media : list) { 
+    	List<Product> list = productController.getAllProducts();
+    	for(Product product : list) {
+    		Movie media = product.getMovie();
     		String movieName = media.getName();
         	String movieId = ""+media.getId();
         	//if(sortMovieQualify(media, sortByList)) {

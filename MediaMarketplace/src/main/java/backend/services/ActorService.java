@@ -18,7 +18,7 @@ import backend.entities.Genre;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
 import backend.repositories.ActorRepository;
-import backend.repositories.MediaGenreRepository;
+import backend.repositories.GenreRepository;
 
 @Service
 public class ActorService {
@@ -29,20 +29,5 @@ public class ActorService {
     public List<Actor> getAllActors() {
     	return actorRepository.findAll();
     }
-	
-    /*public void createGenre(MediaGenre genre) throws EntityAlreadyExistsException {
-    	String genreID = genre.getGenreID();
-    	try {	
-    		getGenreByID(genreID);
-    		throw new EntityAlreadyExistsException("The Genre with id: ("+genreID+") does already exists");
-    	}
-    	catch (EntityNotFoundException e) {}
-    	mediaGenreRepository.save(genre);
-    }
-    
-    public MediaGenre getGenreByID(String genreID) throws EntityNotFoundException {
-    	return mediaGenreRepository.findByGenreID(genreID).
-    			orElseThrow(() -> new EntityNotFoundException("The Genre with id: ("+genreID+") does not exists"));
-    }*/
     
 }

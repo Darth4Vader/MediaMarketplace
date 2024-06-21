@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import backend.dto.cart.AddProductToCartDto;
+import backend.dto.cart.CartProductDto;
 import backend.entities.Cart;
 import backend.entities.CartProduct;
 import backend.entities.Genre;
@@ -24,9 +24,10 @@ import backend.entities.Order;
 import backend.entities.User;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
+import backend.exceptions.PurchaseOrderException;
 import backend.repositories.UserRepository;
 import backend.services.CartService;
-import backend.services.MediaGenreService;
+import backend.services.GenreService;
 import backend.services.OrderService;
 import backend.services.TokenService;
 import backend.services.UserServiceImpl;
@@ -49,7 +50,7 @@ public class OrderController {
     }
 	
 	@GetMapping("/place_order")
-    public void placeOrder() {
+    public void placeOrder() throws PurchaseOrderException {
 		User user = tokenService.getCurretUser();
 		orderService.placeOrder(user);
     }

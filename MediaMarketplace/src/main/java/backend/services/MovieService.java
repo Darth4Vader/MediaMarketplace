@@ -14,7 +14,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
-import backend.dto.mediaProduct.MediaProductDto;
+import backend.dto.mediaProduct.MovieDto;
 import backend.entities.Genre;
 import backend.entities.Movie;
 import backend.exceptions.EntityAlreadyExistsException;
@@ -28,52 +28,45 @@ public class MovieService {
     private MovieRepository movieRepository;
     
     @Autowired
-    private MediaGenreService mediaGenreService;
+    private GenreService genreService;
     
     public List<Movie> getAllMovies() {
     	return movieRepository.findAll();
     }
 	
-    public void addMediaProduct(MediaProductDto mediaDto) throws EntityAlreadyExistsException, EntityNotFoundException {
-    	String mediaID = mediaDto.getMediaID();
+    public void addMovie(MovieDto movieDto) throws EntityAlreadyExistsException, EntityNotFoundException {
+    	String mediaID = movieDto.getMediaID();
     	try {	
-    		getMediaByNameID(mediaID);
-    		throw new EntityAlreadyExistsException("The MediaProduct with id: ("+mediaID+") does already exists");
+    		getMovieByNameID(mediaID);
+    		throw new EntityAlreadyExistsException("The Movie with mediaId: ("+mediaID+") does already exists");
     	}
-    	catch (EntityNotFoundException e) {}
-		List<String> genres = mediaDto.getGenresIDList();
-		List<Genre> list = new ArrayList<>();
-		for(String genre : genres) {
-			try {
-				list.add(mediaGenreService.getGenreByName(genre));
-			}
-    		catch (EntityNotFoundException e) {
-    			throw new EntityNotFoundException("MediaProductService.addMediaProduct: The Genre with id: ("+genre+") does not exists");
-			}
-		}
-		Movie mediaProduct = getProductFromDto(mediaDto, list);
+    	catch (EntityNotFoundException e) {} // this is what we expect to get, that's why we don't throw
+		List<String> genresNames = movieDto.getGenres();
+		List<Genre> genres = new ArrayList<>();
+		for(String genreName : genresNames)
+			genres.add(genreService.getGenreByName(genreName));
+		Movie mediaProduct = getMovieFromDto(movieDto, genres);
     	movieRepository.save(mediaProduct);
     }
     
-    public static Movie getProductFromDto(MediaProductDto mediaDto, List<Genre> genres) {
-        Movie product = new Movie();
-        product.setMediaID(mediaDto.getMediaID());
-        product.setSynopsis(mediaDto.getSynopsis());
-        product.setImagePath(mediaDto.getImagePath());
-        //product.setPrice(mediaDto.getPrice());
-        product.setName(mediaDto.getMediaName());
-        product.setGenres(genres);
-        return product;
+    public static Movie getMovieFromDto(MovieDto movieDto, List<Genre> genres) {
+        Movie movie = new Movie();
+        movie.setMediaID(movieDto.getMediaID());
+        movie.setSynopsis(movieDto.getSynopsis());
+        movie.setImagePath(movieDto.getImagePath());
+        movie.setName(movieDto.getMediaName());
+        movie.setGenres(genres);
+        return movie;
     }
     
-    public Movie getMediaByNameID(String mediaID) throws EntityNotFoundException {
+    public Movie getMovieByNameID(String mediaID) throws EntityNotFoundException {
     	return movieRepository.findByMediaID(mediaID).
-    			orElseThrow(() -> new EntityNotFoundException("The MediaProduct with id: ("+mediaID+") does not exists"));
+    			orElseThrow(() -> new EntityNotFoundException("The Movie with id: ("+mediaID+") does not exists"));
     }
     
-    public Movie getMediaByID(Long id) throws EntityNotFoundException {
+    public Movie getMovieByID(Long id) throws EntityNotFoundException {
     	return movieRepository.findById(id).
-    			orElseThrow(() -> new EntityNotFoundException("The MediaProduct with id: ("+id+") does not exists"));
+    			orElseThrow(() -> new EntityNotFoundException("The Movie with id: ("+id+") does not exists"));
     }
     
 }

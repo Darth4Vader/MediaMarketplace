@@ -52,7 +52,7 @@ public class Movie {
 	//@OneToMany(fetch = FetchType.LAZY, targetEntity = MediaGenre.class)
 	//@JoinColumn(name = "genres", insertable = false, updatable = false)
 	//@OneToMany(fetch = FetchType.LAZY, mappedBy = "media", cascade = CascadeType.ALL)
-	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "movie_genres",
             joinColumns = @JoinColumn(name = "movie_id"),

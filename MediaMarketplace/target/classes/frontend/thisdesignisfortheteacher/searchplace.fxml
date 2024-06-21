@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+
+<AnchorPane prefHeight="400.0" prefWidth="500.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/20.0.1">
+   <children>
+      <Label layoutX="29.0" layoutY="240.0" prefHeight="55.0" prefWidth="134.0" text="results For: harry po" />
+      <Label layoutX="29.0" layoutY="295.0" prefHeight="88.0" prefWidth="81.0" style="-fx-background-color: #59a6f8;" text="Title 1" />
+      <Label layoutX="296.0" layoutY="295.0" prefHeight="88.0" prefWidth="81.0" style="-fx-background-color: #59a6f8;" text="Title 4" />
+      <Label layoutX="209.0" layoutY="295.0" prefHeight="88.0" prefWidth="81.0" style="-fx-background-color: #59a6f8;" text="Title 3" />
+      <Label layoutX="122.0" layoutY="295.0" prefHeight="88.0" prefWidth="81.0" style="-fx-background-color: #59a6f8;" text="Title 2" />
+      <Label layoutX="195.0" prefHeight="67.0" prefWidth="109.0" text="Search Result" />
+      <AnchorPane layoutX="49.0" layoutY="91.0" prefHeight="124.0" prefWidth="166.0" style="-fx-border-color: #59a6f8;">
+         <children>
+            <Label layoutX="14.0" layoutY="14.0" prefHeight="36.0" prefWidth="45.0" text="Name:" />
+            <TextField layoutX="71.0" layoutY="17.0" prefHeight="0.0" prefWidth="97.0" />
+            <Label layoutX="14.0" layoutY="44.0" prefHeight="36.0" prefWidth="45.0" text="Genre:" />
+            <TextField layoutX="71.0" layoutY="50.0" prefHeight="0.0" prefWidth="97.0" />
+         </children>
+      </AnchorPane>
+      <Label layoutX="52.0" layoutY="65.0" prefHeight="25.0" prefWidth="89.0" text="Search By" />
+      <AnchorPane layoutX="273.0" layoutY="91.0" prefHeight="124.0" prefWidth="166.0" style="-fx-border-color: #59a6f8;">
+         <children>
+            <Label layoutX="14.0" layoutY="14.0" prefHeight="36.0" prefWidth="45.0" text="Year" />
+            <Label layoutX="14.0" layoutY="44.0" prefHeight="36.0" prefWidth="60.0" text="Ratings" />
+         </children>
+      </AnchorPane>
+      <Label layoutX="273.0" layoutY="65.0" prefHeight="25.0" prefWidth="89.0" text="Sort By:" />
+   </children>
+</AnchorPane>
