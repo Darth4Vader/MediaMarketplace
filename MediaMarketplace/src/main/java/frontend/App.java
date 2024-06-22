@@ -22,6 +22,7 @@ import backend.exceptions.UserNotLoggedInException;
 import backend.exceptions.UserPasswordIsIncorrectException;
 import frontend.auth.LogInUserController;
 import frontend.homePage.HomePageController;
+import frontend.sortPage.SortPageController;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -93,7 +94,8 @@ public class App extends Application {
 			e.printStackTrace();
 		}
 		//changeStageToFXML(LogInUserController.PATH);
-		changeAppPanel(HomePageController.PATH);
+		//changeAppPanel(HomePageController.PATH);
+		changeAppPanel(SortPageController.PATH);
 		this.stage.show();
 		/*FXMLLoader loader = new FXMLLoader(getClass().getResource("/frontend/auth/RegisterUser.fxml"));
 	    //System.out.println(getClass().getResource("/frontend/auth/RegisterUser.fxml"));

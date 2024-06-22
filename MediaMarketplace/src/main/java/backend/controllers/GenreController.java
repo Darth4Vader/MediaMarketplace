@@ -26,9 +26,9 @@ public class GenreController {
 	private GenreService genreService; 
 	
 	@GetMapping("/")
-    public ResponseEntity<List<Genre>> getAllGenres() {
+    public List<Genre> getAllGenres() {
         List<Genre> body = genreService.getAllGenres();
-        return new ResponseEntity<>(body, HttpStatus.OK);
+        return body;
     }
 	
 	@GetMapping("/create")
