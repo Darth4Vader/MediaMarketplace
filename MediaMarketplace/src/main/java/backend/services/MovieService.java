@@ -14,6 +14,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
+import backend.dto.mediaProduct.ActorDto;
 import backend.dto.mediaProduct.MovieDto;
 import backend.entities.Genre;
 import backend.entities.Movie;
@@ -30,6 +31,9 @@ public class MovieService {
     @Autowired
     private GenreService genreService;
     
+    /*@Autowired
+    private ActorService actorService;*/
+    
     public List<Movie> getAllMovies() {
     	return movieRepository.findAll();
     }
@@ -45,8 +49,15 @@ public class MovieService {
 		List<Genre> genres = new ArrayList<>();
 		for(String genreName : genresNames)
 			genres.add(genreService.getGenreByName(genreName));
-		Movie mediaProduct = getMovieFromDto(movieDto, genres);
-    	movieRepository.save(mediaProduct);
+		Movie movie = getMovieFromDto(movieDto, genres);
+    	movieRepository.save(movie);
+    	/*List<ActorDto> actorsList = movieDto.getActors();
+    	if(actorsList != null) 
+    		for(ActorDto actorDto : actorsList) {
+    			actorDto.setMovieMediaId(mediaID);
+    			actorService.addActorRole(actorDto, movie);
+    		}
+    		*/
     }
     
     public static Movie getMovieFromDto(MovieDto movieDto, List<Genre> genres) {

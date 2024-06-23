@@ -24,6 +24,9 @@ public class Person {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
+	@Column(name = "person_imdb_id", unique = true)
+	private String personImdbId;
+	
 	@Column(nullable = false)
 	@NotBlank
 	private String name;
@@ -41,6 +44,8 @@ public class Person {
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "director", cascade = CascadeType.ALL)
 	//@JoinColumn(name = "actors_roles_id")
 	private List<Director> directedMedia;
+	
+	public Person() {}
 
 	public Person(Long id, @NotBlank String name, List<Actor> actorRoles) {
 		super();
@@ -71,6 +76,38 @@ public class Person {
 
 	public void setActorRoles(List<Actor> actorRoles) {
 		this.actorRoles = actorRoles;
+	}
+
+	public String getPersonImdbId() {
+		return personImdbId;
+	}
+
+	public String getImagePath() {
+		return imagePath;
+	}
+
+	public Date getBirthDate() {
+		return birthDate;
+	}
+
+	public List<Director> getDirectedMedia() {
+		return directedMedia;
+	}
+
+	public void setPersonImdbId(String personImdbId) {
+		this.personImdbId = personImdbId;
+	}
+
+	public void setImagePath(String imagePath) {
+		this.imagePath = imagePath;
+	}
+
+	public void setBirthDate(Date birthDate) {
+		this.birthDate = birthDate;
+	}
+
+	public void setDirectedMedia(List<Director> directedMedia) {
+		this.directedMedia = directedMedia;
 	}
 	
 }

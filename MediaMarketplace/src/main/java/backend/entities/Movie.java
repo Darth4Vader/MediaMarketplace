@@ -1,9 +1,11 @@
 package backend.entities;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.CascadeType;
@@ -41,18 +43,22 @@ public class Movie {
 	@Column(length = 1000)
 	private String synopsis;
 	
-	private String year;
+	private Double year;
 	
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "movie", cascade = CascadeType.ALL)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+	@JsonProperty("release_date")
+	private Calendar releaseDate;
+	
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "movie", cascade = CascadeType.ALL)
 	private List<Director> directors;
 	
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "movie", cascade = CascadeType.ALL)
+	@OneToMany(fetch = FetchType.EAGER, mappedBy = "movie", cascade = CascadeType.ALL)
 	private List<Actor> actorsRoles;
 	
 	//@OneToMany(fetch = FetchType.LAZY, targetEntity = MediaGenre.class)
 	//@JoinColumn(name = "genres", insertable = false, updatable = false)
 	//@OneToMany(fetch = FetchType.LAZY, mappedBy = "media", cascade = CascadeType.ALL)
-	@ManyToMany(fetch = FetchType.LAZY)
+	@ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "movie_genres",
             joinColumns = @JoinColumn(name = "movie_id"),
@@ -111,15 +117,19 @@ public class Movie {
 		this.synopsis = synopsis;
 	}
 
-	public String getYear() {
+	public double getYear() {
 		return year;
+	}
+	
+	public boolean hasYear() {
+		return year != null;
 	}
 
 	public List<Actor> getActorsRoles() {
 		return actorsRoles;
 	}
 
-	public void setYear(String year) {
+	public void setYear(double year) {
 		this.year = year;
 	}
 
@@ -138,6 +148,18 @@ public class Movie {
 			return false;
 		Movie other = (Movie) obj;
 		return Objects.equals(id, other.id);
+	}
+
+	public List<Director> getDirectors() {
+		return directors;
+	}
+
+	public void setYear(Double year) {
+		this.year = year;
+	}
+
+	public void setDirectors(List<Director> directors) {
+		this.directors = directors;
 	}
 	
 	

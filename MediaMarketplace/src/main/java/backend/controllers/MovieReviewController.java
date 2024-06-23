@@ -12,33 +12,38 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import backend.dto.mediaProduct.MovieDto;
+import backend.dto.mediaProduct.ProductDto;
 import backend.entities.Movie;
+import backend.entities.MovieReview;
+import backend.entities.Product;
 import backend.entities.User;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
+import backend.services.MovieReviewService;
 import backend.services.MovieService;
+import backend.services.ProductService;
 import backend.services.UserServiceImpl;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/movies")
-public class MovieController {
+@RequestMapping("/movie_reviews")
+public class MovieReviewController {
 
 	@Autowired
-	private MovieService movieService; 
+	private MovieReviewService movieReviewService;
 	
-	@GetMapping("/")
+	@GetMapping("/get_all")
 	@ResponseStatus(code = HttpStatus.OK)
-    public List<Movie> getAllMovies() {
-        List<Movie> body = movieService.getAllMovies();
-        return body;
-        //return new ResponseEntity<>(body, HttpStatus.OK);
+    public List<MovieReview> getAllReviewOfMovie(Long movieId) throws EntityNotFoundException {
+		return movieReviewService.getAllReviewOfMovie(movieId);
     }
 	
-	@GetMapping("/add")
-    public ResponseEntity<String> addMovie(@Valid @RequestBody MovieDto movieDto) throws EntityAlreadyExistsException, EntityNotFoundException {
-		movieService.addMovie(movieDto);
-        return new ResponseEntity<>("Created Successfully", HttpStatus.OK);
-    }
+	public static double calculateRating(List<MovieReview> reviews) {
+		double size = reviews.size();
+		double sum = 0;
+		for(MovieReview review : reviews) {
+			sum += review.getRating();
+		}
+		return sum / size;
+	}
 }

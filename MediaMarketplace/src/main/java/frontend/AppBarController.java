@@ -41,11 +41,9 @@ public class AppBarController {
 	@FXML
 	private void search() throws IOException {
 		String text = searchBar.getText();
-		Map<String, List<?>> movie = SearchUtils.searchMoviesSort(text);
-		List<?> movies = (List<?>) movie.get("Movies");
+		List<Movie> movies = SearchUtils.searchMoviesSort(new SortDto(text));
 		VBox box = new VBox();
-		for(Object obj : movies) {
-			Movie product = (Movie) obj;
+		for(Movie product : movies) {
 			ImageView view = AppUtils.loadImageFromClass(product.getImagePath());
 			view.setPreserveRatio(true);
 			//Button view = new Button();

@@ -16,4 +16,5 @@ import backend.entities.User;
 @Repository
 public interface PersonRepository extends JpaRepository<Person, Long> {
 	
+	Optional<Person> findByPersonImdbId(@Param("person_imdb_id") String personImdbID);
 }

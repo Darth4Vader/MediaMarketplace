@@ -36,4 +36,48 @@ public class MovieReview {
     //@JsonIgnore
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+	public Long getId() {
+		return id;
+	}
+
+	public int getRating() {
+		return rating;
+	}
+
+	public String getReviewTitle() {
+		return reviewTitle;
+	}
+
+	public String getReview() {
+		return review;
+	}
+
+	public Movie getMovie() {
+		return movie;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setRating(int rating) {
+		this.rating = rating;
+	}
+
+	public void setReviewTitle(String reviewTitle) {
+		this.reviewTitle = reviewTitle;
+	}
+
+	public void setReview(String review) {
+		this.review = review;
+	}
+
+	public void setMovie(Movie movie) {
+		this.movie = movie;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
 }

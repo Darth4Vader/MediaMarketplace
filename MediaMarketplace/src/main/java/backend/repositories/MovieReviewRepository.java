@@ -1,5 +1,6 @@
 package backend.repositories;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,5 +16,9 @@ import backend.entities.User;
 
 @Repository
 public interface MovieReviewRepository extends JpaRepository<MovieReview, Long> {
+	
+	Optional<List<MovieReview>> findAllByMovie(Movie movie);
+	
+	Optional<List<MovieReview>> findAllByMovieId(Long movieId);
 	
 }

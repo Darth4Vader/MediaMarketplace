@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -10,16 +11,21 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
 import Interface.helpAction;
+import MediaData.Actor;
 import MediaData.CreateMovie;
 import MediaData.MediaSimple;
 import MediaData.MediaUtils;
 import MediaData.Movie;
 import MediaData.CreateData.TmdbGoogleScrapper;
 import backend.ActivateSpringApplication;
+import backend.controllers.ActorController;
 import backend.controllers.GenreController;
 import backend.controllers.MovieController;
+import backend.controllers.PersonController;
 import backend.controllers.ProductController;
+import backend.dto.mediaProduct.ActorDto;
 import backend.dto.mediaProduct.MovieDto;
+import backend.dto.mediaProduct.PersonDto;
 import backend.dto.mediaProduct.ProductDto;
 import backend.entities.Genre;
 import backend.exceptions.EntityAlreadyExistsException;
@@ -35,6 +41,7 @@ public class createDatabaseFromJSONData {
 	public static void main(String... args) throws BeansException, Exception {
 		
 		context = ActivateSpringApplication.create(args);
+		addPeople();
 		addGenres();
 		addMovies();
 		addProducts();
@@ -64,8 +71,29 @@ public class createDatabaseFromJSONData {
 		}
 	}
 	
+	public static void addPeople() throws IOException {
+		PersonController personController = context.getBean(PersonController.class);
+		//MediaGenreRepository genreRep = context.getBean(MediaGenreRepository.class);
+		List<Movie> list = MediaUtils.getAll(Movie.class);
+		for(Movie movie : list) {
+			List<Actor> actors = movie.getActors();
+			if(actors != null) for(Actor actor : actors) {
+				try {
+					PersonDto personDto = new PersonDto();
+					personDto.setName(actor.getName());
+					personDto.setPersonMediaID(actor.getImdbID());
+					personController.addPerson(personDto);
+				}
+				catch (Exception e) {
+					System.err.println(e.getMessage());
+				}
+			}
+		}
+	}
+	
 	public static void addMovies() throws IOException {
 		MovieController movieController = context.getBean(MovieController.class);
+		ActorController actorController = context.getBean(ActorController.class);
 		List<Movie> list = MediaUtils.getAll(Movie.class);
 		for(Movie movie : list) {
 	        MovieDto mediaDto = new MovieDto();
@@ -75,12 +103,23 @@ public class createDatabaseFromJSONData {
 	        //mediaDto.setPrice(mediaDto.getPrice());
 	        mediaDto.setMediaName(movie.getName());
 	        mediaDto.setGenres(movie.getGenres());
+	        
+	        List<Actor> actors = movie.getActors();
+	        List<ActorDto> actorsList = new ArrayList<>();
+	        //mediaDto.setActors(actorsList);
 	        //mediaDto.setPrice("10");
 	        try {
 	        	System.out.println(movie.getName());
 	        	System.out.println(mediaDto.getMediaID());
 	        	System.out.println(movie.getGenres());
-				movieController.addMediaProduct(mediaDto);
+				movieController.addMovie(mediaDto);
+		        if(actors != null) for(Actor actor : actors) {
+		        	ActorDto actorDto = new ActorDto();
+		        	actorDto.setRoleName(actor.getRole());
+		        	actorDto.setPersonMediaID(actor.getImdbID());
+		        	actorDto.setMovieMediaId(movie.getTmdbID());
+		        	actorController.addActor(actorDto);
+		        }
 			} catch (EntityAlreadyExistsException e) {
 				// TODO Auto-generated catch block
 				//e.printStackTrace();

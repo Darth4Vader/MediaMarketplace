@@ -20,12 +20,21 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import backend.DataUtils;
 import backend.controllers.ActorController;
+import backend.controllers.MovieReviewController;
 import backend.controllers.ProductController;
 import backend.entities.Actor;
+import backend.entities.Director;
+import backend.entities.Genre;
 import backend.entities.Movie;
+import backend.entities.MovieReview;
+import backend.entities.Person;
 import backend.entities.Product;
+import backend.exceptions.EntityNotFoundException;
+import backend.services.MovieReviewService;
 import backend.services.MovieService;
+import jakarta.persistence.Transient;
 import jakarta.transaction.Transactional;
 
 @Component
@@ -301,15 +310,18 @@ public class SearchUtils {
 	
 	private static ProductController productController;
 	
+	private static MovieReviewController movieReviewController;
+	
     @Autowired
-    public SearchUtils(ProductController mediaProductController) {
-        SearchUtils.productController = mediaProductController;
+    public SearchUtils(ProductController productController, MovieReviewController movieReviewController) {
+        SearchUtils.productController = productController;
+        SearchUtils.movieReviewController = movieReviewController;
     }
 	
 	@Autowired
 	private static ActorController actorController;
 	
-	public static Map<String, List<?>> searchMoviesSort(String name) {
+	/*public static Map<String, List<?>> searchMoviesSort(String name) {
 		List<Movie> movieList = new ArrayList<>();
 		List<Movie> roleList = new ArrayList<>();
 		Set<Object> roleKeys = new HashSet<>();
@@ -345,6 +357,111 @@ public class SearchUtils {
         mainMap.put("Roles", roleList);
         mainMap.put("Actors", actorList);
         return mainMap;
+	}*/
+	
+	
+	public static List<Movie> searchMoviesSort(SortDto sortDto) {
+		List<Movie> movieList = new ArrayList<>();
+    	List<Product> list = productController.getAllProducts();
+    	for(Product product : list) {
+    		Movie media = product.getMovie();
+        	try {
+        		if(searchMovie(media, sortDto))
+        			movieList.add(media);
+			} catch (EntityNotFoundException e) {
+				e.printStackTrace();
+			}
+    	}
+        return movieList;
+	}
+	
+	private static boolean searchMovie(Movie media, SortDto sortDto) throws EntityNotFoundException {
+		if(sortMovie(media, sortDto)) {
+			String name = sortDto.getName();
+    		String movieName = media.getName();
+        	int cur = compare(movieName, name);
+        	if(cur > 0)
+        		return true;
+        	List<Actor> actors = media.getActorsRoles();
+        	if(searchActors(actors, name))
+        		return true;
+    		List<Director> directors = media.getDirectors();
+    		if(searchDirectors(directors, name))
+    			return true;
+		}
+		return false;
+	}
+	
+	public static boolean searchActors(List<Actor> actors, String name) {
+		for(Actor actor : actors) {
+			if(compare(actor.getRoleName(), name) > 1)
+				return true;
+			if(compare(actor.getActor().getName(), name) > 1)
+				return true;
+		}
+		return false;
+	}
+	
+	public static boolean searchDirectors(List<Director> directors, String name) {
+		int cur1;
+		for(Director director : directors) {
+			cur1 = 0;
+			cur1 = compare(director.getDirector().getName(), name);
+			if(cur1 > 1)
+				return true;
+		}
+		return false;
+	}
+	
+	/*@Transactional
+	public static List<Actor> searchActors(List<Actor> actors, String name) {
+		List<Actor> list = new ArrayList<>();
+		int cur1, cur2;
+		String actorName, actorRole, str;
+		for(Actor actor : actors) {
+			cur1 = 0; cur2 = 0;
+			cur1 = compare(actor.getRoleName(), name);
+			if(cur1 > 1)
+				cur2 = compare(actor.getActor().getName(), str);
+			if(cur1 > 1 || cur2 > 1) {
+				list.add(actor);
+			}
+		}
+		return list;
+	}*/
+	
+	private static boolean sortMovie(Movie movie, SortDto sortDto) throws EntityNotFoundException {
+		List<MovieReview> reviews = movieReviewController.getAllReviewOfMovie(movie.getId());
+		boolean check = true;
+		if(movie.hasYear())
+			check &= checkBetween(movie.getYear(), sortDto.getYearUp(), sortDto.getYearDown());
+		check &= checkGenres(movie, sortDto);
+		return check
+				&& checkBetween(MovieReviewController.calculateRating(reviews), sortDto.getRatingUp(), sortDto.getRatingDown());
+	}
+	
+	private static boolean checkGenres(Movie movie, SortDto sortDto) throws EntityNotFoundException {
+		List<String> genres = sortDto.getGenres();
+		List<Genre> movieGenres = movie.getGenres();
+		if(movieGenres == null)
+			return false;
+		if(genres != null) for(String genre : genres) {
+			if(movieGenres.stream().noneMatch(g -> DataUtils.equalsIgnoreCase(g.getName(), genre)))
+				return false;
+		}
+		return true;
+	}
+	
+	private static boolean checkBetween(double value, Double from, Double to) {
+		System.out.println(from + "  " + to);
+		/*if(from == 0 && to == 0)
+			return true;*/
+		boolean bol = true;
+		if(from != null)
+			bol &= from <= value;
+		if(to != null)
+			bol &= to <= value;
+		return bol;
 	}
 	
 	

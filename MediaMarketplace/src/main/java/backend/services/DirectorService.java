@@ -15,20 +15,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import backend.dto.mediaProduct.ActorDto;
+import backend.dto.mediaProduct.DirectorDto;
 import backend.entities.Actor;
+import backend.entities.Director;
 import backend.entities.Genre;
 import backend.entities.Movie;
 import backend.entities.Person;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
 import backend.repositories.ActorRepository;
+import backend.repositories.DirectorRepository;
 import backend.repositories.GenreRepository;
 
 @Service
-public class ActorService {
+public class DirectorService {
 	
     @Autowired
-    private ActorRepository actorRepository;
+    private DirectorRepository directorRepository;
     
     @Autowired
     private PersonService personService;
@@ -36,33 +39,20 @@ public class ActorService {
     @Autowired
     private MovieService movieService;
     
-    public List<Actor> getAllActors() {
-    	return actorRepository.findAll();
+    public List<Director> getAllDirectors() {
+    	return directorRepository.findAll();
     }
     
     @Transactional
-    public void addActorRole(ActorDto actorDto) throws EntityNotFoundException {
-    	Person person = personService.getPersonByNameID(actorDto.getPersonMediaID());
-    	Movie movie = movieService.getMovieByNameID(actorDto.getMovieMediaId());
-    	Actor actor = new Actor();
-    	actor.setRoleName(actorDto.getRoleName());
-    	actor.setActor(person);
-    	actor.setMedia(movie);
-    	actorRepository.save(actor);
-    	List<Actor> actors = movie.getActorsRoles();
-    	actors.add(actor);
-    }
-    
-    @Transactional
-    public void addActorRole(ActorDto actorDto, Movie movie) throws EntityNotFoundException {
-    	Person person = personService.getPersonByNameID(actorDto.getPersonMediaID());
-    	Actor actor = new Actor();
-    	actor.setRoleName(actorDto.getRoleName());
-    	actor.setActor(person);
-    	actor.setMedia(movie);
-    	actorRepository.save(actor);
-    	List<Actor> actors = movie.getActorsRoles();
-    	actors.add(actor);
+    public void addDirector(DirectorDto directorDto) throws EntityNotFoundException {
+    	Person person = personService.getPersonByNameID(directorDto.getPersonMediaID());
+    	Movie movie = movieService.getMovieByNameID(directorDto.getMovieMediaId());
+    	Director director = new Director();
+    	director.setDirector(person);
+    	director.setMedia(movie);
+    	directorRepository.save(director);
+    	List<Director> directors = movie.getDirectors();
+    	directors.add(director);
     }
     
 }
