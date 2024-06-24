@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane fitToWidth="true" prefWidth="600.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="frontend.help.MoviePageController">
+   <content>
+      <VBox>
+         <children>
+            <ImageView fx:id="posterView" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+            <TextArea fx:id="synopsisArea" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="150.0" prefWidth="400.0" wrapText="true" />
+            <HBox>
+               <children>
+                  <Label fx:id="rutimeLbl" text="Label" />
+                  <Label fx:id="yearLbl" text="Label" />
+               </children>
+            </HBox>
+            <HBox fx:id="watchOptions" />
+            <ScrollPane fitToHeight="true">
+               <content>
+                  <HBox fx:id="directorsBox" />
+               </content>
+            </ScrollPane>
+            <ScrollPane fitToHeight="true">
+               <content>
+                  <HBox fx:id="actorsBox" fillHeight="false" />
+               </content>
+            </ScrollPane>
+            <Label text="Reviews" />
+            <VBox fx:id="reviewsBox" />
+         </children>
+      </VBox>
+   </content>
+</ScrollPane>

@@ -42,7 +42,7 @@ public class DirectorController {
     }
 	
 	@GetMapping("/add")
-    public ResponseEntity<String> addDirector(@Valid @RequestBody DirectorDto directorDto) throws EntityNotFoundException {
+    public ResponseEntity<String> addDirector(@Valid @RequestBody DirectorDto directorDto) throws EntityNotFoundException, EntityAlreadyExistsException {
 		directorService.addDirector(directorDto);
         return new ResponseEntity<>("Created Successfully", HttpStatus.OK);
 	}

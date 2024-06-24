@@ -1,5 +1,6 @@
 package backend.entities;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -37,8 +38,13 @@ public class Movie {
 	@NotBlank
 	private String name;
 	
-	@Column(name = "image_path")
-	private String imagePath;
+	private Integer runtime;
+	
+	@Column(name = "poster_path")
+	private String posterPath;
+	
+	@Column(name = "backdrop_path")
+	private String backdropPath;
 	
 	@Column(length = 1000)
 	private String synopsis;
@@ -46,8 +52,8 @@ public class Movie {
 	private Double year;
 	
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
-	@JsonProperty("release_date")
-	private Calendar releaseDate;
+	@Column(name = "release_date")
+	private LocalDate releaseDate;
 	
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "movie", cascade = CascadeType.ALL)
 	private List<Director> directors;
@@ -66,6 +72,7 @@ public class Movie {
 	private List<Genre> genres;
 
 	public Movie() {
+		this.directors = new ArrayList<>();
 		this.actorsRoles = new ArrayList<>();
 	}
 
@@ -81,8 +88,8 @@ public class Movie {
 		return name;
 	}
 
-	public String getImagePath() {
-		return imagePath;
+	public String getPosterPath() {
+		return posterPath;
 	}
 
 	public List<Genre> getGenres() {
@@ -101,8 +108,8 @@ public class Movie {
 		this.name = name;
 	}
 
-	public void setImagePath(String imagePath) {
-		this.imagePath = imagePath;
+	public void setPosterPath(String posterPath) {
+		this.posterPath = posterPath;
 	}
 
 	public void setGenres(List<Genre> genres) {
@@ -160,6 +167,30 @@ public class Movie {
 
 	public void setDirectors(List<Director> directors) {
 		this.directors = directors;
+	}
+
+	public Integer getRuntime() {
+		return runtime;
+	}
+
+	public String getBackdropPath() {
+		return backdropPath;
+	}
+
+	public LocalDate getReleaseDate() {
+		return releaseDate;
+	}
+
+	public void setRuntime(Integer runtime) {
+		this.runtime = runtime;
+	}
+
+	public void setBackdropPath(String backdropPath) {
+		this.backdropPath = backdropPath;
+	}
+
+	public void setReleaseDate(LocalDate releaseDate) {
+		this.releaseDate = releaseDate;
 	}
 	
 	

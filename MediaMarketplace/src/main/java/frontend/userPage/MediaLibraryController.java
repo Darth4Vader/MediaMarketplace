@@ -47,7 +47,7 @@ public class MediaLibraryController {
 		//}
 		//list = paths.toArray(new String[paths.size()]);
 		//for(String path : list) {
-			ImageView view = AppUtils.loadImageFromClass(product.getImagePath());
+			ImageView view = AppUtils.loadImageViewFromClass(product.getPosterPath());
 			view.setPreserveRatio(true);
 			//Button view = new Button();
 			//view.maxWidth(Double.MAX_VALUE);

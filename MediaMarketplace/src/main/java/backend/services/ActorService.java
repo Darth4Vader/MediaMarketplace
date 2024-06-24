@@ -41,28 +41,38 @@ public class ActorService {
     }
     
     @Transactional
-    public void addActorRole(ActorDto actorDto) throws EntityNotFoundException {
+    public void addActorRole(ActorDto actorDto) throws EntityNotFoundException, EntityAlreadyExistsException {
     	Person person = personService.getPersonByNameID(actorDto.getPersonMediaID());
     	Movie movie = movieService.getMovieByNameID(actorDto.getMovieMediaId());
+    	try {
+	    	getActorByMovie(movie.getId(), person.getId());
+	    	throw new EntityAlreadyExistsException("The person is already an actor in the movie");
+    	}
+    	catch (EntityNotFoundException e) {}
     	Actor actor = new Actor();
     	actor.setRoleName(actorDto.getRoleName());
-    	actor.setActor(person);
+    	actor.setPerson(person);
     	actor.setMedia(movie);
     	actorRepository.save(actor);
     	List<Actor> actors = movie.getActorsRoles();
     	actors.add(actor);
     }
     
-    @Transactional
+    /*@Transactional
     public void addActorRole(ActorDto actorDto, Movie movie) throws EntityNotFoundException {
     	Person person = personService.getPersonByNameID(actorDto.getPersonMediaID());
     	Actor actor = new Actor();
     	actor.setRoleName(actorDto.getRoleName());
-    	actor.setActor(person);
+    	actor.setPerson(person);
     	actor.setMedia(movie);
     	actorRepository.save(actor);
     	List<Actor> actors = movie.getActorsRoles();
     	actors.add(actor);
+    }*/
+    
+    public Actor getActorByMovie(Long movieId, Long personId) throws EntityNotFoundException {
+    	return actorRepository.findByMovieIdAndPersonId(movieId, personId)
+    			.orElseThrow(() -> new EntityNotFoundException("The person is not an actor in the movie"));
     }
     
 }

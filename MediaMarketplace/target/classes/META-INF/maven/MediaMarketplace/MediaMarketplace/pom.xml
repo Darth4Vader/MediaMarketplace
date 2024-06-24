@@ -95,7 +95,11 @@
 
 
 
-
+		<dependency>
+		    <groupId>com.github.holgerbrandl</groupId>
+		    <artifactId>themoviedbapi</artifactId>
+		    <version>1.15</version>
+		</dependency>
 
 
 

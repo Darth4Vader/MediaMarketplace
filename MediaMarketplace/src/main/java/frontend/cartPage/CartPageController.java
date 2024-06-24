@@ -88,7 +88,7 @@ public class CartPageController {
 		for(CartProduct cartProduct : resp) {
 			Product product = cartProduct.getProduct();
 			Movie movie = product.getMovie();
-			ImageView view = AppUtils.loadImageFromClass(movie.getImagePath());
+			ImageView view = AppUtils.loadImageViewFromClass(movie.getPosterPath());
 			view.setPreserveRatio(true);
 			//Button view = new Button();
 			//view.maxWidth(Double.MAX_VALUE);

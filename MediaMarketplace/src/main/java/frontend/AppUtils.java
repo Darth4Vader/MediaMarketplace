@@ -1,16 +1,23 @@
 package frontend;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 
 import backend.dto.cart.CartProductDto;
 import backend.entities.Movie;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
+import frontend.help.MoviePageController;
+import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.BorderStroke;
@@ -27,13 +34,17 @@ public class AppUtils {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public static ImageView loadImageFromClass(String path) throws MalformedURLException {
+	public static Image loadImageFromClass(String path) throws MalformedURLException {
 		String fullPath = new File(path).toURI().toURL().toExternalForm();
-		return new ImageView(fullPath);
+		return new Image(fullPath);
 	}
 	
-	public static Pane getMoviePane(Movie movie) throws MalformedURLException {
-		ImageView view = AppUtils.loadImageFromClass(movie.getImagePath());
+	public static ImageView loadImageViewFromClass(String path) throws MalformedURLException {
+		return new ImageView(loadImageFromClass(path));
+	}
+	
+	public static Pane getMoviePane(Movie movie) throws MalformedURLException, IOException {
+		ImageView view = AppUtils.loadImageViewFromClass(movie.getPosterPath());
 		view.setPreserveRatio(true);
 		BorderPane b = new BorderPane();
 		view.fitWidthProperty().bind(b.widthProperty());
@@ -43,7 +54,22 @@ public class AppUtils {
 		b.setBottom(name);
 		b.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
 	            new BorderWidths(1))));
+		b.setOnMouseClicked(evt -> {
+			FXMLLoader loader = App.getApplicationInstance().getFXMLLoader(MoviePageController.PATH);
+			try {
+				Parent root = loader.load();
+				MoviePageController controller = loader.getController();
+				controller.initializeMovie(movie);
+				enterPanel(root);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		});
 		return b;
+	}
+	
+	public static void enterPanel(Node node) throws IOException {
+		App.getApplicationInstance().changeAppPanel(node);
 	}
 	
 	public static void addToGridPane(GridPane gridPane, Node comp) {

@@ -44,7 +44,7 @@ public class AppBarController {
 		List<Movie> movies = SearchUtils.searchMoviesSort(new SortDto(text));
 		VBox box = new VBox();
 		for(Movie product : movies) {
-			ImageView view = AppUtils.loadImageFromClass(product.getImagePath());
+			ImageView view = AppUtils.loadImageViewFromClass(product.getPosterPath());
 			view.setPreserveRatio(true);
 			//Button view = new Button();
 			//view.maxWidth(Double.MAX_VALUE);

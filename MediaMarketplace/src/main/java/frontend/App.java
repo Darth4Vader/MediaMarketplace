@@ -94,8 +94,8 @@ public class App extends Application {
 			e.printStackTrace();
 		}
 		//changeStageToFXML(LogInUserController.PATH);
-		//changeAppPanel(HomePageController.PATH);
-		changeAppPanel(SortPageController.PATH);
+		changeAppPanel(HomePageController.PATH);
+		//changeAppPanel(SortPageController.PATH);
 		this.stage.show();
 		/*FXMLLoader loader = new FXMLLoader(getClass().getResource("/frontend/auth/RegisterUser.fxml"));
 	    //System.out.println(getClass().getResource("/frontend/auth/RegisterUser.fxml"));
@@ -117,6 +117,12 @@ public class App extends Application {
 		FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
 	    loader.setControllerFactory(appContext::getBean);
 	    return loader.load();
+	}
+	
+	public FXMLLoader getFXMLLoader(String fxmlPath) {
+		FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+	    loader.setControllerFactory(appContext::getBean);
+	    return loader;
 	}
 	
 	public void changeStageToFXML(String fxmlPath) throws IOException {

@@ -44,4 +44,15 @@ public class PersonController {
 		personService.addPerson(personDto);
         return new ResponseEntity<>("Created Successfully", HttpStatus.OK);
     }
+	
+	@GetMapping("/remove")
+    public ResponseEntity<String> removePerson(Long id) throws EntityNotFoundException {
+		personService.removePerson(id);
+        return new ResponseEntity<>("Removed Successfully", HttpStatus.OK);
+    }
+	
+	@GetMapping("/get/{personImdbId}")
+    public Person getPerson(String personImdbId) throws EntityNotFoundException {
+		return personService.getPersonByNameID(personImdbId);
+    }
 }

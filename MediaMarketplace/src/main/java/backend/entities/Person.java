@@ -37,11 +37,11 @@ public class Person {
 	@Column(name = "birth_date")
 	private Date birthDate;
 	
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "actor", cascade = CascadeType.ALL)
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "person", cascade = CascadeType.ALL)
 	//@JoinColumn(name = "actors_roles_id")
 	private List<Actor> actorRoles;
 	
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "director", cascade = CascadeType.ALL)
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "person", cascade = CascadeType.ALL)
 	//@JoinColumn(name = "actors_roles_id")
 	private List<Director> directedMedia;
 	

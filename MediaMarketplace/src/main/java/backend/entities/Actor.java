@@ -48,7 +48,7 @@ public class Actor {
 	
     @ManyToOne
     @JoinColumn(name = "person_id", referencedColumnName = "id", nullable = false)
-	private Person actor;
+	private Person person;
 
 	public Long getId() {
 		return id;
@@ -62,8 +62,8 @@ public class Actor {
 		return movie;
 	}
 
-	public Person getActor() {
-		return actor;
+	public Person getPerson() {
+		return person;
 	}
 
 	public void setRoleName(String roleName) {
@@ -74,8 +74,8 @@ public class Actor {
 		this.movie = media;
 	}
 
-	public void setActor(Person actor) {
-		this.actor = actor;
+	public void setPerson(Person person) {
+		this.person = person;
 	}
     
     

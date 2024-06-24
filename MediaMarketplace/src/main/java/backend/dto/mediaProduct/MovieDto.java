@@ -1,5 +1,6 @@
 package backend.dto.mediaProduct;
 
+import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.List;
 
@@ -15,7 +16,11 @@ public class MovieDto {
 	
 	private String mediaName;
 	
-	private String imagePath;
+	private String posterPath;
+	
+	private String backdropPath;
+	
+	private Integer runtime;
 	
 	private List<String> genres;
 	
@@ -23,7 +28,7 @@ public class MovieDto {
 	
 	private double year;
 	
-	private Calendar releaseDate;
+	private LocalDate releaseDate;
 	
 	/*private List<DirectorDto> directrs;
 	
@@ -38,7 +43,7 @@ public class MovieDto {
 		super();
 		this.tmdbID = tmdbID;
 		this.mediaName = mediaName;
-		this.imagePath = imagePath;
+		this.posterPath = imagePath;
 		this.genres = genres;
 		this.synopsis = synopsis;
 	}
@@ -51,8 +56,8 @@ public class MovieDto {
 		return mediaName;
 	}
 
-	public String getImagePath() {
-		return imagePath;
+	public String getPosterPath() {
+		return posterPath;
 	}
 	
 	public List<String> getGenres() {
@@ -67,8 +72,8 @@ public class MovieDto {
 		this.mediaName = mediaName;
 	}
 
-	public void setImagePath(String imagePath) {
-		this.imagePath = imagePath;
+	public void setPosterPath(String posterPath) {
+		this.posterPath = posterPath;
 	}
 
 	public String getSynopsis() {
@@ -87,7 +92,7 @@ public class MovieDto {
 		return year;
 	}
 
-	public Calendar getReleaseDate() {
+	public LocalDate getReleaseDate() {
 		return releaseDate;
 	}
 
@@ -95,8 +100,24 @@ public class MovieDto {
 		this.year = year;
 	}
 
-	public void setReleaseDate(Calendar releaseDate) {
+	public void setReleaseDate(LocalDate releaseDate) {
 		this.releaseDate = releaseDate;
+	}
+
+	public String getBackdropPath() {
+		return backdropPath;
+	}
+
+	public Integer getRuntime() {
+		return runtime;
+	}
+
+	public void setBackdropPath(String backdropPath) {
+		this.backdropPath = backdropPath;
+	}
+
+	public void setRuntime(Integer runtime) {
+		this.runtime = runtime;
 	}
 
 	/*public List<DirectorDto> getDirectrs() {

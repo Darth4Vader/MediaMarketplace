@@ -1,5 +1,6 @@
 package frontend.homePage;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +16,12 @@ import backend.entities.Product;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
 import backend.services.TokenService;
+import frontend.App;
 import frontend.AppUtils;
+import frontend.help.MoviePageController;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
@@ -78,7 +83,9 @@ public class HomePageController {
 		//}
 		//list = paths.toArray(new String[paths.size()]);
 		//for(String path : list) {
-			ImageView view = AppUtils.loadImageFromClass(movie.getImagePath());
+			System.out.println(movie.getName());
+			System.out.println(movie.getPosterPath());
+			ImageView view = AppUtils.loadImageViewFromClass(movie.getPosterPath());
 			view.setPreserveRatio(true);
 			//Button view = new Button();
 			//view.maxWidth(Double.MAX_VALUE);
@@ -89,6 +96,7 @@ public class HomePageController {
 			
 			//view.fitWidthProperty().bind(gridPane.getColumnConstraints().get(currentCols).prefWidthProperty());
 			//view.fitHeightProperty().bind(gridPane.getRowConstraints().get(row).prefHeightProperty());
+			//if(view.getImage() != null)
 			b.setCenter(view);
 			Label name = new Label(movie.getName());
 			b.setBottom(name);
@@ -115,6 +123,17 @@ public class HomePageController {
 			
 			b.setTop(addToCart);
 			
+			b.setOnMouseClicked(evt -> {
+				FXMLLoader loader = App.getApplicationInstance().getFXMLLoader(MoviePageController.PATH);
+				try {
+					Parent root = loader.load();
+					MoviePageController controller = loader.getController();
+					controller.initializeMovie(movie);
+					AppUtils.enterPanel(root);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
 			
 			gridPane.add(b, currentCols, row);
 			System.out.println(currentCols + " " + cols);

@@ -12,6 +12,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import backend.dto.mediaProduct.MovieDto;
 import backend.dto.mediaProduct.PersonDto;
@@ -22,6 +23,7 @@ import backend.entities.Person;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
 import backend.repositories.ActorRepository;
+import backend.repositories.DirectorRepository;
 import backend.repositories.GenreRepository;
 import backend.repositories.PersonRepository;
 
@@ -30,6 +32,12 @@ public class PersonService {
 	
     @Autowired
     private PersonRepository personRepository;
+    
+    @Autowired
+    private ActorRepository actorRepository;
+    
+    @Autowired
+    private DirectorRepository directorRepository;
     
     public List<Person> getAllPeople() {
     	return personRepository.findAll();
@@ -43,6 +51,14 @@ public class PersonService {
 		}
     	Person person = getPersonFromDto(personDto);
     	personRepository.save(person);
+    }
+    
+    @Transactional
+    public void removePerson(Long id) throws EntityNotFoundException {
+    	Person person = getPersonByID(id);
+    	actorRepository.deleteAllInBatch(person.getActorRoles());
+    	directorRepository.deleteAllInBatch(person.getDirectedMedia());
+    	personRepository.delete(person);
     }
     
     public static Person getPersonFromDto(PersonDto personDto) {

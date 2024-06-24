@@ -250,7 +250,7 @@ public class SortPageController {
 		for(Movie movie : searchList)
 			try {
 				//Pane pane = AppUtils.getMoviePane(movie);
-				ImageView view = AppUtils.loadImageFromClass(movie.getImagePath());
+				ImageView view = AppUtils.loadImageViewFromClass(movie.getPosterPath());
 				view.setPreserveRatio(true);
 				BorderPane b = new BorderPane();
 				view.fitWidthProperty().bind(mainPane.widthProperty());

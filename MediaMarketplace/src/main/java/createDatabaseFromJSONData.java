@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 
 import Interface.helpAction;
 import MediaData.Actor;
-import MediaData.CreateMovie;
 import MediaData.MediaSimple;
 import MediaData.MediaUtils;
 import MediaData.Movie;
@@ -28,11 +27,16 @@ import backend.dto.mediaProduct.MovieDto;
 import backend.dto.mediaProduct.PersonDto;
 import backend.dto.mediaProduct.ProductDto;
 import backend.entities.Genre;
+import backend.entities.Person;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
+import backend.repositories.ActorRepository;
+import backend.repositories.DirectorRepository;
 import backend.repositories.GenreRepository;
 import backend.repositories.MovieRepository;
+import backend.repositories.PersonRepository;
 import backend.services.MovieService;
+import backend.tmdb.CreateMovie;
 
 public class createDatabaseFromJSONData {
 	
@@ -41,11 +45,77 @@ public class createDatabaseFromJSONData {
 	public static void main(String... args) throws BeansException, Exception {
 		
 		context = ActivateSpringApplication.create(args);
-		addPeople();
+		
+		
+		
+		PersonController genreRep = context.getBean(PersonController.class);
+		
+		
+		
+		/*for(Person person : genreRep.getAllPeople()) {
+			genreRep.removePerson(person.getId());
+		}
+		
+		CreateMovie createMovie = context.getBean(CreateMovie.class);
+		
+		createMovie.addMovieToDatabase(122);
+		*/
+		
+		/*addPeople();
 		addGenres();
 		addMovies();
 		addProducts();
-		validateMovies();
+		validateMovies();*/
+		
+		/*addPeople();
+		addMovies();*/
+		
+		MovieController genreRep2 = context.getBean(MovieController.class);
+		MovieRepository movieRepository = context.getBean(MovieRepository.class);
+		for(backend.entities.Movie movie : genreRep2.getAllMovies()) {
+			List<Movie> list = MediaUtils.getAll(Movie.class);
+			for(Movie moviel : list) {
+				if(moviel.getTmdbID().equals(movie.getMediaID())) {
+					movie.setPosterPath("posters/"+moviel.getImdbID()+".jpg");
+					movieRepository.save(movie);
+					break;
+				}
+			}
+			System.out.println(movie.getActorsRoles());
+		}
+		
+		/*ProductController productController = context.getBean(ProductController.class);
+		for(backend.entities.Movie movie : genreRep2.getAllMovies()) {
+			System.out.println(movie.getName());
+			if(movie.getName().startsWith("The Lord of")) {
+		        ProductDto productDto = new ProductDto();
+		        productDto.setBuyPrice(0);
+		        productDto.setRentPrice(0);
+		        productDto.setMovieId(movie.getId());
+		        try {
+					productController.addProduct(productDto);
+				} catch (EntityNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}*/
+		
+		/*ActorRepository genreRep = context.getBean(ActorRepository.class);
+		genreRep.deleteAll();
+		DirectorRepository genreRep2 = context.getBean(DirectorRepository.class);
+		genreRep2.deleteAll();
+		PersonRepository genreRep3 = context.getBean(PersonRepository.class);
+		genreRep3.deleteAll();
+		/*MovieRepository genreRep4 = context.getBean(MovieRepository.class);
+		genreRep4.deleteAll();
+		MovieRepository genreRep5 = context.getBean(MovieRepository.class);
+		genreRep5.deleteAll();
+		/*addPeople();
+		addGenres();
+		addMovies();
+		addProducts();
+		validateMovies();*/
 		
 		//validateMovies0222();
 	}
@@ -76,12 +146,13 @@ public class createDatabaseFromJSONData {
 		//MediaGenreRepository genreRep = context.getBean(MediaGenreRepository.class);
 		List<Movie> list = MediaUtils.getAll(Movie.class);
 		for(Movie movie : list) {
-			List<Actor> actors = movie.getActors();
+			List<Actor> actors = movie.getMainCast();
 			if(actors != null) for(Actor actor : actors) {
 				try {
 					PersonDto personDto = new PersonDto();
 					personDto.setName(actor.getName());
 					personDto.setPersonMediaID(actor.getImdbID());
+					personDto.setImagePath("actors/"+actor.getImdbID()+".jpg");
 					personController.addPerson(personDto);
 				}
 				catch (Exception e) {
@@ -99,12 +170,12 @@ public class createDatabaseFromJSONData {
 	        MovieDto mediaDto = new MovieDto();
 	        mediaDto.setMediaID(movie.getTmdbID());
 	        mediaDto.setSynopsis(movie.getSynopsis());
-	        mediaDto.setImagePath("posters/"+movie.getImdbID()+".jpg");
+	        mediaDto.setPosterPath("posters/"+movie.getImdbID()+".jpg");
 	        //mediaDto.setPrice(mediaDto.getPrice());
 	        mediaDto.setMediaName(movie.getName());
 	        mediaDto.setGenres(movie.getGenres());
 	        
-	        List<Actor> actors = movie.getActors();
+	        List<Actor> actors = movie.getMainCast();
 	        List<ActorDto> actorsList = new ArrayList<>();
 	        //mediaDto.setActors(actorsList);
 	        //mediaDto.setPrice("10");
@@ -113,6 +184,14 @@ public class createDatabaseFromJSONData {
 	        	System.out.println(mediaDto.getMediaID());
 	        	System.out.println(movie.getGenres());
 				movieController.addMovie(mediaDto);
+			} catch (EntityAlreadyExistsException e) {
+				// TODO Auto-generated catch block
+				//e.printStackTrace();
+			} catch (EntityNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	        try {
 		        if(actors != null) for(Actor actor : actors) {
 		        	ActorDto actorDto = new ActorDto();
 		        	actorDto.setRoleName(actor.getRole());
@@ -120,10 +199,10 @@ public class createDatabaseFromJSONData {
 		        	actorDto.setMovieMediaId(movie.getTmdbID());
 		        	actorController.addActor(actorDto);
 		        }
-			} catch (EntityAlreadyExistsException e) {
+	        } catch (EntityNotFoundException e) {
 				// TODO Auto-generated catch block
-				//e.printStackTrace();
-			} catch (EntityNotFoundException e) {
+				e.printStackTrace();
+			} catch (EntityAlreadyExistsException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

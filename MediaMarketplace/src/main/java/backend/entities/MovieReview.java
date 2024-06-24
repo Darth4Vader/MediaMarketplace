@@ -1,5 +1,10 @@
 package backend.entities;
 
+import java.util.Calendar;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,6 +32,10 @@ public class MovieReview {
 	
 	@Column(length = 1000)
 	private String review;
+	
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+	@Column(name = "created_date")
+	private Calendar createdDate;
 	
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "movie_id", referencedColumnName = "id", nullable = false)
@@ -79,5 +88,13 @@ public class MovieReview {
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	public Calendar getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(Calendar createdDate) {
+		this.createdDate = createdDate;
 	}
 }

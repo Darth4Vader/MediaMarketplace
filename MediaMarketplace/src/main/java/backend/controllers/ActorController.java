@@ -39,7 +39,7 @@ public class ActorController {
     }
 	
 	@GetMapping("/add")
-    public ResponseEntity<String> addActor(@Valid @RequestBody ActorDto actorDto) throws EntityNotFoundException {
+    public ResponseEntity<String> addActor(@Valid @RequestBody ActorDto actorDto) throws EntityNotFoundException, EntityAlreadyExistsException {
 		actorService.addActorRole(actorDto);
         return new ResponseEntity<>("Created Successfully", HttpStatus.OK);
 	}

@@ -396,7 +396,7 @@ public class SearchUtils {
 		for(Actor actor : actors) {
 			if(compare(actor.getRoleName(), name) > 1)
 				return true;
-			if(compare(actor.getActor().getName(), name) > 1)
+			if(compare(actor.getPerson().getName(), name) > 1)
 				return true;
 		}
 		return false;
@@ -406,7 +406,7 @@ public class SearchUtils {
 		int cur1;
 		for(Director director : directors) {
 			cur1 = 0;
-			cur1 = compare(director.getDirector().getName(), name);
+			cur1 = compare(director.getPerson().getName(), name);
 			if(cur1 > 1)
 				return true;
 		}

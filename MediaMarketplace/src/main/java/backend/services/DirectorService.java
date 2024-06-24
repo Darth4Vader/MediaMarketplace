@@ -44,15 +44,24 @@ public class DirectorService {
     }
     
     @Transactional
-    public void addDirector(DirectorDto directorDto) throws EntityNotFoundException {
+    public void addDirector(DirectorDto directorDto) throws EntityNotFoundException, EntityAlreadyExistsException {
     	Person person = personService.getPersonByNameID(directorDto.getPersonMediaID());
     	Movie movie = movieService.getMovieByNameID(directorDto.getMovieMediaId());
+    	try {
+    		getDirectorByMovie(movie.getId(), person.getId());
+	    	throw new EntityAlreadyExistsException("The person (" + person.getName() + ") is already an actor in the movie");
+    	}
+    	catch (EntityNotFoundException e) {}
     	Director director = new Director();
-    	director.setDirector(person);
+    	director.setPerson(person);
     	director.setMedia(movie);
     	directorRepository.save(director);
     	List<Director> directors = movie.getDirectors();
     	directors.add(director);
     }
     
+    public Director getDirectorByMovie(Long movieId, Long personId) throws EntityNotFoundException {
+    	return directorRepository.findByMovieIdAndPersonId(movieId, personId)
+    			.orElseThrow(() -> new EntityNotFoundException("The person (" + personId + ") is not airector in the movie"));
+    }
 }

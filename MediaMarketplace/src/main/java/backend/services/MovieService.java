@@ -64,9 +64,13 @@ public class MovieService {
         Movie movie = new Movie();
         movie.setMediaID(movieDto.getMediaID());
         movie.setSynopsis(movieDto.getSynopsis());
-        movie.setImagePath(movieDto.getImagePath());
+        movie.setPosterPath(movieDto.getPosterPath());
+        movie.setBackdropPath(movieDto.getBackdropPath());
+        movie.setRuntime(movieDto.getRuntime());
         movie.setName(movieDto.getMediaName());
         movie.setGenres(genres);
+        movie.setReleaseDate(movieDto.getReleaseDate());
+        movie.setYear(movieDto.getYear());
         return movie;
     }
     

@@ -15,4 +15,6 @@ import backend.entities.User;
 @Repository
 public interface ActorRepository extends JpaRepository<Actor, Long> {
 	
+	Optional<Actor> findByMovieIdAndPersonId(Long movieId, Long personId);
+	
 }

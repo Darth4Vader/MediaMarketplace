@@ -21,14 +21,12 @@ public class Director {
 	private Long id;
 	
     @ManyToOne
-    @JsonIgnore
     @JoinColumn(name = "movie_id", nullable = false)
 	private Movie movie;
 	
     @ManyToOne
-    @JsonIgnore
     @JoinColumn(name = "person_id", nullable = false)
-	private Person director;
+	private Person person;
 
 	public Long getId() {
 		return id;
@@ -38,16 +36,16 @@ public class Director {
 		return movie;
 	}
 
-	public Person getDirector() {
-		return director;
+	public Person getPerson() {
+		return person;
 	}
 
 	public void setMedia(Movie media) {
 		this.movie = media;
 	}
 
-	public void setDirector(Person director) {
-		this.director = director;
+	public void setPerson(Person person) {
+		this.person = person;
 	}
 
 }
