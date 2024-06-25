@@ -50,8 +50,6 @@ public class createDatabaseFromJSONData {
 		
 		PersonController genreRep = context.getBean(PersonController.class);
 		
-		
-		
 		/*for(Person person : genreRep.getAllPeople()) {
 			genreRep.removePerson(person.getId());
 		}
@@ -70,7 +68,7 @@ public class createDatabaseFromJSONData {
 		/*addPeople();
 		addMovies();*/
 		
-		MovieController genreRep2 = context.getBean(MovieController.class);
+		/*MovieController genreRep2 = context.getBean(MovieController.class);
 		MovieRepository movieRepository = context.getBean(MovieRepository.class);
 		for(backend.entities.Movie movie : genreRep2.getAllMovies()) {
 			List<Movie> list = MediaUtils.getAll(Movie.class);
@@ -82,12 +80,13 @@ public class createDatabaseFromJSONData {
 				}
 			}
 			System.out.println(movie.getActorsRoles());
-		}
+		}*/
 		
-		/*ProductController productController = context.getBean(ProductController.class);
+		/*MovieController genreRep2 = context.getBean(MovieController.class);
+		ProductController productController = context.getBean(ProductController.class);
 		for(backend.entities.Movie movie : genreRep2.getAllMovies()) {
 			System.out.println(movie.getName());
-			if(movie.getName().startsWith("The Lord of")) {
+			if(movie.getName().startsWith("The Hobbit")) {
 		        ProductDto productDto = new ProductDto();
 		        productDto.setBuyPrice(0);
 		        productDto.setRentPrice(0);

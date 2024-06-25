@@ -8,6 +8,7 @@ import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -38,14 +39,19 @@ import backend.exceptions.EntityNotFoundException;
 import info.movito.themoviedbapi.TmdbApi;
 import info.movito.themoviedbapi.TmdbMovies;
 import info.movito.themoviedbapi.TmdbMovies.MovieMethod;
+import info.movito.themoviedbapi.TmdbSearch;
 import info.movito.themoviedbapi.model.Genre;
 import info.movito.themoviedbapi.model.MovieDb;
+import info.movito.themoviedbapi.model.core.MovieResultsPage;
 import info.movito.themoviedbapi.model.people.Person;
 import info.movito.themoviedbapi.model.people.PersonCast;
 import info.movito.themoviedbapi.model.people.PersonCrew;
 
 @Component
 public class CreateMovie {
+	
+	public static final String TMDB_IMAGE_FULL_URL = "https://www.themoviedb.org/t/p";
+	
 	public static final String TMDB_IMAGE_URL = "https://www.themoviedb.org/t/p/original";
 	
 	public static final String TMDB_API_KEY = "1ebdc434f5ee818a93a99347f02a76bf";
@@ -70,6 +76,66 @@ public class CreateMovie {
 	
 	@Autowired
 	private DirectorController directorController;
+	
+	public MovieDtoSearchResult searchMovie(String text) throws ParseException {
+		return searchMovie(text, null);
+	}
+	
+	public MovieDtoSearchResult searchMovie(String text, Integer page) throws ParseException {
+		TmdbApi tmdbApi = new TmdbApi(TMDB_API_KEY);
+		TmdbSearch tmdbSearch = tmdbApi.getSearch();
+		MovieResultsPage movieResultsPage = tmdbSearch.searchMovie(text, null, "en-US", false, page);
+		List<MovieDb> movieDbs = movieResultsPage.getResults();
+		List<MovieDto> movieDtos = new ArrayList<>();
+		if(movieDbs != null) for(MovieDb movieDb : movieDbs) {
+			System.out.println(movieDb);
+			System.out.println(movieDb.getBackdropPath());
+			System.out.println(movieDb.getPosterPath());
+			MovieDto movieDto = getMovieDto(movieDb);
+			movieDto.setPosterPath(TMDB_IMAGE_FULL_URL+"/w92"+movieDb.getPosterPath());
+			movieDtos.add(movieDto);
+		}
+		movieResultsPage.getPage();
+		MovieDtoSearchResult movieDtoSearchResult = new MovieDtoSearchResult();
+		movieDtoSearchResult.setSearchText(text);
+		movieDtoSearchResult.setResultList(movieDtos);
+		movieDtoSearchResult.setCurrentPage(movieResultsPage.getPage());
+		movieDtoSearchResult.setTotalPages(movieResultsPage.getTotalPages());
+		return movieDtoSearchResult;
+	}
+	
+	public static class MovieDtoSearchResult {
+		private String searchText;
+		private List<MovieDto> resultList;
+		private int currentPage;
+		private int totalPages;
+		public List<MovieDto> getResultList() {
+			return resultList;
+		}
+		public int getCurrentPage() {
+			return currentPage;
+		}
+		public int getTotalPages() {
+			return totalPages;
+		}
+		public void setResultList(List<MovieDto> resultList) {
+			this.resultList = resultList;
+		}
+		public void setCurrentPage(int currentPage) {
+			this.currentPage = currentPage;
+		}
+		public void setTotalPages(int totalPages) {
+			this.totalPages = totalPages;
+		}
+		public String getSearchText() {
+			return searchText;
+		}
+		public void setSearchText(String searchText) {
+			this.searchText = searchText;
+		}
+		
+		
+	}
 
 	public void addMovieToDatabase(int movieId) throws ParseException {
 		MovieDto movieDto = new MovieDto();
@@ -77,6 +143,7 @@ public class CreateMovie {
 		String movieID;
 		TmdbApi tmdbApi = new TmdbApi(TMDB_API_KEY);
 		TmdbMovies tmdbMovies = tmdbApi.getMovies();
+		
 		MovieDb movieDb = tmdbMovies.getMovie(movieId, "en-US", MovieMethod.credits);
 		movieDto.setMediaName(movieDb.getOriginalTitle());
 		movieDto.setRuntime(movieDb.getRuntime());
@@ -150,6 +217,37 @@ public class CreateMovie {
 			if(count >= max)
 				break;
 		}
+	}
+	
+	private MovieDto getMovieDto(MovieDb movieDb) {
+		MovieDto movieDto = new MovieDto();
+		movieDto.setMediaName(movieDb.getOriginalTitle());
+		movieDto.setRuntime(movieDb.getRuntime());
+		movieDto.setSynopsis(movieDb.getOverview());
+		List<Genre> genres = movieDb.getGenres();
+		List<String> movieGenres = new ArrayList<>();
+		if(genres != null) for(Genre genre : genres)
+			movieGenres.add(genre.getName());
+		movieDto.setGenres(movieGenres);
+		String releaseDateStr = movieDb.getReleaseDate();
+		try {
+			LocalDate releaseDate = LocalDate.parse(releaseDateStr);
+			movieDto.setReleaseDate(releaseDate);
+			movieDto.setYear(releaseDate.getYear());
+		}
+		catch (DateTimeParseException e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		String movieMediaID = ""+movieDb.getId();
+		movieDto.setMediaID(movieMediaID);
+		
+		movieDto.setPosterPath(TMDB_IMAGE_URL+movieDb.getPosterPath());
+		movieDto.setBackdropPath(TMDB_IMAGE_URL+movieDb.getBackdropPath());
+		
+		//movieDto.setPosterPath(POSTERS_PATH+movieDto.getMediaID()+".jpg");
+		//movieDto.setBackdropPath(BACKDROP_PATH+movieDto.getMediaID()+".jpg");
+		return movieDto;
 	}
 	
 	private PersonDto getPersonDto(Person person) {

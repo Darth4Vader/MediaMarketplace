@@ -3,6 +3,7 @@ package frontend;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 
 import backend.dto.cart.CartProductDto;
 import backend.entities.Movie;
@@ -35,8 +36,17 @@ public class AppUtils {
 	}
 	
 	public static Image loadImageFromClass(String path) throws MalformedURLException {
-		String fullPath = new File(path).toURI().toURL().toExternalForm();
-		return new Image(fullPath);
+		URL url;
+		try {
+			url = new URL(path);
+		}
+		catch (MalformedURLException e) {
+			url = new File(path).toURI().toURL();
+		}
+		
+		String fullPath = url.toExternalForm();
+		System.out.println(fullPath);
+		return new Image(fullPath, true);
 	}
 	
 	public static ImageView loadImageViewFromClass(String path) throws MalformedURLException {

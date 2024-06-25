@@ -20,6 +20,7 @@ import backend.exceptions.UserAlreadyExistsException;
 import backend.exceptions.UserDoesNotExistsException;
 import backend.exceptions.UserNotLoggedInException;
 import backend.exceptions.UserPasswordIsIncorrectException;
+import frontend.admin.AddMoviePageController;
 import frontend.auth.LogInUserController;
 import frontend.homePage.HomePageController;
 import frontend.sortPage.SortPageController;
@@ -89,13 +90,14 @@ public class App extends Application {
 		try {
 			LogInResponseDto d = userAuth.loginUser(dto);
 			//userAuth.registerUser(new UserInformationDto("bilbo", "", "bag", "bag"));
-		} catch (UserPasswordIsIncorrectException | LogValuesAreIncorrectException | UserDoesNotExistsException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		//changeStageToFXML(LogInUserController.PATH);
-		changeAppPanel(HomePageController.PATH);
+		//changeAppPanel(HomePageController.PATH);
 		//changeAppPanel(SortPageController.PATH);
+		changeAppPanel(AddMoviePageController.PATH);
 		this.stage.show();
 		/*FXMLLoader loader = new FXMLLoader(getClass().getResource("/frontend/auth/RegisterUser.fxml"));
 	    //System.out.println(getClass().getResource("/frontend/auth/RegisterUser.fxml"));
