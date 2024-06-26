@@ -124,7 +124,8 @@ public class HomePageController {
 			b.setTop(addToCart);
 			
 			b.setOnMouseClicked(evt -> {
-				FXMLLoader loader = App.getApplicationInstance().getFXMLLoader(MoviePageController.PATH);
+				App.getApplicationInstance().enterMoviePage(movie);
+				/*FXMLLoader loader = App.getApplicationInstance().getFXMLLoader(MoviePageController.PATH);
 				try {
 					Parent root = loader.load();
 					MoviePageController controller = loader.getController();
@@ -132,7 +133,7 @@ public class HomePageController {
 					AppUtils.enterPanel(root);
 				} catch (IOException e) {
 					e.printStackTrace();
-				}
+				}*/
 			});
 			
 			gridPane.add(b, currentCols, row);

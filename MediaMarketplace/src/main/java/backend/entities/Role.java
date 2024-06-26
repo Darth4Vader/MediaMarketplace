@@ -12,6 +12,8 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name="roles")
 public class Role implements GrantedAuthority {
+	
+	public static final String ADMIN = "ADMIN", USER = "USER";
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)

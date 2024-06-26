@@ -38,8 +38,19 @@ public class ProductController {
     }
 	
 	@GetMapping("/add")
-    public ResponseEntity<String> addProduct(@Valid @RequestBody ProductDto productDto) throws EntityNotFoundException {
-		productService.addProduct(productDto);
+    public Long addProduct(@Valid @RequestBody ProductDto productDto) throws EntityNotFoundException {
+		return productService.addProduct(productDto);
+        //return new ResponseEntity<>("Created Successfully", HttpStatus.OK);
+    }
+	
+	@GetMapping("/update")
+    public ResponseEntity<String> updateProduct(@Valid @RequestBody ProductDto productDto) throws EntityNotFoundException {
+		productService.updateProduct(productDto);
         return new ResponseEntity<>("Created Successfully", HttpStatus.OK);
+    }
+	
+	@GetMapping("/get/{movieId}")
+    public Product getProductByMovieId(Long movieId) throws EntityNotFoundException {
+		return productService.getProductByMovieId(movieId);
     }
 }

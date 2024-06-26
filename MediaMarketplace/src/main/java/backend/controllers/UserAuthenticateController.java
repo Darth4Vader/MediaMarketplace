@@ -1,6 +1,9 @@
 package backend.controllers;
 
+import java.util.Collection;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import backend.dto.users.LogInDto;
 import backend.dto.users.LogInResponseDto;
 import backend.dto.users.UserInformationDto;
+import backend.entities.Role;
 import backend.entities.User;
 import backend.exceptions.LogValuesAreIncorrectException;
 import backend.exceptions.UserAlreadyExistsException;
@@ -17,6 +21,7 @@ import backend.exceptions.UserNotLoggedInException;
 import backend.exceptions.UserPasswordIsIncorrectException;
 import backend.services.UserAuthenticateService;
 import backend.services.UserServiceImpl;
+import jakarta.persistence.EntityNotFoundException;
 
 @RestController
 @RequestMapping("/auth")
@@ -43,6 +48,11 @@ public class UserAuthenticateController {
     @PostMapping("/get/current_user")
     public UserInformationDto getCurrentUserDto() throws UserNotLoggedInException {
     	return userAuthService.getCurrentUserDto();
+    }
+    
+    @PostMapping("/is_admin/current_user")
+    public boolean isCurrentUserAdmin() {
+    	return userAuthService.isCurrentUserAdmin();
     }
     
     @PostMapping("/authenticate")

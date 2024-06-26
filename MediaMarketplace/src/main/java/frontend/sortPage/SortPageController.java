@@ -97,6 +97,40 @@ public class SortPageController {
 	    };
 	}
 	
+	/*public class DecimalFormatter extends StringConverter {
+
+	    private final NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.ITALY);
+
+	    public DecimalFormatter(int fractionsLenght) {
+	        numberFormat.setMaximumFractionDigits(fractionsLenght);
+	        numberFormat.setMinimumFractionDigits(fractionsLenght);
+	    }
+
+	    public DecimalFormatter() {
+	        numberFormat.setMaximumFractionDigits(2);
+	        numberFormat.setMinimumFractionDigits(2);
+	    }
+
+	    @Override
+	    public String toString(BigDecimal value) {
+	        if ( value == null )
+	            value = new BigDecimal(0);
+	        return numberFormat.format(value.doubleValue());
+	    }
+
+	    @Override
+	    public Decimal fromString(String value) {
+	        value = value.replaceAll(",", ".");
+	        return new BigDecimal(value);
+	    }
+
+		@Override
+		public String toString(Object object) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+	}*/
+	
 	private ObservableList<Genre> genresSelected;
 	
 	@FXML
@@ -242,10 +276,10 @@ public class SortPageController {
 		for(Genre genre : genresSelected)
 			genresNames.add(genre.getName());
 		sortDto.setGenres(genresNames);
-		sortDto.setYearUp(getNumber(yearUp.getText()));
-		sortDto.setYearDown(getNumber(yearDown.getText()));
-		sortDto.setRatingUp(getNumber(ratingUp.getText()));
-		sortDto.setRatingDown(getNumber(ratingDown.getText()));
+		sortDto.setYearUp(DataUtils.getNumber(yearUp.getText()));
+		sortDto.setYearDown(DataUtils.getNumber(yearDown.getText()));
+		sortDto.setRatingUp(DataUtils.getNumber(ratingUp.getText()));
+		sortDto.setRatingDown(DataUtils.getNumber(ratingDown.getText()));
 		List<Movie> searchList = SearchUtils.searchMoviesSort(sortDto);
 		for(Movie movie : searchList)
 			try {
@@ -268,15 +302,6 @@ public class SortPageController {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-	}
-	
-	private static Double getNumber(String str) {
-		try {
-			return Double.parseDouble(str);
-		}
-		catch (NumberFormatException e) {
-			return null;
-		}
 	}
 	
 }

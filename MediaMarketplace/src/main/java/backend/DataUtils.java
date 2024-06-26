@@ -14,4 +14,13 @@ public class DataUtils {
 		return str1 != null && str1.equalsIgnoreCase(str2);
 	}
 
+	public static Double getNumber(String str) {
+		try {
+			return Double.parseDouble(str);
+		}
+		catch (NumberFormatException e) {
+			return null;
+		}
+	}
+
 }

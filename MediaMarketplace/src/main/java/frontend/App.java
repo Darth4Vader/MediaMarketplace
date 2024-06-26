@@ -15,13 +15,17 @@ import backend.controllers.UserAuthenticateController;
 import backend.dto.users.LogInDto;
 import backend.dto.users.LogInResponseDto;
 import backend.dto.users.UserInformationDto;
+import backend.entities.Movie;
+import backend.entities.User;
 import backend.exceptions.LogValuesAreIncorrectException;
 import backend.exceptions.UserAlreadyExistsException;
 import backend.exceptions.UserDoesNotExistsException;
 import backend.exceptions.UserNotLoggedInException;
 import backend.exceptions.UserPasswordIsIncorrectException;
 import frontend.admin.AddMoviePageController;
+import frontend.admin.AdminProductPageController;
 import frontend.auth.LogInUserController;
+import frontend.help.MoviePageController;
 import frontend.homePage.HomePageController;
 import frontend.sortPage.SortPageController;
 import javafx.application.Application;
@@ -34,6 +38,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
+@Component
 public class App extends Application {
 	
 	//--module-path "C:\JavaFX\lib" --add-modules javafx.controls,javafx.fxml
@@ -85,7 +90,7 @@ public class App extends Application {
 			}*/
         });
 		this.stage = stage;
-		UserAuthenticateController userAuth = appContext.getBean(UserAuthenticateController.class);
+		userAuth = appContext.getBean(UserAuthenticateController.class);
 		LogInDto dto = new LogInDto("bilbo", "bag");
 		try {
 			LogInResponseDto d = userAuth.loginUser(dto);
@@ -146,6 +151,31 @@ public class App extends Application {
 			stage.setScene(scene);
 		}
 		appPane.setCenter(component);
+	}
+	
+	private UserAuthenticateController userAuth;
+	
+	public void enterMoviePage(Movie movie) {
+		boolean isAdmin = userAuth.isCurrentUserAdmin();
+		try {
+			if(isAdmin) {
+				FXMLLoader loader = App.getApplicationInstance().getFXMLLoader(MoviePageController.PATH);
+				Parent root = loader.load();
+				MoviePageController controller = loader.getController();
+				controller.initializeMovie(movie);
+				AppUtils.enterPanel(root);
+			}
+			else {
+				FXMLLoader loader = App.getApplicationInstance().getFXMLLoader(AdminProductPageController.PATH);
+				Parent root = loader.load();
+				AdminProductPageController controller = loader.getController();
+				controller.initializeProduct(movie);
+				AppUtils.enterPanel(root);
+			}
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Override

@@ -36,20 +36,35 @@ public class ProductService {
     	return productRepository.findAll();
     }
     
-    public void addProduct(ProductDto productDto) throws EntityNotFoundException {
+    public Long addProduct(ProductDto productDto) throws EntityNotFoundException {
     	Movie movie = movieService.getMovieByID(productDto.getMovieId());
     	Product product = getProductFromDto(productDto, movie);
     	productRepository.save(product);
+    	return product.getId();
+    }
+    
+    public void updateProduct(ProductDto productDto) throws EntityNotFoundException {
+    	Product product = getProductByID(productDto.getProductId());
+    	updateProductFromDto(product, productDto);
+    	productRepository.save(product);
+    }
+    
+    public Product getProductByMovieId(Long movieId) throws EntityNotFoundException {
+    	return productRepository.findByMovieId(movieId).
+    			orElseThrow(() -> new EntityNotFoundException("The Movie does not have a product"));
     }
     
     public static Product getProductFromDto(ProductDto productDto, Movie movie) {
         Product product = new Product();
+        updateProductFromDto(product, productDto);
+        return product;
+    }
+    
+    public static void updateProductFromDto(Product product, ProductDto productDto) {
         product.setBuyPrice(productDto.getBuyPrice());
         product.setRentPrice(productDto.getRentPrice());
         product.setBuyDiscount(productDto.getBuyDiscount());
         product.setRentDiscount(productDto.getRentDiscount());
-        product.setMovie(movie);
-        return product;
     }
     
     public Product getProductByID(Long id) throws EntityNotFoundException {

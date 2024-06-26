@@ -42,11 +42,10 @@ public class ActivateSpringApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		if(roleRepository.findByAuthority("ADMIN").isPresent()) return;
-		Role adminRole = roleRepository.save(new Role("ADMIN"));
-		roleRepository.save(new Role("USER"));
-		/*Set<Role> roles = new HashSet<>();
-		roles.add(adminRole);*/
+		if(!roleRepository.findByAuthority(Role.ADMIN).isPresent())
+			roleRepository.save(new Role(Role.ADMIN));
+		if(!roleRepository.findByAuthority(Role.USER).isPresent())
+			roleRepository.save(new Role(Role.USER));
 	}
 
 }

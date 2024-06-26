@@ -1,14 +1,17 @@
 package backend.services;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,6 +30,7 @@ import backend.exceptions.UserNotLoggedInException;
 import backend.exceptions.UserPasswordIsIncorrectException;
 import backend.repositories.RoleRepository;
 import backend.repositories.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class UserAuthenticateService {
@@ -55,14 +59,14 @@ public class UserAuthenticateService {
     	//encode the password
     	String encodedPassword = encodePassword(registerDto.getPassword());
         //create the authorities for the new user
-    	Role userRole = roleRepository.findByAuthority("USER").get();
+    	Role userRole = roleRepository.findByAuthority(Role.USER).get();
         Set<Role> authorities = new HashSet<>();
         authorities.add(userRole);
         User newUser = new User(username, encodedPassword, authorities);
         userRepository.save(newUser);
         return "succsses";
     }
-
+    
     public LogInResponseDto loginUser(LogInDto loginDto) throws UserDoesNotExistsException, UserPasswordIsIncorrectException, LogValuesAreIncorrectException {
     	String username = loginDto.getUserName();
     	String password = loginDto.getPassword();
@@ -74,7 +78,9 @@ public class UserAuthenticateService {
 	            new UsernamePasswordAuthenticationToken(username, password));
 	        SecurityContextHolder.getContext().setAuthentication(auth);
 	        String token = tokenService.generateJwt(auth);
+	        //((Set<Role>) userRepository.findByUsername(username).get().getAuthorities()).add(roleRepository.findByAuthority(Role.ADMIN).get());
 	        System.out.println("Token: " + token);
+	        System.out.println("Roles: " + userRepository.findByUsername(username).get().getAuthorities().stream().map(s -> s.getAuthority()).collect(Collectors.toList()));
 	        return new LogInResponseDto(userRepository.findByUsername(username).get(), token);
     } catch(AuthenticationException e) {
         SecurityContextHolder.getContext().setAuthentication(null);
@@ -115,6 +121,13 @@ public class UserAuthenticateService {
             throw new UsernameNotFoundException("User not found");
         }
         return user;*/
+    }
+    
+    public boolean isCurrentUserAdmin() {
+    	User user = tokenService.getCurretUser();
+    	Role admin = roleRepository.findByAuthority(Role.ADMIN).orElseThrow(() -> new EntityNotFoundException("The role ADMIN does not exists"));
+    	Collection<? extends GrantedAuthority> roles = user.getAuthorities();
+    	return roles != null && roles.contains(admin);
     }
     
     public UserInformationDto getCurrentUserDto() throws UserNotLoggedInException {

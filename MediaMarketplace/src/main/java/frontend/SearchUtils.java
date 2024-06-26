@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import backend.DataUtils;
 import backend.controllers.ActorController;
+import backend.controllers.MovieController;
 import backend.controllers.MovieReviewController;
 import backend.controllers.ProductController;
 import backend.entities.Actor;
@@ -310,11 +311,14 @@ public class SearchUtils {
 	
 	private static ProductController productController;
 	
+	private static MovieController movieController;
+	
 	private static MovieReviewController movieReviewController;
 	
     @Autowired
-    public SearchUtils(ProductController productController, MovieReviewController movieReviewController) {
-        SearchUtils.productController = productController;
+    public SearchUtils(ProductController productController, MovieReviewController movieReviewController, MovieController movieController) {
+        SearchUtils.movieController = movieController;
+    	SearchUtils.productController = productController;
         SearchUtils.movieReviewController = movieReviewController;
     }
 	
@@ -362,9 +366,10 @@ public class SearchUtils {
 	
 	public static List<Movie> searchMoviesSort(SortDto sortDto) {
 		List<Movie> movieList = new ArrayList<>();
-    	List<Product> list = productController.getAllProducts();
-    	for(Product product : list) {
-    		Movie media = product.getMovie();
+		List<Movie> list = movieController.getAllMovies();
+    	//List<Product> list = productController.getAllProducts();
+    	for(Movie media : list) {
+    		//Movie media = product.getMovie();
         	try {
         		if(searchMovie(media, sortDto))
         			movieList.add(media);

@@ -14,5 +14,7 @@ import backend.entities.Role;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 	
+	Optional<Product> findByMovieId(Long movieId);
+	
 }
 
