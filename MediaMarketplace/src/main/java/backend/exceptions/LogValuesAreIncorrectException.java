@@ -1,11 +1,15 @@
 package backend.exceptions;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
 import DataStructures.UserLogInfo;
+import backend.DataUtils;
+import backend.dto.mediaProduct.MovieReviewDto;
 import backend.dto.users.UserInformationDto;
+import net.bytebuddy.asm.Advice.Local;
 
 public class LogValuesAreIncorrectException extends Exception {
 

@@ -27,18 +27,19 @@ import backend.exceptions.EntityNotFoundException;
 import backend.repositories.UserRepository;
 import backend.services.CartService;
 import backend.services.GenreService;
-import backend.services.MediaPurchasedService;
+import backend.services.MoviePurchasedService;
+import backend.services.MovieService;
 import backend.services.OrderService;
 import backend.services.TokenService;
 import backend.services.UserServiceImpl;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/media_purchased")
-public class MediaPurchasedController {
+@RequestMapping("/movie_purchased")
+public class MoviePurchasedController {
 
 	@Autowired
-	private MediaPurchasedService mediaPurchasedService; 
+	private MoviePurchasedService moviePurchasedService;
 	
 	@Autowired
 	private TokenService tokenService;
@@ -46,6 +47,12 @@ public class MediaPurchasedController {
 	@GetMapping("/get/user_media_products")
 	public List<Movie> getAllActiveMediaProductsOfUser() {
 		User user = tokenService.getCurretUser();
-		return mediaPurchasedService.getAllActiveMoviesOfUser(user);
+		return moviePurchasedService.getAllActiveMoviesOfUser(user);
+    }
+	
+	@GetMapping("/get_active/{movieId}")
+    public List<MoviePurchased> getActiveListUserMovie(Long movieId) throws EntityNotFoundException {
+		User user = tokenService.getCurretUser();
+    	return moviePurchasedService.getActiveListUserMovie(user, movieId);
     }
 }

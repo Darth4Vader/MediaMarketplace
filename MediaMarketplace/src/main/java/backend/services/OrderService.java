@@ -1,5 +1,9 @@
 package backend.services;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -43,15 +47,19 @@ public class OrderService {
     	for(CartProduct cartProduct : cartProducts) {
     		Product product = cartProduct.getProduct();
     		boolean isBuy = cartProduct.isBuying();
+    		System.out.println("Palapatine: " + isBuy);
     		double price = product.calculatePrice(isBuy);
     		Movie movie = product.getMovie();
     		MoviePurchased orderItem = new MoviePurchased();
     		orderItem.setMovie(movie);
     		orderItem.setPurchasePrice(price);
+    		System.out.println("Are you buying friend: " + isBuy);
+    		orderItem.setRented(!isBuy);
+    		if(!isBuy)
+    			orderItem.setRentTime(Duration.ofHours(72));
     		totalPrice += price;
     		order.addToPurchasedItems(orderItem);
     	}
-    	order.setPurchasedDate(new Date());
     	order.setTotalPrice(totalPrice);
     	order.setUser(user);
     	cartService.removeCartFromUser(cart);

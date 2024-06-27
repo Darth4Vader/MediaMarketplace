@@ -1,8 +1,12 @@
 package backend.entities;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -10,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,6 +27,7 @@ import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "orders")
+@EntityListeners(AuditingEntityListener.class)
 public class Order {
 	
 	@Id
@@ -31,8 +37,9 @@ public class Order {
 	@Column(name = "total_price")
 	private double totalPrice;
 	
-	@Column(name = "purchased_price", nullable = false)
-	private Date purchasedDate;
+	@CreatedDate
+	@Column(name = "purchased_date", nullable = false)
+	private LocalDateTime purchasedDate;
 	
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "order", cascade = CascadeType.ALL)
 	//@JoinColumn(name = "media_purchased_id", insertable = false, updatable = false)
@@ -54,7 +61,7 @@ public class Order {
 		return totalPrice;
 	}
 
-	public Date getPurchasedDate() {
+	public LocalDateTime getPurchasedDate() {
 		return purchasedDate;
 	}
 
@@ -74,7 +81,7 @@ public class Order {
 		this.totalPrice = totalPrice;
 	}
 
-	public void setPurchasedDate(Date purchasedDate) {
+	public void setPurchasedDate(LocalDateTime purchasedDate) {
 		this.purchasedDate = purchasedDate;
 		for(MoviePurchased purchased : this.purchasedItems)
 			purchased.setPurchaseDate(purchasedDate);

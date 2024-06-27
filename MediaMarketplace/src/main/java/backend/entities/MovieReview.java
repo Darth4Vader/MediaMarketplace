@@ -1,6 +1,11 @@
 package backend.entities;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Calendar;
+
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,9 +21,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "movie_reviews")
+@EntityListeners(AuditingEntityListener.class)
 public class MovieReview {
 	
 	@Id
@@ -25,7 +33,7 @@ public class MovieReview {
 	private Long id;
 	
 	@Column(columnDefinition = "INT CHECK (rating <= 100 and rating >= 0)")
-	private int rating;
+	private Integer rating;
 	
 	@Column(name = "review_title")
 	private String reviewTitle;
@@ -33,15 +41,16 @@ public class MovieReview {
 	@Column(length = 1000)
 	private String review;
 	
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
-	@Column(name = "created_date")
-	private Calendar createdDate;
+	@LastModifiedDate
+	@Column(name = "created_date", nullable = false)
+	@NotBlank
+	private LocalDateTime createdDate;
 	
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "movie_id", referencedColumnName = "id", nullable = false)
     private Movie movie;
     
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER)
     //@JsonIgnore
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -50,7 +59,7 @@ public class MovieReview {
 		return id;
 	}
 
-	public int getRating() {
+	public Integer getRating() {
 		return rating;
 	}
 
@@ -70,7 +79,7 @@ public class MovieReview {
 		return user;
 	}
 
-	public void setRating(int rating) {
+	public void setRating(Integer rating) {
 		this.rating = rating;
 	}
 
@@ -90,11 +99,11 @@ public class MovieReview {
 		this.user = user;
 	}
 
-	public Calendar getCreatedDate() {
+	public LocalDateTime getCreatedDate() {
 		return createdDate;
 	}
 
-	public void setCreatedDate(Calendar createdDate) {
+	public void setCreatedDate(LocalDateTime createdDate) {
 		this.createdDate = createdDate;
 	}
 }

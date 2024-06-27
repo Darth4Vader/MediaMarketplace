@@ -1,5 +1,7 @@
 package backend.entities;
 
+import java.util.Objects;
+
 import org.springframework.security.core.GrantedAuthority;
 
 import jakarta.persistence.Column;
@@ -45,4 +47,21 @@ public class Role implements GrantedAuthority {
     public void setRoleId(Long id){
         this.id = id;
     }
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(authority, id);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Role other = (Role) obj;
+		return Objects.equals(authority, other.authority) && Objects.equals(id, other.id);
+	}
 }

@@ -21,4 +21,7 @@ public interface MovieReviewRepository extends JpaRepository<MovieReview, Long> 
 	
 	Optional<List<MovieReview>> findAllByMovieId(Long movieId);
 	
+	Optional<MovieReview> findByMovieIdAndUserId(Long movieId, Long userId);
+	
+	Optional<MovieReview> findByMovieAndUser(Movie movie, User user);
 }

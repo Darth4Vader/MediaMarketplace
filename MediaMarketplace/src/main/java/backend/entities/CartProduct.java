@@ -44,11 +44,6 @@ public class CartProduct {
 	public CartProduct() {
 	}
 
-	public CartProduct(Product product, Cart cart, boolean isBuying) {
-		this.product = product;
-		this.cart = cart;
-	}
-
 	public Long getId() {
 		return id;
 	}

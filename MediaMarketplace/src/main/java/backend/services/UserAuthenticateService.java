@@ -3,6 +3,7 @@ package backend.services;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -71,11 +72,12 @@ public class UserAuthenticateService {
     	String username = loginDto.getUserName();
     	String password = loginDto.getPassword();
     	LogValuesAreIncorrectException.checkForException(username, password);
-    	if(userRepository.findByUsername(username).isEmpty())
+    	Optional<User> userOPt = userRepository.findByUsername(username);
+    	if(userOPt.isEmpty())
     		throw new UserDoesNotExistsException();
     	try {
 	        Authentication auth = authenticationManager.authenticate(
-	            new UsernamePasswordAuthenticationToken(username, password));
+	            new UsernamePasswordAuthenticationToken(username, password, userOPt.get().getAuthorities()));
 	        SecurityContextHolder.getContext().setAuthentication(auth);
 	        String token = tokenService.generateJwt(auth);
 	        //((Set<Role>) userRepository.findByUsername(username).get().getAuthorities()).add(roleRepository.findByAuthority(Role.ADMIN).get());
@@ -127,6 +129,11 @@ public class UserAuthenticateService {
     	User user = tokenService.getCurretUser();
     	Role admin = roleRepository.findByAuthority(Role.ADMIN).orElseThrow(() -> new EntityNotFoundException("The role ADMIN does not exists"));
     	Collection<? extends GrantedAuthority> roles = user.getAuthorities();
+        /*System.out.println("Les Admins");
+        System.out.println(admin.getAuthority());
+    	System.out.println("Roles: " + user.getAuthorities().stream().map(s -> s.getAuthority()).collect(Collectors.toList()));
+    	for(GrantedAuthority g : roles)
+    		System.out.println(g.getAuthority() + " " + g.equals(admin));*/
     	return roles != null && roles.contains(admin);
     }
     

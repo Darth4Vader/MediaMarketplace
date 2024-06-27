@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
@@ -11,7 +13,14 @@
    <content>
       <VBox>
          <children>
-            <ImageView fx:id="posterView" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+            <BorderPane fx:id="backgroundView">
+               <left>
+                  <ImageView fx:id="posterView" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="CENTER" />
+               </left>
+               <right>
+                  <VBox fx:id="productOptions" BorderPane.alignment="CENTER" />
+               </right>
+            </BorderPane>
             <TextArea fx:id="synopsisArea" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="150.0" prefWidth="400.0" wrapText="true" />
             <HBox>
                <children>
@@ -32,6 +41,7 @@
             </ScrollPane>
             <Label text="Reviews" />
             <VBox fx:id="reviewsBox" />
+            <Button mnemonicParsing="false" onAction="#openAddReviewPage" text="Add Review" />
          </children>
       </VBox>
    </content>

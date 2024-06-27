@@ -34,6 +34,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
@@ -91,19 +92,38 @@ public class App extends Application {
         });
 		this.stage = stage;
 		userAuth = appContext.getBean(UserAuthenticateController.class);
-		LogInDto dto = new LogInDto("bilbo", "bag");
+		LogInDto dto = new LogInDto("frodo", "bag");
 		try {
 			LogInResponseDto d = userAuth.loginUser(dto);
-			//userAuth.registerUser(new UserInformationDto("bilbo", "", "bag", "bag"));
+			//userAuth.registerUser(new UserInformationDto("frodo", "", "bag", "bag"));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		//changeStageToFXML(LogInUserController.PATH);
-		//changeAppPanel(HomePageController.PATH);
+		changeAppPanel(HomePageController.PATH);
+		
+		
 		//changeAppPanel(SortPageController.PATH);
-		changeAppPanel(AddMoviePageController.PATH);
-		this.stage.show();
+		
+		//Don't forget about this
+		
+		/*ImageView imageView = new ImageView(AppUtils.loadImageFromClass("/frontend/markplace_logo.png"));
+	    imageView.setPreserveRatio(true);
+	    imageView.setFitWidth(64);
+	    imageView.setFitHeight(64);
+		stage.getIcons().add(imageView.snapshot(null, null));
+		
+	    imageView.setFitWidth(32);
+	    imageView.setFitHeight(32);
+		stage.getIcons().add(imageView.snapshot(null, null));*/
+		
+		
+		stage.getIcons().add(new Image(getClass().getResourceAsStream("markplace_logo.png")));
+		
+		//changeAppPanel(AddMoviePageController.PATH);
+		
+		stage.show();
 		/*FXMLLoader loader = new FXMLLoader(getClass().getResource("/frontend/auth/RegisterUser.fxml"));
 	    //System.out.println(getClass().getResource("/frontend/auth/RegisterUser.fxml"));
 	    loader.setControllerFactory(appContext::getBean);
@@ -155,21 +175,26 @@ public class App extends Application {
 	
 	private UserAuthenticateController userAuth;
 	
+	public Stage getStage() {
+		return this.stage;
+	}
+	
 	public void enterMoviePage(Movie movie) {
 		boolean isAdmin = userAuth.isCurrentUserAdmin();
 		try {
+			System.out.println("In Admin: " + isAdmin);
 			if(isAdmin) {
-				FXMLLoader loader = App.getApplicationInstance().getFXMLLoader(MoviePageController.PATH);
-				Parent root = loader.load();
-				MoviePageController controller = loader.getController();
-				controller.initializeMovie(movie);
-				AppUtils.enterPanel(root);
-			}
-			else {
 				FXMLLoader loader = App.getApplicationInstance().getFXMLLoader(AdminProductPageController.PATH);
 				Parent root = loader.load();
 				AdminProductPageController controller = loader.getController();
 				controller.initializeProduct(movie);
+				AppUtils.enterPanel(root);
+			}
+			else {
+				FXMLLoader loader = App.getApplicationInstance().getFXMLLoader(MoviePageController.PATH);
+				Parent root = loader.load();
+				MoviePageController controller = loader.getController();
+				controller.initializeMovie(movie);
 				AppUtils.enterPanel(root);
 			}
 		}

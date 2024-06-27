@@ -15,6 +15,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -30,6 +31,7 @@ import backend.repositories.UserRepository;
 @ComponentScan({"backend", "frontend"})
 @EntityScan("backend.entities") 
 @EnableJpaRepositories(basePackages = "backend.repositories")
+@EnableJpaAuditing
 @SpringBootApplication
 public class ActivateSpringApplication implements CommandLineRunner {
 	@Autowired

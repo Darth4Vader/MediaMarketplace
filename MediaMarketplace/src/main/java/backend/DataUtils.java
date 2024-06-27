@@ -1,5 +1,13 @@
 package backend;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+
+import javafx.scene.control.Label;
+
 public class DataUtils {
 	
 	public static boolean isBlank(String str) {
@@ -21,6 +29,27 @@ public class DataUtils {
 		catch (NumberFormatException e) {
 			return null;
 		}
+	}
+	
+	public static Integer getIntegerNumber(String str) {
+		try {
+			return Integer.parseInt(str);
+		}
+		catch (NumberFormatException e) {
+			return null;
+		}
+	}
+	
+	public static String getLocalDateTimeInCurrentZone(LocalDateTime localDateTime) {
+		ZonedDateTime date = localDateTime.atZone(ZoneId.systemDefault());
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MMMM-yyyy HH:mm:ss");
+		return date.format(formatter);
+	}
+	
+	public static String durationToString(Duration duration) {
+        String time  = String.format("%02d days: %02d:%02d:%02d", duration.toDays(), duration.toHoursPart(), duration.toMinutesPart(),
+                duration.toSecondsPart());
+        return time;
 	}
 
 }

@@ -12,16 +12,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import backend.dto.mediaProduct.MovieReviewDto;
 import backend.dto.mediaProduct.ProductDto;
 import backend.entities.Movie;
 import backend.entities.MovieReview;
 import backend.entities.Product;
 import backend.entities.User;
+import backend.exceptions.DtoValuesAreIncorrectException;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
 import backend.services.MovieReviewService;
 import backend.services.MovieService;
 import backend.services.ProductService;
+import backend.services.TokenService;
 import backend.services.UserServiceImpl;
 import jakarta.validation.Valid;
 
@@ -32,10 +35,27 @@ public class MovieReviewController {
 	@Autowired
 	private MovieReviewService movieReviewService;
 	
+	@Autowired
+	private TokenService tokenService;
+	
 	@GetMapping("/get_all")
 	@ResponseStatus(code = HttpStatus.OK)
     public List<MovieReview> getAllReviewOfMovie(Long movieId) throws EntityNotFoundException {
 		return movieReviewService.getAllReviewOfMovie(movieId);
+    }
+	
+	@GetMapping("/get/{movieId}/{userId}")
+	@ResponseStatus(code = HttpStatus.OK)
+    public MovieReview getMovieReviewOfUser(Long movieId) throws EntityNotFoundException  {
+		User user = tokenService.getCurretUser();
+		return movieReviewService.getMovieReviewOfUser(movieId, user);
+    }
+	
+	@GetMapping("/add/{movieId}/{userId}")
+	@ResponseStatus(code = HttpStatus.OK)
+    public void addMovieReviewOfUser(MovieReviewDto movieReviewDto) throws DtoValuesAreIncorrectException, EntityNotFoundException  {
+		User user = tokenService.getCurretUser();
+		movieReviewService.addMovieReviewOfUser(movieReviewDto, user);
     }
 	
 	public static double calculateRating(List<MovieReview> reviews) {

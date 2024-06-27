@@ -51,9 +51,14 @@ public class CartService {
     public void addProductToCart(CartProductDto dto, User user) throws EntityNotFoundException, EntityAlreadyExistsException {
     	Product product = productService.getProductByID(dto.getProductId());
     	Cart cart = getUserCart(user);
+    	System.out.println("I am here");
     	checkIfProductNotInCart(cart, product);
     	//add product to cart
-    	CartProduct cartProduct = new CartProduct(product, cart, dto.isBuying());
+    	System.out.println("I am buying: " + dto.isBuying());
+    	CartProduct cartProduct = new CartProduct();
+    	cartProduct.setProduct(product);
+    	cartProduct.setCart(cart);
+    	cartProduct.setBuying(dto.isBuying());
     	cartProductRepository.save(cartProduct);
     	List<CartProduct> cartProducts = cart.getCartProducts();
     	cartProducts.add(cartProduct);

@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import backend.controllers.MediaPurchasedController;
+import backend.controllers.MoviePurchasedController;
 import backend.entities.Movie;
 import frontend.AppUtils;
 import javafx.fxml.FXML;
@@ -34,7 +34,7 @@ public class MediaLibraryController {
 	private VBox mainPane;
 	
 	@Autowired
-	private MediaPurchasedController mediaPurchasedController;
+	private MoviePurchasedController mediaPurchasedController;
 
 	@FXML
 	private void initialize() throws MalformedURLException {
