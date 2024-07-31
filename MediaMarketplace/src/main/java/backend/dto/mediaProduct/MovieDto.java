@@ -26,7 +26,7 @@ public class MovieDto {
 	
 	private String synopsis;
 	
-	private double year;
+	private int year;
 	
 	private LocalDate releaseDate;
 	
@@ -88,7 +88,7 @@ public class MovieDto {
 		this.genres = genres;
 	}
 
-	public double getYear() {
+	public int getYear() {
 		return year;
 	}
 
@@ -96,7 +96,7 @@ public class MovieDto {
 		return releaseDate;
 	}
 
-	public void setYear(double year) {
+	public void setYear(int year) {
 		this.year = year;
 	}
 

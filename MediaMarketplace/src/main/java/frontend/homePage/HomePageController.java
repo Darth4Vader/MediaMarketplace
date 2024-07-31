@@ -24,6 +24,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
@@ -42,6 +43,9 @@ public class HomePageController {
 	
 	@FXML
 	private GridPane gridPane;
+	
+	@FXML
+	private ScrollPane movieScrollPane;
 	
 	@FXML
 	private VBox mainPane;
@@ -92,7 +96,16 @@ public class HomePageController {
 			//view.maxHeight(Double.MAX_VALUE);
 			BorderPane b = new BorderPane();
 			view.fitWidthProperty().bind(mainPane.widthProperty());
-			view.fitHeightProperty().bind(mainPane.heightProperty().multiply(0.4));
+			view.fitHeightProperty().bind(movieScrollPane.heightProperty().multiply(0.4));
+			
+			//this one is the previous
+			//view.fitHeightProperty().bind(mainPane.heightProperty().multiply(0.4));
+			
+			
+			
+			
+			
+			
 			
 			//view.fitWidthProperty().bind(gridPane.getColumnConstraints().get(currentCols).prefWidthProperty());
 			//view.fitHeightProperty().bind(gridPane.getRowConstraints().get(row).prefHeightProperty());

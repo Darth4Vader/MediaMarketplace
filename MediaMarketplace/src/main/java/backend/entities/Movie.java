@@ -49,7 +49,7 @@ public class Movie {
 	@Column(length = 1000)
 	private String synopsis;
 	
-	private Double year;
+	private Integer year;
 	
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
 	@Column(name = "release_date")
@@ -124,7 +124,7 @@ public class Movie {
 		this.synopsis = synopsis;
 	}
 
-	public double getYear() {
+	public Integer getYear() {
 		return year;
 	}
 	
@@ -136,7 +136,7 @@ public class Movie {
 		return actorsRoles;
 	}
 
-	public void setYear(double year) {
+	public void setYear(int year) {
 		this.year = year;
 	}
 
@@ -161,7 +161,7 @@ public class Movie {
 		return directors;
 	}
 
-	public void setYear(Double year) {
+	public void setYear(Integer year) {
 		this.year = year;
 	}
 
