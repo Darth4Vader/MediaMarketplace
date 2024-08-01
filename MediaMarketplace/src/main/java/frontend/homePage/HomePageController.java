@@ -118,24 +118,6 @@ public class HomePageController {
 			b.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
 		            new BorderWidths(1))));
 			
-			Button addToCart = new Button("Add to Cart");
-			
-			addToCart.setOnAction(e -> {
-				CartProductDto dto = new CartProductDto();
-				dto.setProductId(product.getId());
-				try {
-					cartController.addProductToCart(dto);
-				} catch (EntityNotFoundException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (EntityAlreadyExistsException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-			});
-			
-			b.setTop(addToCart);
-			
 			b.setOnMouseClicked(evt -> {
 				App.getApplicationInstance().enterMoviePage(movie);
 				/*FXMLLoader loader = App.getApplicationInstance().getFXMLLoader(MoviePageController.PATH);

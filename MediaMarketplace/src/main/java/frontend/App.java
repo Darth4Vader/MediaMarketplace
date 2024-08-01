@@ -207,5 +207,6 @@ public class App extends Application {
 	public void stop() throws IOException {
 		appContext.close();
 		Platform.exit();
+		//System.exit(0);
 	}
 }

@@ -34,13 +34,13 @@
             </Label>
             <HBox>
                <children>
-                  <Label fx:id="yearLbl" text="Label" />
+                  <Label fx:id="yearLbl" text="?" />
                   <Label text="•">
                      <HBox.margin>
                         <Insets left="5.0" right="5.0" />
                      </HBox.margin>
                   </Label>
-                  <Label fx:id="rutimeLbl" text="Label" />
+                  <Label fx:id="rutimeLbl" text="?" />
                </children>
             </HBox>
             <HBox alignment="CENTER_LEFT">
@@ -50,13 +50,13 @@
                         <Font size="24.0" />
                      </font>
                   </Label>
-                  <Label style="-fx-font-style: bold;" text="Label" />
+                  <Label fx:id="movieRatingNumberLbl" style="-fx-font-weight: bold;" text="?" />
                   <Label text="/100">
                      <HBox.margin>
                         <Insets right="20.0" />
                      </HBox.margin>
                   </Label>
-                  <TextFlow fx:id="ratingButton" style="-fx-border-color: black; -fx-border-radius: 30;">
+                  <TextFlow fx:id="ratingButton" onMouseClicked="#openAddRatingsPage" style="-fx-border-color: black; -fx-border-radius: 30;">
                      <cursor>
                         <Cursor fx:constant="HAND" />
                      </cursor>
@@ -66,20 +66,29 @@
             <TextArea fx:id="synopsisArea" editable="false" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="80.0" wrapText="true" />
             <HBox fx:id="watchOptions">
                <children>
-                  <Label text="Directors" />
+                  <Label style="-fx-font-weight: bold; -fx-font-size: 17;" text="Directors">
+                     <font>
+                        <Font size="17.0" />
+                     </font></Label>
                </children></HBox>
-            <ScrollPane fitToHeight="true">
+            <ScrollPane fitToHeight="true" vbarPolicy="NEVER">
                <content>
                   <HBox fx:id="directorsBox" />
                </content>
             </ScrollPane>
-            <Label text="Actors" />
+            <Label style="-fx-font-weight: bold; -fx-font-size: 17;" text="Actors">
+               <font>
+                  <Font size="17.0" />
+               </font></Label>
             <ScrollPane fitToHeight="true" vbarPolicy="NEVER">
                <content>
                   <HBox fx:id="actorsBox" fillHeight="false" />
                </content>
             </ScrollPane>
-            <Label text="Reviews" />
+            <Label style="-fx-font-weight: bold; -fx-font-size: 17;" text="Reviews">
+               <font>
+                  <Font size="17.0" />
+               </font></Label>
             <Button mnemonicParsing="false" onAction="#openAddReviewPage" text="Add Review" />
             <VBox fx:id="reviewsBox" />
          </children>

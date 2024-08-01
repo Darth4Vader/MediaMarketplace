@@ -51,11 +51,18 @@ public class MovieReviewController {
 		return movieReviewService.getMovieReviewOfUser(movieId, user);
     }
 	
-	@GetMapping("/add/{movieId}/{userId}")
+	@GetMapping("/add_review/{movieId}/{userId}")
 	@ResponseStatus(code = HttpStatus.OK)
     public void addMovieReviewOfUser(MovieReviewDto movieReviewDto) throws DtoValuesAreIncorrectException, EntityNotFoundException  {
 		User user = tokenService.getCurretUser();
 		movieReviewService.addMovieReviewOfUser(movieReviewDto, user);
+	}
+	
+	@GetMapping("/add_ratings/{movieId}/{userId}")
+	@ResponseStatus(code = HttpStatus.OK)
+    public void addMovieRatingOfUser(MovieReviewDto movieReviewDto) throws DtoValuesAreIncorrectException, EntityNotFoundException  {
+		User user = tokenService.getCurretUser();
+		movieReviewService.addMovieRatingOfUser(movieReviewDto, user);
     }
 	
 	public static double calculateRating(List<MovieReview> reviews) {
@@ -63,7 +70,10 @@ public class MovieReviewController {
 		double sum = 0;
 		for(MovieReview review : reviews) {
 			sum += review.getRating();
+			System.out.println(sum);
 		}
+		System.out.println(size);
+		System.out.println(sum / size);
 		return sum / size;
 	}
 }

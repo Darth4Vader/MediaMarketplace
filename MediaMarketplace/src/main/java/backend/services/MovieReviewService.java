@@ -58,7 +58,7 @@ public class MovieReviewService {
     }
     
     public void addMovieReviewOfUser(MovieReviewDto movieReviewDto, User user) throws DtoValuesAreIncorrectException, EntityNotFoundException {
-    	checkForException(movieReviewDto);
+    	checkForExceptionReviews(movieReviewDto);
     	Movie movie = movieService.getMovieByID(movieReviewDto.getMovieId());
     	MovieReview movieReview;
     	try {
@@ -72,8 +72,26 @@ public class MovieReviewService {
     	movieReviewRepository.save(movieReview);
     }
     
-    private void getMovieReviewFromDto(MovieReview movieReview, MovieReviewDto movieReviewDto) {
+    public void addMovieRatingOfUser(MovieReviewDto movieReviewDto, User user) throws DtoValuesAreIncorrectException, EntityNotFoundException {
+    	checkForExceptionRatings(movieReviewDto);
+    	Movie movie = movieService.getMovieByID(movieReviewDto.getMovieId());
+    	MovieReview movieReview;
+    	try {
+			movieReview = getMovieReviewFromMovieUser(movie, user);
+		} catch (EntityNotFoundException e) {
+			movieReview = new MovieReview();
+			movieReview.setUser(user);
+			movieReview.setMovie(movie);
+		}
+    	getMovieRatingFromDto(movieReview, movieReviewDto);
+    	movieReviewRepository.save(movieReview);
+    }
+    private void getMovieRatingFromDto(MovieReview movieReview, MovieReviewDto movieReviewDto) {
     	movieReview.setRating(movieReviewDto.getRating());
+    }
+    
+    private void getMovieReviewFromDto(MovieReview movieReview, MovieReviewDto movieReviewDto) {
+    	getMovieRatingFromDto(movieReview, movieReviewDto);
     	movieReview.setReviewTitle(movieReviewDto.getReviewTitle());
     	movieReview.setReview(movieReviewDto.getReview());
     }
@@ -83,23 +101,38 @@ public class MovieReviewService {
     			.orElseThrow(() -> new EntityNotFoundException("The user did not review the movie"));
 	}
     
-	private void checkForException(MovieReviewDto movieReviewDto) throws DtoValuesAreIncorrectException {
+	private void checkForExceptionRatings(MovieReviewDto movieReviewDto) throws DtoValuesAreIncorrectException {
 		Map<String, String> map = new HashMap<>();
+		exceptionMapRatings(movieReviewDto, map);
+		if(!map.isEmpty())
+			throw new DtoValuesAreIncorrectException(map);
+	}
+	
+	private void checkForExceptionReviews(MovieReviewDto movieReviewDto) throws DtoValuesAreIncorrectException {
+		Map<String, String> map = new HashMap<>();
+		exceptionMapReview(movieReviewDto, map);
+		if(!map.isEmpty())
+			throw new DtoValuesAreIncorrectException(map);
+	}
+	
+	private void exceptionMapRatings(MovieReviewDto movieReviewDto, Map<String, String> map) {
 		Integer rating = movieReviewDto.getRating();
-		String reviewTitle = movieReviewDto.getReviewTitle();
-		String review = movieReviewDto.getReview();
 		if(rating == null)
 			map.put(MovieReviewTypes.RATING.name(), "Required field, the user must rate the movie");
 		else if(rating <= 0 || rating > 100)
 			map.put(MovieReviewTypes.RATING.name(), "The rating number must be between 1-100");
+	}
+	
+	private void exceptionMapReview(MovieReviewDto movieReviewDto, Map<String, String> map) {
+		exceptionMapRatings(movieReviewDto, map);
+		String reviewTitle = movieReviewDto.getReviewTitle();
+		String review = movieReviewDto.getReview();
 		if(DataUtils.isBlank(reviewTitle))
 			map.put(MovieReviewTypes.TITLE.name(), "Required field, the title must be written");
 		else if(reviewTitle.length() > 255)
 			map.put(MovieReviewTypes.REVIEW.name(), "The Review Title length must be less than 255");
-		if(DataUtils.isBlank(review) && review.length() > 1000)
+		if(DataUtils.isNotBlank(review) && review.length() > 1000)
 			map.put(MovieReviewTypes.REVIEW.name(), "The Review Content length must be less than 1000");
-		if(!map.isEmpty())
-			throw new DtoValuesAreIncorrectException(map);
 	}
     
 }

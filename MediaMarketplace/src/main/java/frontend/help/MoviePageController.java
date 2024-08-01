@@ -1,23 +1,14 @@
 package frontend.help;
 
 import java.net.MalformedURLException;
-import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 
 import backend.DataUtils;
 import backend.controllers.CartController;
@@ -40,26 +31,27 @@ import backend.exceptions.EntityNotFoundException;
 import backend.exceptions.enums.MovieReviewTypes;
 import frontend.App;
 import frontend.AppUtils;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.geometry.Side;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ContextMenu;
+import javafx.scene.control.DialogEvent;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.TextFormatter.Change;
 import javafx.scene.control.TextInputControl;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
@@ -67,7 +59,6 @@ import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -79,7 +70,6 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.converter.IntegerStringConverter;
-import javafx.util.converter.NumberStringConverter;
 
 @Component
 public class MoviePageController {
@@ -114,6 +104,9 @@ public class MoviePageController {
 	private Label rutimeLbl;
 	
 	@FXML
+	private Label movieRatingNumberLbl;
+	
+	@FXML
 	private HBox watchOptions;
 	
 	@FXML
@@ -124,21 +117,6 @@ public class MoviePageController {
 	
 	@FXML
 	private VBox reviewsBox;
-	
-	/*@FXML
-	private void initialize(Movie movie) throws MalformedURLException {
-		posterView.setImage(AppUtils.loadImageFromClass(movie.getImagePath()));
-		List<Actor> actors = movie.getActorsRoles();
-		if(actors != null) for(Actor actor : actors) {
-			Person person = actor.getActor();
-			BorderPane actorPane = new BorderPane();
-			ImageView actorImage = new ImageView(AppUtils.loadImageFromClass(person.getImagePath()));
-			Label actorName = new Label(person.getName() + "/" + actor.getRoleName());
-			actorPane.setCenter(actorImage);
-			actorPane.setBottom(actorName);
-			actorsBox.getChildren().add(actorPane);
-		}
-	}*/
 	
 	@Autowired
 	private ProductController productController;
@@ -154,53 +132,81 @@ public class MoviePageController {
 	
 	private Movie movie;
 	
-	private void addToCart(Product product, boolean isBuying) {
-		CartProductDto dto = new CartProductDto();
-		dto.setProductId(product.getId());
-		dto.setBuying(isBuying);
-		try {
-			cartController.addProductToCart(dto);
-		} catch (EntityNotFoundException e1) {
-			e1.printStackTrace();
-		} catch (EntityAlreadyExistsException e1) {}
-	}
+	private Timeline remainingRentTime;
 	
-	/*public void refreshMovie(Movie movie) {
-		productOptions.getChildren().clear();
-		initializeMovie(movie);
-	}*/
-	
+	/**
+	 * Initializes the movie pane
+	 * @param movie the movie to use
+	 * @throws MalformedURLException
+	 */
 	public void initializeMovie(Movie movie) throws MalformedURLException {
-		
 		this.movie = movie;
 		boolean isPurchased = false;
 		boolean isRented = false;
-		Duration rentEndIn = null;
-		
+		if(remainingRentTime != null)
+			remainingRentTime.stop();
 		try {
+			LocalDateTime timeSince = null;
 			productOptions.getChildren().clear();
 			List<MoviePurchased> purchasedLists = moviePurchasedController.getActiveListUserMovie(movie.getId());
-			System.out.println("I purchased: " + movie.getName());
-			System.out.println(purchasedLists);
 			for(MoviePurchased purchased : purchasedLists) {
-				System.out.println("Luke Son: " + purchased.isRented());
 				if(!purchased.isRented()) {
 					isPurchased = true;
 					break;
 				}
 				else {
 					isRented = true;
-					rentEndIn = purchased.getRemainTime();
+					timeSince = purchased.getCurrentRentTime();
 				}
 			}
-			String buttonText = "Watch Movie";
-			System.out.println(isRented);
-			if(!isPurchased && isRented)
-				buttonText += " (Rent)\n Remaining Time: "+DataUtils.durationToString(rentEndIn);
-			Button viewButton = new Button(buttonText);
-			viewButton.setWrapText(true);
-			productOptions.getChildren().add(viewButton);
-		} catch (EntityNotFoundException e) {}
+			if(isPurchased || isRented) {
+				Button viewButton = new Button();
+				String buttonText = "Watch Movie";
+				if(!isPurchased && isRented) {
+					buttonText += " (Rent)\n Remaining Time: ";
+					final String buttonTextFinal = buttonText;
+					final LocalDateTime timeSinceFinal = timeSince;
+					remainingRentTime = new Timeline();
+					KeyFrame keyFrame = new KeyFrame(javafx.util.Duration.seconds(0), new EventHandler<ActionEvent>() {
+						
+						@Override
+						public void handle(ActionEvent event) {
+							Duration timeLeft = getRemainTime(timeSinceFinal);
+							if(timeLeft.isNegative() || mainPane.getParent() == null) {
+								remainingRentTime.stop();
+								if(timeLeft.isNegative()) {
+				    		        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+				    		        alert.setTitle("Rent of the movie is over");
+				    		        alert.setHeaderText("in order to watch movie purchase it or rent it again");
+				    		        alert.show();
+				    		        alert.setOnCloseRequest(new EventHandler<DialogEvent>() {
+										
+										@Override
+										public void handle(DialogEvent event) {
+											try {
+												initializeMovie(movie);
+											} catch (MalformedURLException e) {
+											}
+										}
+									});
+								}
+							}
+							else
+								viewButton.setText(buttonTextFinal+DataUtils.durationToString(timeLeft));
+						}
+						
+					});
+					remainingRentTime.getKeyFrames().addAll(keyFrame, new KeyFrame(javafx.util.Duration.seconds(1)));
+			        remainingRentTime.setCycleCount(Timeline.INDEFINITE);
+			        remainingRentTime.play();
+				}
+				viewButton.setText(buttonText);
+				viewButton.setWrapText(true);
+				productOptions.getChildren().add(viewButton);
+			}
+		} catch (EntityNotFoundException e) {
+			//This is okay, no need to add exception handling, the product will not be owned by the user
+		}
 		if(!isPurchased) try {
 			Product product = productController.getProductByMovieId(movie.getId());
 			Button buyBtn = new Button("Buy for: " + product.calculatePrice(true));
@@ -218,7 +224,11 @@ public class MoviePageController {
 				productOptions.getChildren().add(rentBtn);
 			}
 		} catch (EntityNotFoundException e) {
-			Label lbl = new Label("Problem With the Product");
+			if(!isPurchased && !isRented) {
+		        Alert alert = new Alert(Alert.AlertType.ERROR);
+		        alert.setTitle("Product Not available");
+		        alert.setHeaderText("The movie in unavailable for purchases and rents");
+			}
 		}
 		ratingButton.getChildren().clear();
 		try {
@@ -234,8 +244,6 @@ public class MoviePageController {
 		}
 		String backdropPath = movie.getBackdropPath(); 
 		if(DataUtils.isNotBlank(backdropPath)) try {
-			Image backdrop = AppUtils.loadImageFromClass(backdropPath);
-			System.out.println(backdrop);
 			BackgroundSize backgroundSize = new BackgroundSize(1,
 					1,
 			        true,
@@ -249,7 +257,7 @@ public class MoviePageController {
 			        backgroundSize);
 			backgroundView.setBackground(new Background(backgroudImage));
 		}
-		catch (Exception e) {
+		catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
 		posterView.setImage(AppUtils.loadImageFromClass(movie.getPosterPath()));
@@ -275,78 +283,46 @@ public class MoviePageController {
 			}
 		}
 		List<Actor> actors = movie.getActorsRoles();
-		System.out.println(actors);
-		//actorsBox.prefHeightProperty().bind(mainPane.heightProperty().multiply(0.3));
 		if(actors != null) {
 			actorsBox.getChildren().clear();
 			for(Actor actor : actors) {
 				addToActorsPane(actor);
-				/*Person person = actor.getPerson();
-				VBox actorPane = new VBox();
-				//BorderPane actorPane = new BorderPane();
-				actorPane.prefHeightProperty().bind(mainPane.heightProperty().multiply(0.3));
-				Label actorName = new Label(person.getName() + "/" + actor.getRoleName());
-				String personImagePath = person.getImagePath();
-				if(DataUtils.isNotBlank(personImagePath)) {
-					ImageView actorImage;
-					try {
-						actorImage = new ImageView(AppUtils.loadImageFromClass(personImagePath));
-						actorImage.fitWidthProperty().bind(mainPane.widthProperty().multiply(0.2));
-						//actorImage.fitHeightProperty().bind(actorsBox.prefHeightProperty().subtract(actorName.prefHeightProperty()));
-						
-						//actorImage.fitHeightProperty().bind(mainPane.heightProperty().multiply(0.3));
-						actorImage.fitHeightProperty().bind(mainPane.heightProperty().multiply(0.3).subtract(50));
-						
-						actorPane.getChildren().add(actorImage);
-						//actorPane.setCenter(actorImage);
-					} catch (MalformedURLException e) {
-						// TODO Auto-generated catch block
-					e.printStackTrace();
-					}
-				}
-				System.out.println(person.getName() + "/" + actor.getRoleName());
-				//actorPane.setBottom(actorName);
-				actorPane.getChildren().add(actorName);
-				actorPane.setStyle("-fx-border-color: blue");
-				actorsBox.getChildren().add(actorPane);
-				*/
 			}
 		}
 		try {
 			List<MovieReview> reviews = movieReviewController.getAllReviewOfMovie(movie.getId());
 			reviewsBox.getChildren().clear();
-			if(reviews != null) 
+			if(reviews != null && !reviews.isEmpty()) {
+				int ratingNumber = (int) MovieReviewController.calculateRating(reviews);
+				movieRatingNumberLbl.setText(""+ratingNumber);
 				for(MovieReview review : reviews) {
-					VBox box = new VBox();
-					TextFlow textFlowPane = new TextFlow();
-					Text star = new Text("★");
-					star.setFill(Color.BLUE);
-					star.setFont(Font.font(star.getFont().getSize()+3));
-					Text rating = new Text(" "+review.getRating());
-					rating.setStyle("-fx-font-weight: bold; -fx-font-size: 19");
-					//rating.fontProperty().bin
-					//rating.setFont(Font.font(rating.getFont().getSize()+2));
-					Text rangeRating = new Text("/100");
-					Text title = new Text("    "+ review.getReviewTitle());
-					title.setStyle("-fx-font-weight: bold;");
-					textFlowPane.getChildren().addAll(star, rating, rangeRating, title);
-					User user = review.getUser();
-					Label userName = new Label(user.getUsername() + "	");
-					LocalDateTime createDate = review.getCreatedDate();
-					Label createdDateLabel = new Label(DataUtils.getLocalDateTimeInCurrentZone(createDate));
-					HBox userInfo = new HBox();
-					userInfo.getChildren().addAll(userName, createdDateLabel);
-					userInfo.setPadding(new Insets(0, 0, 8, 0));
-					Label reviewText = new Label(review.getReview());
-					reviewText.setWrapText(true);
-					//reviewText.setEditable(false);
-					box.getChildren().addAll(textFlowPane, userInfo, reviewText);
-					reviewsBox.getChildren().add(box);
+					addToReviewsPane(review);
 				}
-			} catch (EntityNotFoundException e) {
-				e.printStackTrace();
 			}
-			System.out.println(actors);
+		} catch (EntityNotFoundException e) {
+			//it's okay, a movie can be not reviewed
+		}
+	}
+	
+	private void addToCart(Product product, boolean isBuying) {
+		CartProductDto dto = new CartProductDto();
+		dto.setProductId(product.getId());
+		dto.setBuying(isBuying);
+		try {
+			cartController.addProductToCart(dto);
+		} catch (EntityNotFoundException e1) {
+			e1.printStackTrace();
+		} catch (EntityAlreadyExistsException e1) {}
+	}
+	
+	public Duration getRemainTime(LocalDateTime timeSince) {
+		LocalDateTime now = LocalDateTime.now();
+		try {
+			return Duration.between(now, timeSince);
+		}
+		catch (Exception e) {
+			return null;
+		}
 	}
 	
 	private TextFlow getUserRating(MovieReview review) {
@@ -356,11 +332,31 @@ public class MoviePageController {
 		star.setFont(Font.font(star.getFont().getSize()+3));
 		Text rating = new Text(" "+review.getRating());
 		rating.setStyle("-fx-font-weight: bold; -fx-font-size: 19");
-		//rating.fontProperty().bin
-		//rating.setFont(Font.font(rating.getFont().getSize()+2));
 		Text rangeRating = new Text("/100");
 		textFlowPane.getChildren().addAll(star, rating, rangeRating);
 		return textFlowPane;
+	}
+	
+	private void addToReviewsPane(MovieReview review) {
+		if(DataUtils.isBlank(review.getReviewTitle()))
+			return;
+		VBox box = new VBox();
+		TextFlow textFlowPane = getUserRating(review);
+		Text title = new Text("    "+ review.getReviewTitle());
+		title.setStyle("-fx-font-weight: bold;");
+		textFlowPane.getChildren().add(title);
+		User user = review.getUser();
+		Label userName = new Label(" "+user.getUsername() + "	");
+		LocalDateTime createDate = review.getCreatedDate();
+		Label createdDateLabel = new Label(DataUtils.getLocalDateTimeInCurrentZone(createDate));
+		HBox userInfo = new HBox();
+		userInfo.getChildren().addAll(userName, createdDateLabel);
+		userInfo.setPadding(new Insets(0, 0, 8, 0));
+		Label reviewText = new Label(" "+review.getReview());
+		reviewText.setWrapText(true);
+		box.getChildren().addAll(textFlowPane, userInfo, reviewText);
+		box.setStyle("-fx-border-color: black; -fx-border-radius: 5;");
+		reviewsBox.getChildren().add(box);
 	}
 	
 	private void addToActorsPane(Actor actor) {
@@ -375,110 +371,67 @@ public class MoviePageController {
 	
 	private void addToPersonPane(Person person, String name, Pane pane) {
 		VBox actorPane = new VBox();
-		//BorderPane actorPane = new BorderPane();
-		//actorPane.prefHeightProperty().bind(mainPane.heightProperty().multiply(0.3));
 		Label actorName = new Label(name);
 		actorName.setCenterShape(false);
-		actorName.setWrapText(true);
-		//TextArea actorName = new TextArea(name);
 		actorName.setWrapText(true);
 		actorName.prefWidthProperty().bind(mainPane.widthProperty().multiply(0.2));
 		actorName.setTextAlignment(TextAlignment.CENTER);
 		actorName.setStyle("-fx-alignment: center");
-		//actorName.setEditable(false);
 		String personImagePath = person.getImagePath();
 		if(DataUtils.isNotBlank(personImagePath)) {
 			ImageView actorImage;
 			try {
 				actorImage = new ImageView(AppUtils.loadImageFromClass(personImagePath));
 				actorImage.fitWidthProperty().bind(mainPane.widthProperty().multiply(0.2));
-				//actorImage.fitHeightProperty().bind(actorsBox.prefHeightProperty().subtract(actorName.prefHeightProperty()));
-				
-				//actorImage.fitHeightProperty().bind(mainPane.heightProperty().multiply(0.3));
 				actorImage.fitHeightProperty().bind(mainPane.heightProperty().multiply(0.3).subtract(50));
-				
 				actorPane.getChildren().add(actorImage);
-				//actorPane.setCenter(actorImage);
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
 			e.printStackTrace();
 			}
 		}
-		//actorPane.setBottom(actorName);
 		actorPane.getChildren().add(actorName);
 		actorPane.setStyle("-fx-border-color: blue");
 		pane.getChildren().add(actorPane);
 	}
 	
-	/*
 	@FXML
-	private void openAddReviewPage() {
+	private void openAddRatingsPage() throws MalformedURLException {
 		if(movie == null)
 			return;
 		Integer ratings = null;
-		String reviewTitle = "", reviewContent = "";
 		try {
 			MovieReview moviewReview = movieReviewController.getMovieReviewOfUser(movie.getId());
 			ratings = moviewReview.getRating();
-			reviewTitle = moviewReview.getReviewTitle();
-			reviewContent = moviewReview.getReview();
 		} catch (EntityNotFoundException e) {
+			//it's okay, like if a user never rated this movie, then the exception will activate
 		}
 		VBox box = new VBox();
-		
-		HBox ratingsTextBox = new HBox();
 		Label ratingsText = new Label("Add Ratings");
-		Label ratingError = new Label();
-		ratingError.setTextFill(Color.RED);
-		ratingsTextBox.getChildren().addAll(ratingsText, ratingError);
+		BorderPane ratingsTextBox = new BorderPane(ratingsText);
 		TextField ratingsField = new TextField();
+		ratingsField.setTextFormatter(new TextFormatter<Integer>(new IntegerStringConverter(), null, this::filter));
 		if(ratings != null)
 			ratingsField.setText(""+ratings);
-		//ratingsField.textProperty().addListener(ratingsPropertyChangeListener(ratingsField));
-		ratingsField.setTextFormatter(new TextFormatter<Integer>(new IntegerStringConverter(), null, this::filter));
-		
-		HBox titleTextBox = new HBox();
-		Label titleText = new Label("Add Titles");
-		Label titleError = new Label();
-		titleTextBox.getChildren().addAll(titleText, titleError);
-		titleError.setTextFill(Color.RED);
-		TextField titleField = new TextField(reviewTitle);
-		
-		HBox contentTextBox = new HBox();
-		Label contentText = new Label("Write The Review");
-		Label contentError = new Label();
-		contentTextBox.getChildren().addAll(contentText, contentError);
-		contentError.setTextFill(Color.RED);
-		TextArea contentArea = new TextArea(reviewContent);
-		
-		Button addBtn = new Button("Add Review");
-		box.getChildren().addAll(ratingsTextBox, ratingsField, titleTextBox, titleField, contentTextBox, contentArea, addBtn);
+		Button addBtn = new Button("Add Ratings");
+		box.getChildren().addAll(ratingsTextBox, ratingsField, addBtn);
 		Scene scene = new Scene(box);
 		Stage stage = new Stage();
-        
 		addBtn.setOnAction(e -> {
 			MovieReviewDto movieReviewDto = new MovieReviewDto();
 			movieReviewDto.setMovieId(movie.getId());
 			movieReviewDto.setRating(DataUtils.getIntegerNumber(ratingsField.getText()));
-			movieReviewDto.setReviewTitle(titleField.getText());
-			movieReviewDto.setReview(contentArea.getText());
 			try {
-				movieReviewController.addMovieReviewOfUser(movieReviewDto);
+				movieReviewController.addMovieRatingOfUser(movieReviewDto);
+				initializeMovie(movie);
 				stage.close();
 			} catch (DtoValuesAreIncorrectException e1) {
 				Map<String, String> map = e1.getMap();
 				for(Entry<String, String> entry : map.entrySet()) {
 					String val = entry.getValue();
 					switch (MovieReviewTypes.valueOf(entry.getKey())) {
-					case CREATED_DATE:
-						break;
 					case RATING:
-						ratingError.setText(val);
-						bindValidation(ratingsField, ratingError);
-						break;
-					case REVIEW:
-						break;
-					case TITLE:
+						bindValidation(ratingsField, ratingsTextBox, val);
 						break;
 					default:
 						break;
@@ -486,14 +439,17 @@ public class MoviePageController {
 				}
 			} catch (EntityNotFoundException e1) {
 				e1.printStackTrace();
+			} catch (MalformedURLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
 		});
 		stage.setScene(scene);
 		stage.initModality(Modality.APPLICATION_MODAL);
 		stage.initOwner(App.getApplicationInstance().getStage());
 		stage.show();
-		//r.
-	}*/
+		Platform.runLater( () -> box.requestFocus() );
+	}
 	
 	@FXML
 	private void openAddReviewPage() throws MalformedURLException {
@@ -507,35 +463,25 @@ public class MoviePageController {
 			reviewTitle = moviewReview.getReviewTitle();
 			reviewContent = moviewReview.getReview();
 		} catch (EntityNotFoundException e) {
+			//it's okay, like if a user never reviewed this movie, then the exception will activate
 		}
 		VBox box = new VBox();
-		
 		Label ratingsText = new Label("Add Ratings");
 		BorderPane ratingsTextBox = new BorderPane(ratingsText);
 		TextField ratingsField = new TextField();
 		ratingsField.setTextFormatter(new TextFormatter<Integer>(new IntegerStringConverter(), null, this::filter));
-		System.out.println(ratings);
 		if(ratings != null)
 			ratingsField.setText(""+ratings);
-		//ratingsField.textProperty().addListener(ratingsPropertyChangeListener(ratingsField));
-		
 		Label titleText = new Label("Add Titles");
 		BorderPane titleTextBox = new BorderPane(titleText);
 		TextField titleField = new TextField(reviewTitle);
-		
 		Label contentText = new Label("Write The Review");
 		BorderPane contentTextBox = new BorderPane(contentText);
 		TextArea contentArea = new TextArea(reviewContent);
-		
 		Button addBtn = new Button("Add Review");
 		box.getChildren().addAll(ratingsTextBox, ratingsField, titleTextBox, titleField, contentTextBox, contentArea, addBtn);
 		Scene scene = new Scene(box);
 		Stage stage = new Stage();
-		/*final ContextMenu ratingsValidator = new ContextMenu();
-        ratingsValidator.setAutoHide(false);*/
-        
-		/*final ContextMenu passValidator = new ContextMenu();
-        passValidator.setAutoHide(false);*/
 		addBtn.setOnAction(e -> {
 			MovieReviewDto movieReviewDto = new MovieReviewDto();
 			movieReviewDto.setMovieId(movie.getId());
@@ -544,7 +490,6 @@ public class MoviePageController {
 			movieReviewDto.setReview(contentArea.getText());
 			try {
 				movieReviewController.addMovieReviewOfUser(movieReviewDto);
-				
 				initializeMovie(movie);
 				stage.close();
 			} catch (DtoValuesAreIncorrectException e1) {
@@ -605,18 +550,14 @@ public class MoviePageController {
     private Change filter(Change change) {
     	String text = change.getControlNewText();
     	boolean b = true;
-    	System.out.println(text + "()" + text);
         if (text.matches("\\d*") && text.length() <= 3) {
         	Integer val = DataUtils.getIntegerNumber(text);
-        	System.out.println("Val: " + val);
         	if(val != null && val >= 1 && val <= 100) {
-        		System.out.println("Aproved");
         		b = false;
         	}
         }
         if(b)
         	change.setText("");
-        System.out.println("TExt " + change.getText());
         return change;
     }
 	
@@ -627,7 +568,6 @@ public class MoviePageController {
 		        String newValue) {
 		    	try {
 			    	boolean b = true;
-			    	System.out.println(newValue + "()" + oldValue);
 			        if (newValue.matches("\\d*") && newValue.length() <= 3) {
 			        	Integer val = DataUtils.getIntegerNumber(newValue);
 			        	if(val != null && val >= 1 && val <= 100)

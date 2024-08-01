@@ -124,7 +124,7 @@ public class MoviePurchased {
 		//return new Date().before(expirationDate);
 	}
 	
-	private LocalDateTime getCurrentRentTime() {
+	public LocalDateTime getCurrentRentTime() {
 		LocalDateTime timeSince = purchaseDate.plusSeconds(rentTime.getSeconds());
 				/*.plusSeconds(rentTime.getSeconds())
 				.plusMinutes(rentTime.day())
