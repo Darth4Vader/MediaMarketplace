@@ -31,12 +31,15 @@ import frontend.sortPage.SortPageController;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 @Component
@@ -166,7 +169,10 @@ public class App extends Application {
 		if(appPane == null) {
 			appPane = new BorderPane();
 			Parent toolBar = loadFXML("/frontend/AppBar.fxml");
-			appPane.setTop(toolBar);
+			VBox box = new VBox();
+			box.setAlignment(Pos.CENTER);
+			box.getChildren().add(toolBar);
+			appPane.setTop(box);
 			Scene scene = new Scene(appPane);
 			stage.setScene(scene);
 		}
@@ -183,20 +189,33 @@ public class App extends Application {
 		boolean isAdmin = userAuth.isCurrentUserAdmin();
 		try {
 			System.out.println("In Admin: " + isAdmin);
+			Parent root;
 			if(isAdmin) {
 				FXMLLoader loader = App.getApplicationInstance().getFXMLLoader(AdminProductPageController.PATH);
-				Parent root = loader.load();
+				root = loader.load();
 				AdminProductPageController controller = loader.getController();
 				controller.initializeProduct(movie);
-				AppUtils.enterPanel(root);
 			}
 			else {
 				FXMLLoader loader = App.getApplicationInstance().getFXMLLoader(MoviePageController.PATH);
-				Parent root = loader.load();
+				root = loader.load();
 				MoviePageController controller = loader.getController();
 				controller.initializeMovie(movie);
-				AppUtils.enterPanel(root);
 			}
+			VBox box = new VBox();
+			Button goBack = new Button("← Go Back");
+			Node previous = appPane.getCenter();
+			goBack.setOnAction(event -> {
+				try {
+					changeAppPanel(previous);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			});
+			box.getChildren().add(goBack);
+			box.getChildren().add(root);
+			changeAppPanel(box);
 		}
 		catch (IOException e) {
 			e.printStackTrace();

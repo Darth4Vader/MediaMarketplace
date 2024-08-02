@@ -6,11 +6,13 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane fx:id="mainPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="562.0" prefWidth="818.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="frontend.userPage.UserPageController">
-   <left>
-      <VBox prefHeight="400.0" prefWidth="191.0" spacing="10.0" BorderPane.alignment="CENTER">
+
+<HBox prefHeight="562.0" prefWidth="818.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="frontend.userPage.UserPageController">
+   <children>
+      <VBox prefHeight="400.0" prefWidth="191.0" spacing="10.0">
          <children>
             <BorderPane onMouseClicked="#enterOrderHistoryPage">
                <right>
@@ -67,9 +69,7 @@
          <opaqueInsets>
             <Insets />
          </opaqueInsets>
-         <BorderPane.margin>
-            <Insets />
-         </BorderPane.margin>
       </VBox>
-   </left>
-</BorderPane>
+      <BorderPane fx:id="mainPane" HBox.hgrow="ALWAYS" />
+   </children>
+</HBox>
