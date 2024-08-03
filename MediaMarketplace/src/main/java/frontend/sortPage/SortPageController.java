@@ -30,6 +30,7 @@ import javafx.scene.control.ComboBoxBase;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.control.TitledPane;
@@ -44,6 +45,7 @@ import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
@@ -61,13 +63,16 @@ public class SortPageController {
 	private ComboBox<Genre> chooseGenres;
 	
 	@FXML
+	private ScrollPane movieScroll;
+	
+	@FXML
 	private GridPane genresPane;
 	
 	@FXML
-	private TilePane resultPane;
+	private GridPane resultPane;
 	
 	@FXML
-	private AnchorPane mainPane;
+	private HBox mainPane;
 	
 	@FXML private TextField yearUp;
 	@FXML private TextField yearDown;
@@ -267,9 +272,20 @@ public class SortPageController {
 
 	}
 	
+	public void searchMovies(String text) {
+		SortDto sortDto = new SortDto();
+		sortDto.setName(text);
+		searchMovies(sortDto);
+	}
+	
+	private void searchMovies(SortDto sortDto) {
+		resultPane.getChildren().clear();
+		List<Movie> searchList = SearchUtils.searchMoviesSort(sortDto);
+		AppUtils.loadMoviesToGridPane(searchList, resultPane, movieScroll);
+	}
+	
 	@FXML
 	private void searchMovies() {
-		resultPane.getChildren().clear();
 		SortDto sortDto = new SortDto();
 		sortDto.setName(nameField.getText());
 		List<String> genresNames = new ArrayList<>();
@@ -280,28 +296,7 @@ public class SortPageController {
 		sortDto.setYearDown(DataUtils.getNumber(yearDown.getText()));
 		sortDto.setRatingUp(DataUtils.getNumber(ratingUp.getText()));
 		sortDto.setRatingDown(DataUtils.getNumber(ratingDown.getText()));
-		List<Movie> searchList = SearchUtils.searchMoviesSort(sortDto);
-		for(Movie movie : searchList)
-			try {
-				//Pane pane = AppUtils.getMoviePane(movie);
-				ImageView view = AppUtils.loadImageViewFromClass(movie.getPosterPath());
-				view.setPreserveRatio(true);
-				BorderPane b = new BorderPane();
-				view.fitWidthProperty().bind(mainPane.widthProperty());
-				view.fitHeightProperty().bind(mainPane.heightProperty().multiply(0.2));
-				b.setCenter(view);
-				Label name = new Label(movie.getName());
-				b.setBottom(name);
-				b.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
-			            new BorderWidths(1))));
-				//pane.prefWidthProperty().bind(((Pane) resultPane.getParent()).widthProperty().multiply(0.2));
-				//pane.prefHeightProperty().bind(((Pane) resultPane.getParent()).heightProperty().multiply(0.2));
-				resultPane.getChildren().add(b);
-				//AppUtils.addToGridPane(resultPane, AppUtils.getMoviePane(movie));
-			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		searchMovies(sortDto);
 	}
 	
 }

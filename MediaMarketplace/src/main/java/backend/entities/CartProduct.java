@@ -75,6 +75,10 @@ public class CartProduct {
 	public void setBuying(boolean isBuying) {
 		this.isBuying = isBuying;
 	}
+	
+	public double getPrice() {
+		return product.calculatePrice(isBuying());
+	}
 
 	@Override
 	public String toString() {

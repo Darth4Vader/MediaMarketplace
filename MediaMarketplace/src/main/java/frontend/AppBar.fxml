@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="160.0" prefWidth="685.0" style="-fx-border-color: #87E5F3; -fx-border-width: 5;" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="frontend.AppBarController">
+<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" style="-fx-border-color: #87E5F3; -fx-border-width: 5;" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="frontend.AppBarController">
    <children>
       <ImageView fitHeight="150.0" fitWidth="150.0" onMouseClicked="#enterCart" pickOnBounds="true" preserveRatio="true">
          <image>

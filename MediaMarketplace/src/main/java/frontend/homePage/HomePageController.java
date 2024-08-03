@@ -1,6 +1,6 @@
 package frontend.homePage;
 
-import java.io.IOException;
+import java.awt.event.MouseEvent;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,23 +8,24 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import backend.controllers.CartController;
 import backend.controllers.ProductController;
-import backend.dto.cart.CartProductDto;
 import backend.entities.Movie;
 import backend.entities.Product;
-import backend.exceptions.EntityAlreadyExistsException;
-import backend.exceptions.EntityNotFoundException;
-import backend.services.TokenService;
 import frontend.App;
 import frontend.AppUtils;
-import frontend.help.MoviePageController;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
@@ -33,8 +34,10 @@ import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
+import javafx.util.Callback;
 
 @Component
 public class HomePageController {
@@ -42,125 +45,154 @@ public class HomePageController {
 	public static final String PATH = "/frontend/homePage/HomePage.fxml";
 	
 	@FXML
-	private GridPane gridPane;
-	
-	@FXML
-	private ScrollPane movieScrollPane;
-	
-	@FXML
-	private VBox mainPane;
+	private ListView<MovieRow> productsPane;
 	
 	@Autowired
 	private ProductController productController;
 	
-	@Autowired
-	private CartController cartController;
-	
-	@Autowired
-	private TokenService tokenService;
-
 	@FXML
-	private void initialize() throws MalformedURLException {
-		final int cols = gridPane.getColumnCount();
-		int row = 0;
-		int currentCols = 0;
-		String[] list = {"file:/C:/Users/itay5/git/MediaMarketplace/MediaMarketplace/posters/tt4154756.jpg",
-				"file:/C:/Users/itay5/git/MediaMarketplace/MediaMarketplace/posters/tt4154796.jpg",
-				"file:/C:/Users/itay5/git/MediaMarketplace/MediaMarketplace/posters/tt2395427.jpg",
-				"file:/C:/Users/itay5/git/MediaMarketplace/MediaMarketplace/posters/tt0096895.jpg",
-				"file:/C:/Users/itay5/git/MediaMarketplace/MediaMarketplace/posters/tt0103776.jpg",
-				"file:/C:/Users/itay5/git/MediaMarketplace/MediaMarketplace/posters/tt0372784.jpg"};
-		//for(RowConstraints cc : gridPane.getRowConstraints())
-			//cc.prefHeightProperty().bind(mainPane.heightProperty().multiply(0.4));
-		
-		/*while(gridPane.getRowConstraints().size() > 0){
-			gridPane.getRowConstraints().remove(0);
-		}*/
-		/*for(ColumnConstraints cc : gridPane.getColumnConstraints())
-			cc.setPercentWidth(100/5);*/
-			//cc.setPercentHeight(0.3);
-		List<Product> resp = productController.getAllProducts();
-		List<String> paths = new ArrayList<>();
-		for(Product product : resp) {
-			Movie movie = product.getMovie();
-			//paths.add(new File(product.getImagePath()).toURI().toURL().toExternalForm());
-		//}
-		//list = paths.toArray(new String[paths.size()]);
-		//for(String path : list) {
-			System.out.println(movie.getName());
-			System.out.println(movie.getPosterPath());
-			ImageView view = AppUtils.loadImageViewFromClass(movie.getPosterPath());
-			view.setPreserveRatio(true);
-			//Button view = new Button();
-			//view.maxWidth(Double.MAX_VALUE);
-			//view.maxHeight(Double.MAX_VALUE);
-			BorderPane b = new BorderPane();
-			view.fitWidthProperty().bind(mainPane.widthProperty());
-			view.fitHeightProperty().bind(movieScrollPane.heightProperty().multiply(0.4));
-			
-			//this one is the previous
-			//view.fitHeightProperty().bind(mainPane.heightProperty().multiply(0.4));
-			
-			
-			
-			
-			
-			
-			
-			//view.fitWidthProperty().bind(gridPane.getColumnConstraints().get(currentCols).prefWidthProperty());
-			//view.fitHeightProperty().bind(gridPane.getRowConstraints().get(row).prefHeightProperty());
-			//if(view.getImage() != null)
-			b.setCenter(view);
-			Label name = new Label(movie.getName());
-			b.setBottom(name);
-			//b.prefWidthProperty().bind(mainPane.widthProperty());
-			//b.maxWidthProperty().bind(mainPane.heightProperty().multiply(0.4));
-			b.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
-		            new BorderWidths(1))));
-			
-			b.setOnMouseClicked(evt -> {
-				App.getApplicationInstance().enterMoviePage(movie);
-				/*FXMLLoader loader = App.getApplicationInstance().getFXMLLoader(MoviePageController.PATH);
-				try {
-					Parent root = loader.load();
-					MoviePageController controller = loader.getController();
-					controller.initializeMovie(movie);
-					AppUtils.enterPanel(root);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}*/
-			});
-			
-			gridPane.add(b, currentCols, row);
-			System.out.println(currentCols + " " + cols);
-			System.out.println("("+currentCols+","+row+")");
-			if(currentCols < cols-1)
-				currentCols++;
-			else {
-				//RowConstraints rowConst = gridPane.getRowConstraints().get(row);
-				//System.out.println(rowConst);
-				currentCols = 0;
-				row++;
-				//RowConstraints rowConst = new RowConstraints();
-				
-				//break;
+	private void initialize() throws MalformedURLException {		
+		List<Product> products = productController.getAllProducts();
+		ObservableList<MovieRow> movies = FXCollections.observableArrayList();
+		int i = 0;
+		final int MAX = 5;
+		MovieRow movieRow = new MovieRow();
+		for(Product product : products) {
+			movieRow.add(product.getMovie());
+			i++;
+			if(i == MAX) {
+				movies.add(movieRow);
+				movieRow = new MovieRow();
+				i = 0;
 			}
 		}
-		/*for(MediaProduct product : resp) {
-			//String path = getClass().getResource(null);
-			File file = new File(product.getImagePath());
-			//System.out.println(file.getAbsolutePath());
-			System.out.println(file.toURI().toURL().toExternalForm());
-			ImageView view = new ImageView(file.toURI().toURL().toExternalForm());
-			gridPane.add(view, currentCols, row);
-			if(currentCols < cols)
-				currentCols++;
-			else {
-				currentCols = 0;
-				row++;
-				break;
+		productsPane.setItems(movies);
+		productsPane.setCellFactory(new Callback<ListView<MovieRow>, ListCell<MovieRow>>() {
+			
+			@Override
+			public ListCell<MovieRow> call(ListView<MovieRow> param) {
+				// TODO Auto-generated method stub
+				return new MovieTableCellEditor(productsPane, MAX);
 			}
-		}*/
+		});
+		productsPane.setSelectionModel(null);
+		//productsPane.addEventHandler(MouseEvent.MOUSE_CLICKED, click -> click.consume());
 	}
 
+}
+
+class MovieRow {
+	
+	private List<Movie> movies;
+	
+	public MovieRow() {
+		this.movies = new ArrayList<>();
+	}
+
+	public MovieRow(List<Movie> movies) {
+		super();
+		this.movies = movies;
+	}
+	
+	public void add(Movie movie) {
+		this.movies.add(movie);
+	}
+
+	public List<Movie> getMovies() {
+		return movies;
+	}
+
+	public void setMovies(List<Movie> movies) {
+		this.movies = movies;
+	}
+	
+}
+
+class MovieTableCellEditor extends ListCell<MovieRow> {
+	
+	private Region sizePane;
+	
+	private final HBox box;
+	
+	private final List<MovieCell> cells;
+	
+	private class MovieCell {
+		private BorderPane b;
+		private Label name;
+		private ImageView view;
+		
+		public MovieCell(int number) {
+			b = new BorderPane();
+			view = new ImageView();
+			view.setPreserveRatio(true);
+			view.fitWidthProperty().bind(sizePane.widthProperty().multiply(1/number));
+			view.fitHeightProperty().bind(sizePane.heightProperty().multiply(0.4));
+			b.setCenter(view);
+			name = new Label();
+			name.setWrapText(true);
+			b.setBottom(name);
+			b.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
+		            new BorderWidths(1))));
+		}
+		
+		public void set(Movie movie) {
+    		try {
+				view.setImage(AppUtils.loadImageFromClass(movie.getPosterPath()));
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    		name.setText(movie.getName());
+    		b.setOnMouseClicked(evt -> {
+    			App.getApplicationInstance().enterMoviePage(movie);
+    		});
+		}
+		
+		public void clean() {
+        	view.setImage(null);
+        	name.setText(null);
+        	b.setOnMouseClicked(null);
+		}
+	}
+	
+	public MovieTableCellEditor(Region sizePane, int number) {
+		this.sizePane = sizePane;
+		this.box = new HBox();
+		this.cells = new ArrayList<>();
+		for(int i = 0; i < number; i++) {
+			MovieCell cell = new MovieCell(number);
+			this.cells.add(cell);
+			this.box.getChildren().add(cell.b);
+		}
+    	System.out.println("Can See");
+    	box.prefWidthProperty().bind(sizePane.widthProperty());
+	}
+	
+    @Override
+    public void updateItem(MovieRow item, boolean empty) {
+        super.updateItem(item, empty);
+        if (item == null || empty) {
+        	System.out.println("Bye");
+            setGraphic(null);
+            setText(null);
+            for(MovieCell cell : cells)
+            	cell.clean();
+        }
+        else {
+        	List<Movie> movies = item.getMovies();
+        	for(int i = 0; i < cells.size(); i++) {
+        		Movie movie = movies.get(i);
+        		MovieCell cell = cells.get(i);
+        		if(i < movies.size()) {
+        			cell.set(movie);
+        		}
+        		else {
+        			cell.clean();
+        		}
+        	}
+            setGraphic(box);
+            setText(null);
+        }
+        setAlignment(Pos.CENTER);
+    }
 }

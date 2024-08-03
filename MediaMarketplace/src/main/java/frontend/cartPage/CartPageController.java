@@ -32,8 +32,11 @@ import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 
 @Component
 public class CartPageController {
@@ -48,6 +51,12 @@ public class CartPageController {
 	
 	@FXML
 	private Label emptyLabel;
+	
+	@FXML
+	private Text itemsNumberText;
+	
+	@FXML
+	private Text totalPriceText;
 	
 	@FXML
 	private Button purchaseButton;
@@ -83,6 +92,58 @@ public class CartPageController {
 	}
 	
 	private void refreshCart() throws MalformedURLException {
+		cartItems.getChildren().clear();
+		List<CartProduct> resp = cartController.getCartProducts();
+		if(resp != null) {
+			itemsNumberText.setText(""+resp.size());
+			double totalPrice = 0;
+			for(CartProduct cartProduct : resp) {
+				Product product = cartProduct.getProduct();
+				Movie movie = product.getMovie();
+				HBox mainBox = new HBox();
+				HBox productBox = new HBox();
+				HBox.setHgrow(productBox, Priority.ALWAYS);
+				ImageView view = AppUtils.loadImageViewFromClass(movie.getPosterPath());
+				view.setPreserveRatio(true);
+				view.fitWidthProperty().bind(mainPane.widthProperty().multiply(0.2));
+				view.fitHeightProperty().bind(mainPane.heightProperty().multiply(0.4));
+				VBox imageBox = new VBox();
+				imageBox.getChildren().add(view);
+				VBox infoBox = new VBox();
+				Label name = new Label(movie.getName());
+				name.setWrapText(true);
+				//b.prefWidthProperty().bind(mainPane.widthProperty());
+				//b.maxWidthProperty().bind(mainPane.heightProperty().multiply(0.4));
+				/*b.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
+			            new BorderWidths(1))));*/
+				
+				Label type = new Label(cartProduct.isBuying() ? "Buy" : "Rent");
+				type.setStyle("-fx-fill: green; -fx-font-size: 19");
+				infoBox.getChildren().addAll(name, type);
+				productBox.getChildren().addAll(imageBox, infoBox);
+				Button removeFromCart = new Button("Delete");
+				removeFromCart.setOnAction(e -> {
+					CartProductDto dto = new CartProductDto();
+					dto.setProductId(product.getId());
+					try {
+						cartController.removeProductFromCart(dto);
+						cartItems.getChildren().remove(mainBox);
+					} catch (EntityNotFoundException e1) {
+						//don't need to change anything, maybe there is a glitch that the product is not in the cart, so removing from cart is necessary
+					}
+				});
+				double price = cartProduct.getPrice();
+				totalPrice += price;
+				Label priceText = new Label(""+price);
+				priceText.setStyle("-fx-font-weight: bold; -fx-font-size: 19");
+				mainBox.getChildren().addAll(productBox, priceText);
+				cartItems.getChildren().add(mainBox);
+			}
+			totalPriceText.setText(""+totalPrice);
+		}
+	}
+	
+	private void refreshCart2() throws MalformedURLException {
 		cartItems.getChildren().clear();
 		List<CartProduct> resp = cartController.getCartProducts();
 		for(CartProduct cartProduct : resp) {

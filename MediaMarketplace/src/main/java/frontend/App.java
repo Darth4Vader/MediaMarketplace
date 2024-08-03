@@ -1,6 +1,7 @@
 package frontend;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -25,6 +26,7 @@ import backend.exceptions.UserPasswordIsIncorrectException;
 import frontend.admin.AddMoviePageController;
 import frontend.admin.AdminProductPageController;
 import frontend.auth.LogInUserController;
+import frontend.cartPage.CartPageController;
 import frontend.help.MoviePageController;
 import frontend.homePage.HomePageController;
 import frontend.sortPage.SortPageController;
@@ -95,7 +97,8 @@ public class App extends Application {
         });
 		this.stage = stage;
 		userAuth = appContext.getBean(UserAuthenticateController.class);
-		LogInDto dto = new LogInDto("frodo", "bag");
+		//LogInDto dto = new LogInDto("frodo", "bag");
+		LogInDto dto = new LogInDto("bilbo", "bag");
 		try {
 			LogInResponseDto d = userAuth.loginUser(dto);
 			//userAuth.registerUser(new UserInformationDto("frodo", "", "bag", "bag"));
@@ -108,6 +111,8 @@ public class App extends Application {
 		
 		
 		//changeAppPanel(SortPageController.PATH);
+		
+		//changeAppPanel(CartPageController.PATH);
 		
 		//Don't forget about this
 		
@@ -177,12 +182,25 @@ public class App extends Application {
 			stage.setScene(scene);
 		}
 		appPane.setCenter(component);
+		System.gc();
 	}
 	
 	private UserAuthenticateController userAuth;
 	
 	public Stage getStage() {
 		return this.stage;
+	}
+	
+	public void enterSearchPage(String searchMovie) {
+		try {
+			FXMLLoader loader = getFXMLLoader(SortPageController.PATH);
+			Parent root = loader.load();
+			SortPageController controller = loader.getController();
+			controller.searchMovies(searchMovie);
+			changeAppPanel(root);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void enterMoviePage(Movie movie) {

@@ -4,9 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 
 import backend.dto.cart.CartProductDto;
 import backend.entities.Movie;
+import backend.entities.Product;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
 import frontend.help.MoviePageController;
@@ -27,6 +29,7 @@ import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 
 public class AppUtils {
@@ -53,7 +56,7 @@ public class AppUtils {
 		return new ImageView(loadImageFromClass(path));
 	}
 	
-	public static Pane getMoviePane(Movie movie) throws MalformedURLException, IOException {
+	/*public static Pane getMoviePane(Movie movie) throws MalformedURLException, IOException {
 		ImageView view = AppUtils.loadImageViewFromClass(movie.getPosterPath());
 		view.setPreserveRatio(true);
 		BorderPane b = new BorderPane();
@@ -76,6 +79,65 @@ public class AppUtils {
 			}
 		});
 		return b;
+	}*/
+	
+	public static BorderPane getMoviePane(Movie movie, Region sizePane) {
+		BorderPane b = new BorderPane();
+		ImageView view = null;
+		try {
+			view = loadImageViewFromClass(movie.getPosterPath());
+		} catch (MalformedURLException e) {
+		}
+		if(view != null) {
+			view.setPreserveRatio(true);
+			view.fitWidthProperty().bind(sizePane.widthProperty().multiply(0.2));
+			view.fitHeightProperty().bind(sizePane.heightProperty().multiply(0.4));
+			b.setCenter(view);
+		}
+		Label name = new Label(movie.getName());
+		name.setWrapText(true);
+		b.setBottom(name);
+		b.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
+	            new BorderWidths(1))));
+		b.setOnMouseClicked(evt -> {
+			App.getApplicationInstance().enterMoviePage(movie);
+		});
+		return b;
+	}
+	
+	public static void loadProductsToGridPane(List<Product> products, GridPane moviePane, Region sizePane) {
+		final int cols = moviePane.getColumnCount();
+		int row = 0;
+		int currentCols = 0;
+		moviePane.getChildren().clear();
+		for(Product product : products) {
+			Movie movie = product.getMovie();
+			BorderPane pane = getMoviePane(movie, sizePane);
+			moviePane.add(pane, currentCols, row);
+			if(currentCols < cols-1)
+				currentCols++;
+			else {
+				currentCols = 0;
+				row++;
+			}
+		}
+	}
+	
+	public static void loadMoviesToGridPane(List<Movie> movies, GridPane moviePane, Region sizePane) {
+		final int cols = moviePane.getColumnCount();
+		int row = 0;
+		int currentCols = 0;
+		moviePane.getChildren().clear();
+		for(Movie movie : movies) {
+			BorderPane pane = getMoviePane(movie, sizePane);
+			moviePane.add(pane, currentCols, row);
+			if(currentCols < cols-1)
+				currentCols++;
+			else {
+				currentCols = 0;
+				row++;
+			}
+		}
 	}
 	
 	public static void enterPanel(Node node) throws IOException {
