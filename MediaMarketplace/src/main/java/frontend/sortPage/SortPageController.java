@@ -14,6 +14,7 @@ import backend.controllers.GenreController;
 import backend.entities.Genre;
 import backend.entities.Movie;
 import frontend.AppUtils;
+import frontend.MovieRow;
 import frontend.SearchUtils;
 import frontend.SortDto;
 import javafx.application.Platform;
@@ -63,13 +64,10 @@ public class SortPageController {
 	private ComboBox<Genre> chooseGenres;
 	
 	@FXML
-	private ScrollPane movieScroll;
+	private ListView<MovieRow> movieResultPane;
 	
 	@FXML
 	private GridPane genresPane;
-	
-	@FXML
-	private GridPane resultPane;
 	
 	@FXML
 	private HBox mainPane;
@@ -255,6 +253,8 @@ public class SortPageController {
         */
         chooseGenres.setItems(filteredData);
         //Platform.runLater(() -> chooseGenres.getSelectionModel().select(0));
+        
+        AppUtils.InitiatelistViewAsGridPage(movieResultPane);
 	}
 	
 	private static class GenreListCell extends ListCell<Genre> {
@@ -279,9 +279,8 @@ public class SortPageController {
 	}
 	
 	private void searchMovies(SortDto sortDto) {
-		resultPane.getChildren().clear();
 		List<Movie> searchList = SearchUtils.searchMoviesSort(sortDto);
-		AppUtils.loadMoviesToGridPane(searchList, resultPane, movieScroll);
+		AppUtils.UpdatelistViewAsGridPage(movieResultPane, searchList);
 	}
 	
 	@FXML

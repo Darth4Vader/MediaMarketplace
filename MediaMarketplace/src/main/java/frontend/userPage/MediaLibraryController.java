@@ -9,8 +9,10 @@ import org.springframework.stereotype.Component;
 import backend.controllers.MoviePurchasedController;
 import backend.entities.Movie;
 import frontend.AppUtils;
+import frontend.MovieRow;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Border;
@@ -29,10 +31,7 @@ public class MediaLibraryController {
 	public static final String PATH = "/frontend/userPage/MediaLibrary.fxml";
 	
 	@FXML
-	private ScrollPane movieScroll;
-	
-	@FXML
-	private GridPane moviePane;
+	private ListView<MovieRow> moviePane;
 	
 	@Autowired
 	private MoviePurchasedController mediaPurchasedController;
@@ -40,7 +39,7 @@ public class MediaLibraryController {
 	@FXML
 	private void initialize() throws MalformedURLException {
 		List<Movie> movies = mediaPurchasedController.getAllActiveMediaProductsOfUser();
-		AppUtils.loadMoviesToGridPane(movies, moviePane, movieScroll);
+		AppUtils.FullListViewAsGridPage(moviePane, movies);
 	}
 	
 	
