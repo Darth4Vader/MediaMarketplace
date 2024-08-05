@@ -107,7 +107,9 @@ public class App extends Application {
 			e.printStackTrace();
 		}
 		//changeStageToFXML(LogInUserController.PATH);
-		changeAppPanel(HomePageController.PATH);
+		//changeAppPanel(HomePageController.PATH);
+		
+		changeAppPanel(AddMoviePageController.PATH);
 		
 		
 		//changeAppPanel(SortPageController.PATH);

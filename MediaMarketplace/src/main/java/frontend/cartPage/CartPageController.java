@@ -22,6 +22,7 @@ import frontend.MovieRow;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -93,6 +94,18 @@ public class CartPageController {
 				}
 			}
 		});
+		/*cartProducts.addListener((ListChangeListener<CartProduct>) change -> {
+			totalPriceText.setText(""+);
+			while (change.next()) {
+                if (change.wasAdded()) {
+                    System.out.println(change.getAddedSubList().get(0)
+                            + " was added to the list!");
+                } else if (change.wasRemoved()) {
+                    System.out.println(change.getRemoved().get(0)
+                            + " was removed from the list!");
+                }
+            }
+        });*/
 		if(cartProducts.isEmpty())
 			cartItems.setVisible(false);
 		emptyLabel.visibleProperty().bind(cartItems.visibleProperty().not());
@@ -102,6 +115,9 @@ public class CartPageController {
 			public ListCell<CartProduct> call(ListView<CartProduct> param) {
 				// TODO Auto-generated method stub
 				return new ListCell<>() {
+					{
+						setStyle("-fx-padding: 0px;");
+					}
 				    @Override
 				    public void updateItem(CartProduct item, boolean empty) {
 				        super.updateItem(item, empty);
@@ -163,6 +179,7 @@ public class CartPageController {
 			try {
 				cartController.removeProductFromCart(dto);
 				cartProducts.remove(cartProduct);
+				refreshTotalPrice();
 			} catch (EntityNotFoundException e1) {
 				//don't need to change anything, maybe there is a glitch that the product is not in the cart, so removing from cart is necessary
 			}
@@ -178,13 +195,19 @@ public class CartPageController {
 		cartProducts.clear();
 		List<CartProduct> resp = cartController.getCartProducts();
 		if(resp != null) {
-			itemsNumberText.setText(""+resp.size());
-			double totalPrice = 0;
 			for(CartProduct cartProduct : resp) {
 				cartProducts.add(cartProduct);
 			}
-			totalPriceText.setText(""+totalPrice);
 		}
+		refreshTotalPrice();
+	}
+	
+	public void refreshTotalPrice() {
+		double totalPrice = 0;
+		itemsNumberText.setText(""+cartProducts.size());
+		for(CartProduct cartProduct : cartProducts)
+			totalPrice += cartProduct.getPrice();
+		totalPriceText.setText(""+totalPrice);
 	}
 	
 	@FXML
