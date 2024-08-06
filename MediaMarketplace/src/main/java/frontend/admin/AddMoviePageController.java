@@ -97,36 +97,7 @@ public class AddMoviePageController {
 		previousPageLbl.visibleProperty().addListener(b -> {
 			
 		});*/
-		movieListView.setCellFactory(new Callback<ListView<MovieDto>, ListCell<MovieDto>>() {
-			
-			@Override
-			public ListCell<MovieDto> call(ListView<MovieDto> param) {
-				// TODO Auto-generated method stub
-				//return new SearchMovieCell();
-				return new ListCell<>() {
-					{
-						setStyle("-fx-padding: 0px;");
-					}
-				    @Override
-				    public void updateItem(MovieDto item, boolean empty) {
-				        super.updateItem(item, empty);
-				        if (item == null || empty) {
-				        	System.out.println("Bye");
-				            setGraphic(null);
-				            setText(null);
-				        }
-				        else {
-				            setGraphic(getMovieInfoPage(item));
-				            setText(null);
-				        }
-				        setAlignment(Pos.CENTER_LEFT);
-						setBorder(new Border(new BorderStroke(Color.PINK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
-					            new BorderWidths(1))));
-				        //setAlignment(Pos.CENTER);
-				    }
-				};
-			}
-		});
+		movieListView.setCellFactory(x ->  new SearchMovieCell());
 		movieListView.setItems(movieList);
 		movieListView.setSelectionModel(null);
 	}
@@ -139,7 +110,7 @@ public class AddMoviePageController {
 		private Label date;
 		private TextArea textArea;
 		
-		{
+		public SearchMovieCell() {
 			setStyle("-fx-padding: 0px;");
 			
 			
@@ -164,6 +135,7 @@ public class AddMoviePageController {
 			infoBox.getChildren().add(date);
 			textArea = new TextArea();
 			textArea.setWrapText(true);
+			textArea.setEditable(false);
 			//textArea.setDisable(true);
 			infoBox.getChildren().add(textArea);
 			//textArea.setMinWidth(Region.USE_PREF_SIZE);
@@ -187,16 +159,11 @@ public class AddMoviePageController {
 		}
 		
 		private void set(MovieDto movie) {
-			String posterPath =  movie.getPosterPath();
-			Image poster = null;
 			try {
-				poster = AppUtils.loadImageFromClass(posterPath);
+				posterView.setImage(AppUtils.loadImageFromClass(movie.getPosterPath()));
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
-			if(poster != null) {
-				posterView.setImage(poster);
 			}
 			posterView.setOnMouseClicked(e -> {
 				try {

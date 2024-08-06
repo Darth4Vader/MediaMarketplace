@@ -262,12 +262,10 @@ public class SortPageController {
 	    @Override
 	    public void updateItem(Genre item, boolean empty) {
 	        super.updateItem(item, empty);
-	        if (item != null) {
-	            setText(item.getName());//return String, actual name of material
-	        }
-	        else {
+	        if(item == null || empty)
 	            setText(null);
-	        }
+	        else
+	        	setText(item.getName());
 	    }
 
 	}

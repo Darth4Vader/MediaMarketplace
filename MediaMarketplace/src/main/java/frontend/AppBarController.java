@@ -25,7 +25,8 @@ public class AppBarController {
 	
 	@FXML
 	private void enterCart() throws IOException {
-		App.getApplicationInstance().changeAppPanel(CartPageController.PATH);
+		//App.getApplicationInstance().changeAppPanel(CartPageController.PATH);
+		App.getApplicationInstance().enterCartOrAddMovies();
 	}
 	
 	@FXML

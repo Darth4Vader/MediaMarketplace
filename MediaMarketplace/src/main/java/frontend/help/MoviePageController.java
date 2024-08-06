@@ -16,8 +16,10 @@ import backend.controllers.MoviePurchasedController;
 import backend.controllers.MovieReviewController;
 import backend.controllers.ProductController;
 import backend.dto.cart.CartProductDto;
+import backend.dto.mediaProduct.MovieDto;
 import backend.dto.mediaProduct.MovieReviewDto;
 import backend.entities.Actor;
+import backend.entities.CartProduct;
 import backend.entities.Director;
 import backend.entities.Movie;
 import backend.entities.MoviePurchased;
@@ -28,6 +30,7 @@ import backend.entities.User;
 import backend.exceptions.DtoValuesAreIncorrectException;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
+import backend.exceptions.UserNotLoggedInException;
 import backend.exceptions.enums.MovieReviewTypes;
 import frontend.App;
 import frontend.AppUtils;
@@ -37,15 +40,20 @@ import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.DialogEvent;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -58,9 +66,15 @@ import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -110,13 +124,13 @@ public class MoviePageController {
 	private HBox watchOptions;
 	
 	@FXML
-	private HBox directorsBox;
+	private ListView<Director> directorsListView;
 	
 	@FXML
-	private HBox actorsBox;
+	private ListView<Actor> actorsListView;
 	
 	@FXML
-	private VBox reviewsBox;
+	private ListView<MovieReview> reviewsListView;
 	
 	@Autowired
 	private ProductController productController;
@@ -134,13 +148,34 @@ public class MoviePageController {
 	
 	private Timeline remainingRentTime;
 	
-	/**
-	 * Initializes the movie pane
-	 * @param movie the movie to use
-	 * @throws MalformedURLException
-	 */
-	public void initializeMovie(Movie movie) throws MalformedURLException {
-		this.movie = movie;
+	private ObservableList<Director> directorsList;
+	
+	private ObservableList<Actor> actorsList;
+	
+	private ObservableList<MovieReview> movieReviewsList;
+	
+	@FXML
+	private void initialize() {
+		directorsList = FXCollections.observableArrayList();
+		directorsListView.setCellFactory(x -> new DirectorCell());
+		directorsListView.setItems(directorsList);
+		directorsListView.setSelectionModel(null);
+		directorsListView.prefHeightProperty().bind(mainPane.heightProperty().multiply(0.3).add(80));
+		
+		actorsList = FXCollections.observableArrayList();
+		actorsListView.setCellFactory(x ->  new ActorCell());
+		actorsListView.setItems(actorsList);
+		actorsListView.setSelectionModel(null);
+		actorsListView.prefHeightProperty().bind(mainPane.heightProperty().multiply(0.3).add(80));
+		
+		movieReviewsList = FXCollections.observableArrayList();
+		reviewsListView.setCellFactory(x -> new MovieReviewCell());
+		reviewsListView.setItems(movieReviewsList);
+		reviewsListView.setSelectionModel(null);
+		reviewsListView.prefHeightProperty().bind(mainPane.heightProperty().multiply(0.4));
+	}
+	
+	private void addPurchaseButtons() {
 		boolean isPurchased = false;
 		boolean isRented = false;
 		if(remainingRentTime != null)
@@ -207,6 +242,10 @@ public class MoviePageController {
 		} catch (EntityNotFoundException e) {
 			//This is okay, no need to add exception handling, the product will not be owned by the user
 		}
+		catch (UserNotLoggedInException e) {
+			//Can be if the user is not logged in, let him watch, but he can't buy as a guest
+			System.out.println("Miraxxx \n\nn\n");
+		}
 		if(!isPurchased) try {
 			Product product = productController.getProductByMovieId(movie.getId());
 			Button buyBtn = new Button("Buy for: " + product.calculatePrice(true));
@@ -230,12 +269,24 @@ public class MoviePageController {
 		        alert.setHeaderText("The movie in unavailable for purchases and rents");
 			}
 		}
+	}
+	
+	/**
+	 * Initializes the movie pane
+	 * @param movie the movie to use
+	 * @throws MalformedURLException
+	 */
+	public void initializeMovie(Movie movie) throws MalformedURLException {
+		this.movie = movie;
+		addPurchaseButtons();
 		ratingButton.getChildren().clear();
 		try {
 			MovieReview moviewReview = movieReviewController.getMovieReviewOfUser(movie.getId());
 			ratingButton.getChildren().addAll(getUserRating(moviewReview));
 			ratingButton.getChildren().add(new Text("  Your Rating"));
-		} catch (EntityNotFoundException e) {
+		} catch (EntityNotFoundException|UserNotLoggedInException e) {
+			// EntityNotFoundException: the logged user didn't rate already
+			// UserNotLoggedInException: a guest can still see the user page, but cannot rate
 			Text star = new Text("☆");
 			star.setFill(Color.BLUE);
 			star.setFont(Font.font(star.getFont().getSize()+3));
@@ -275,28 +326,26 @@ public class MoviePageController {
 			int minutes = runtime - hours*60;
 			rutimeLbl.setText(""+hours+"h "+minutes+"m");			
 		}
+		directorsList.clear();
 		List<Director> directors = movie.getDirectors();
 		if(directors != null) {
-			directorsBox.getChildren().clear();
-			for(Director director : directors) {
-				addToDirectorsPane(director);
-			}
+			directorsList.setAll(directorsList);
 		}
+		actorsList.clear();
 		List<Actor> actors = movie.getActorsRoles();
 		if(actors != null) {
-			actorsBox.getChildren().clear();
-			for(Actor actor : actors) {
-				addToActorsPane(actor);
-			}
+			actorsList.setAll(actors);
 		}
 		try {
 			List<MovieReview> reviews = movieReviewController.getAllReviewOfMovie(movie.getId());
-			reviewsBox.getChildren().clear();
+			movieReviewsList.clear();
 			if(reviews != null && !reviews.isEmpty()) {
 				int ratingNumber = (int) MovieReviewController.calculateRating(reviews);
 				movieRatingNumberLbl.setText(""+ratingNumber);
 				for(MovieReview review : reviews) {
-					addToReviewsPane(review);
+					if(DataUtils.isNotBlank(review.getReviewTitle())) {
+						movieReviewsList.add(review);	
+					}
 				}
 			}
 		} catch (EntityNotFoundException e) {
@@ -325,19 +374,22 @@ public class MoviePageController {
 		}
 	}
 	
-	private TextFlow getUserRating(MovieReview review) {
+	private TextFlow getUserRating(Text rating) {
 		TextFlow textFlowPane = new TextFlow();
 		Text star = new Text("★");
 		star.setFill(Color.BLUE);
 		star.setFont(Font.font(star.getFont().getSize()+3));
-		Text rating = new Text(" "+review.getRating());
 		rating.setStyle("-fx-font-weight: bold; -fx-font-size: 19");
 		Text rangeRating = new Text("/100");
 		textFlowPane.getChildren().addAll(star, rating, rangeRating);
 		return textFlowPane;
 	}
 	
-	private void addToReviewsPane(MovieReview review) {
+	private TextFlow getUserRating(MovieReview review) {
+		return getUserRating(new Text(" "+review.getRating()));
+	}
+	
+	/*private void addToReviewsPane(MovieReview review) {
 		if(DataUtils.isBlank(review.getReviewTitle()))
 			return;
 		VBox box = new VBox();
@@ -357,43 +409,7 @@ public class MoviePageController {
 		box.getChildren().addAll(textFlowPane, userInfo, reviewText);
 		box.setStyle("-fx-border-color: black; -fx-border-radius: 5;");
 		reviewsBox.getChildren().add(box);
-	}
-	
-	private void addToActorsPane(Actor actor) {
-		Person person = actor.getPerson();
-		addToPersonPane(person, person.getName() + "/" + actor.getRoleName(), actorsBox);
-	}
-	
-	private void addToDirectorsPane(Director director) {
-		Person person = director.getPerson();
-		addToPersonPane(person, person.getName(), directorsBox);
-	}
-	
-	private void addToPersonPane(Person person, String name, Pane pane) {
-		VBox actorPane = new VBox();
-		Label actorName = new Label(name);
-		actorName.setCenterShape(false);
-		actorName.setWrapText(true);
-		actorName.prefWidthProperty().bind(mainPane.widthProperty().multiply(0.2));
-		actorName.setTextAlignment(TextAlignment.CENTER);
-		actorName.setStyle("-fx-alignment: center");
-		String personImagePath = person.getImagePath();
-		if(DataUtils.isNotBlank(personImagePath)) {
-			ImageView actorImage;
-			try {
-				actorImage = new ImageView(AppUtils.loadImageFromClass(personImagePath));
-				actorImage.fitWidthProperty().bind(mainPane.widthProperty().multiply(0.2));
-				actorImage.fitHeightProperty().bind(mainPane.heightProperty().multiply(0.3).subtract(50));
-				actorPane.getChildren().add(actorImage);
-			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-			e.printStackTrace();
-			}
-		}
-		actorPane.getChildren().add(actorName);
-		actorPane.setStyle("-fx-border-color: blue");
-		pane.getChildren().add(actorPane);
-	}
+	}*/
 	
 	@FXML
 	private void openAddRatingsPage() throws MalformedURLException {
@@ -583,6 +599,185 @@ public class MoviePageController {
 				}
 		    }
 	    };
+	}
+	
+	private class PersonPane extends VBox {
+		 Label actorName;
+		 ImageView actorImage;
+		
+		public PersonPane() {
+			actorName = new Label();
+			actorName.setCenterShape(false);
+			actorName.setWrapText(true);
+			actorName.prefWidthProperty().bind(mainPane.widthProperty().multiply(0.2));
+			actorName.setTextAlignment(TextAlignment.CENTER);
+			actorName.setStyle("-fx-alignment: center");
+			actorImage = new ImageView();
+			actorImage.fitWidthProperty().bind(mainPane.widthProperty().multiply(0.2));
+			actorImage.fitHeightProperty().bind(mainPane.heightProperty().multiply(0.3).subtract(50));
+			this.getChildren().addAll(actorImage, actorName);
+			this.setStyle("-fx-border-color: blue");
+		}
+		
+		public void set(Director director) {
+			Person person = director.getPerson();
+			set(person, person.getName());
+		}
+		
+		public void set(Actor actor) {
+			Person person = actor.getPerson();
+			set(person, person.getName() + "/" + actor.getRoleName());
+		}
+		
+		private void set(Person person, String name) {
+			actorName.setText(name);
+			String personImagePath = person.getImagePath();
+			if(DataUtils.isNotBlank(personImagePath)) {
+				try {
+					actorImage.setImage(AppUtils.loadImageFromClass(personImagePath));
+				} catch (MalformedURLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		public void reset() {
+			actorName.setText(null);
+			actorImage.setImage(null);
+		}
+	}
+	
+	private class DirectorCell extends ListCell<Director> {
+		
+		private PersonPane personPane;
+		
+		public DirectorCell() {
+			this.personPane = new PersonPane();
+			setStyle("-fx-padding: 0px;");
+		}
+		
+	    @Override
+	    public void updateItem(Director item, boolean empty) {
+	        super.updateItem(item, empty);
+	        if (item == null || empty) {
+	            setGraphic(null);
+	            setText(null);
+	            personPane.reset();
+	        }
+	        else {
+	            setGraphic(personPane);
+	            setText(null);
+	            personPane.set(item);
+	        }
+	        setAlignment(Pos.CENTER_LEFT);
+			setBorder(new Border(new BorderStroke(Color.PINK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
+		            new BorderWidths(1))));
+	        //setAlignment(Pos.CENTER);
+	    }
+	}
+	
+	private class ActorCell extends ListCell<Actor> {
+		
+		private PersonPane personPane;
+		
+		public ActorCell() {
+			this.personPane = new PersonPane();
+			setStyle("-fx-padding: 0px;");
+		}
+		
+	    @Override
+	    public void updateItem(Actor item, boolean empty) {
+	        super.updateItem(item, empty);
+	        if (item == null || empty) {
+	            setGraphic(null);
+	            setText(null);
+	            personPane.reset();
+	        }
+	        else {
+	        	//System.out.println(heightProperty());
+	            System.out.println(personPane.heightProperty());
+	            setGraphic(new HBox(personPane));
+	            setText(null);
+	            personPane.set(item);
+	            System.out.println("\n\n\n\n");
+	            System.out.println(personPane.heightProperty());
+	            System.out.println(mainPane.heightProperty());
+	            System.out.println(personPane.actorImage.fitHeightProperty());
+	            System.out.println(personPane.actorName.heightProperty());
+	        }
+	        setAlignment(Pos.CENTER_LEFT);
+			setBorder(new Border(new BorderStroke(Color.PINK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
+		            new BorderWidths(1))));
+	        //setAlignment(Pos.CENTER);
+	    }
+	}
+	
+	private class MovieReviewCell extends ListCell<MovieReview> {
+		
+		private VBox box;
+		private Text userRatings;
+		private Text title;
+		private Label userName;
+		private Label createdDateLabel;
+		private Label reviewText;
+		
+		public MovieReviewCell() {
+			setStyle("-fx-padding: 0px;");
+			box = new VBox();
+			userRatings = new Text();
+			TextFlow textFlowPane = getUserRating(userRatings);
+			title = new Text();
+			title.setStyle("-fx-font-weight: bold;");
+			textFlowPane.getChildren().add(title);
+			userName = new Label();
+			createdDateLabel = new Label("");
+			HBox userInfo = new HBox();
+			userInfo.getChildren().addAll(userName, createdDateLabel);
+			userInfo.setPadding(new Insets(0, 0, 8, 0));
+			reviewText = new Label();
+			reviewText.setWrapText(true);
+			box.getChildren().addAll(textFlowPane, userInfo, reviewText);
+			box.setStyle("-fx-border-color: black; -fx-border-radius: 5;");
+		}
+		
+		public void set(MovieReview review) {
+			userRatings.setText(""+review.getRating());
+			title.setText("    "+ review.getReviewTitle());
+			User user = review.getUser();
+			userName.setText(" "+user.getUsername() + "	");
+			LocalDateTime createDate = review.getCreatedDate();
+			createdDateLabel.setText(DataUtils.getLocalDateTimeInCurrentZone(createDate));
+			reviewText.setText(" "+review.getReview());
+		}
+		
+		public void reset() {
+			userRatings.setText("");
+			title.setText("");
+			userName.setText("");
+			createdDateLabel.setText("");
+			reviewText.setText("");
+		}
+		
+	    @Override
+	    public void updateItem(MovieReview item, boolean empty) {
+	        super.updateItem(item, empty);
+	        if (item == null || empty) {
+	        	System.out.println("Bye");
+	            setGraphic(null);
+	            setText(null);
+	            reset();
+	        }
+	        else {
+	            setGraphic(box);
+	            setText(null);
+	            set(item);
+	        }
+	        setAlignment(Pos.CENTER_LEFT);
+			setBorder(new Border(new BorderStroke(Color.PINK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
+		            new BorderWidths(1))));
+	        //setAlignment(Pos.CENTER);
+	    }
 	}
 
 }

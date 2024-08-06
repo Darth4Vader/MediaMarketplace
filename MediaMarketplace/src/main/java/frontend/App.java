@@ -1,6 +1,7 @@
 package frontend;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,16 +29,20 @@ import frontend.admin.AdminProductPageController;
 import frontend.auth.LogInUserController;
 import frontend.cartPage.CartPageController;
 import frontend.help.MoviePageController;
+import frontend.help.MoviePageController2;
 import frontend.homePage.HomePageController;
 import frontend.sortPage.SortPageController;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.DialogEvent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -73,11 +78,16 @@ public class App extends Application {
 	
 	@Override
 	public void start(Stage stage) throws IOException {
+		//caught every user operation a guest try to activate
 		Thread curThread = Thread.currentThread();
 		UncaughtExceptionHandler catchExp = curThread.getUncaughtExceptionHandler();
 		curThread.setUncaughtExceptionHandler((thread, throwable) -> {
 			if(isCausedBy(throwable, UserNotLoggedInException.class)) {
 				System.out.println("user is not logged to the system");
+		        Alert alert = new Alert(Alert.AlertType.ERROR);
+		        alert.setTitle("The user is not logged in");
+		        alert.setHeaderText("sign in or continue to browse as unlogged");
+		        alert.show();
 			}
 			else {
 				catchExp.uncaughtException(thread, throwable);
@@ -107,9 +117,9 @@ public class App extends Application {
 			e.printStackTrace();
 		}
 		//changeStageToFXML(LogInUserController.PATH);
-		//changeAppPanel(HomePageController.PATH);
+		changeAppPanel(HomePageController.PATH);
 		
-		changeAppPanel(AddMoviePageController.PATH);
+		//changeAppPanel(AddMoviePageController.PATH);
 		
 		
 		//changeAppPanel(SortPageController.PATH);
@@ -205,8 +215,31 @@ public class App extends Application {
 		}
 	}
 	
-	public void enterMoviePage(Movie movie) {
+	public void enterCartOrAddMovies() {
 		boolean isAdmin = userAuth.isCurrentUserAdmin();
+		try {
+			String panePath;
+			if(isAdmin) {
+				panePath = AddMoviePageController.PATH;
+			}
+			else {
+				panePath = CartPageController.PATH;
+			}
+			changeAppPanel(panePath);
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void enterMoviePage(Movie movie) {
+		boolean isAdmin = false;
+		try {
+			isAdmin = userAuth.isCurrentUserAdmin();
+		}
+		catch (UserNotLoggedInException e) {
+			//ok, let guests view the movie product page.
+		}
 		try {
 			System.out.println("In Admin: " + isAdmin);
 			Parent root;

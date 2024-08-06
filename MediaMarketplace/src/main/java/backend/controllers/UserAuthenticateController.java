@@ -51,7 +51,7 @@ public class UserAuthenticateController {
     }
     
     @PostMapping("/is_admin/current_user")
-    public boolean isCurrentUserAdmin() {
+    public boolean isCurrentUserAdmin() throws UserNotLoggedInException {
     	return userAuthService.isCurrentUserAdmin();
     }
     

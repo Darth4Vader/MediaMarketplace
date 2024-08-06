@@ -24,6 +24,7 @@ import backend.entities.Order;
 import backend.entities.User;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
+import backend.exceptions.UserNotLoggedInException;
 import backend.repositories.UserRepository;
 import backend.services.CartService;
 import backend.services.GenreService;
@@ -51,7 +52,7 @@ public class MoviePurchasedController {
     }
 	
 	@GetMapping("/get_active/{movieId}")
-    public List<MoviePurchased> getActiveListUserMovie(Long movieId) throws EntityNotFoundException {
+    public List<MoviePurchased> getActiveListUserMovie(Long movieId) throws EntityNotFoundException, UserNotLoggedInException {
 		User user = tokenService.getCurretUser();
     	return moviePurchasedService.getActiveListUserMovie(user, movieId);
     }

@@ -21,6 +21,7 @@ import backend.entities.User;
 import backend.exceptions.DtoValuesAreIncorrectException;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
+import backend.exceptions.UserNotLoggedInException;
 import backend.services.MovieReviewService;
 import backend.services.MovieService;
 import backend.services.ProductService;
@@ -46,7 +47,7 @@ public class MovieReviewController {
 	
 	@GetMapping("/get/{movieId}/{userId}")
 	@ResponseStatus(code = HttpStatus.OK)
-    public MovieReview getMovieReviewOfUser(Long movieId) throws EntityNotFoundException  {
+    public MovieReview getMovieReviewOfUser(Long movieId) throws EntityNotFoundException, UserNotLoggedInException  {
 		User user = tokenService.getCurretUser();
 		return movieReviewService.getMovieReviewOfUser(movieId, user);
     }
