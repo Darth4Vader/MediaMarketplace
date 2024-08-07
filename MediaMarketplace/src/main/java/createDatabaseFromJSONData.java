@@ -26,6 +26,7 @@ import backend.dto.mediaProduct.ActorDto;
 import backend.dto.mediaProduct.MovieDto;
 import backend.dto.mediaProduct.PersonDto;
 import backend.dto.mediaProduct.ProductDto;
+import backend.entities.Director;
 import backend.entities.Genre;
 import backend.entities.Person;
 import backend.exceptions.EntityAlreadyExistsException;
@@ -48,7 +49,16 @@ public class createDatabaseFromJSONData {
 		
 		
 		
-		PersonController genreRep = context.getBean(PersonController.class);
+		//PersonController genreRep = context.getBean(PersonController.class);
+		
+		MovieController genreRep = context.getBean(MovieController.class);
+		for(backend.entities.Movie movie : genreRep.getAllMovies()) {
+			List<Director> directors = movie.getDirectors();
+			System.out.println(directors + " " + movie.getName());
+			if(directors != null && directors.size() > 0) {
+				Director director = directors.get(0);
+			}
+		}
 		
 		/*for(Person person : genreRep.getAllPeople()) {
 			genreRep.removePerson(person.getId());

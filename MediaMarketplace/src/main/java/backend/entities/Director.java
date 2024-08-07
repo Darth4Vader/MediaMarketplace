@@ -21,11 +21,11 @@ public class Director {
 	private Long id;
 	
     @ManyToOne
-    @JoinColumn(name = "movie_id", nullable = false)
+    @JoinColumn(name = "movie_id", referencedColumnName = "id", nullable = false)
 	private Movie movie;
 	
     @ManyToOne
-    @JoinColumn(name = "person_id", nullable = false)
+    @JoinColumn(name = "person_id", referencedColumnName = "id", nullable = false)
 	private Person person;
 
 	public Long getId() {

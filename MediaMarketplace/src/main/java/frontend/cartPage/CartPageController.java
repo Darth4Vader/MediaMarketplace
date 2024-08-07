@@ -1,6 +1,5 @@
 package frontend.cartPage;
 
-import java.net.MalformedURLException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,40 +9,20 @@ import backend.controllers.CartController;
 import backend.controllers.OrderController;
 import backend.dto.cart.CartProductDto;
 import backend.entities.CartProduct;
-import backend.entities.Movie;
-import backend.entities.MoviePurchased;
 import backend.entities.Order;
-import backend.entities.Product;
 import backend.exceptions.EntityNotFoundException;
 import backend.exceptions.PurchaseOrderException;
-import backend.repositories.CartProductRepository;
 import frontend.AppUtils;
-import frontend.MovieRow;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import javafx.util.Callback;
 
 @Component
 public class CartPageController {
@@ -51,7 +30,7 @@ public class CartPageController {
 	public static final String PATH = "/frontend/cartPage/CartPage.fxml";
 	
 	@FXML
-	private VBox mainPane;
+	VBox mainPane;
 	
 	@FXML
 	private ListView<CartProduct> cartItems;
@@ -70,9 +49,6 @@ public class CartPageController {
 	
 	@Autowired
 	private CartController cartController;
-	
-	@Autowired
-	private CartProductRepository cartProductRepository;
 	
 	@Autowired
 	private OrderController orderController;
@@ -94,127 +70,33 @@ public class CartPageController {
 				}
 			}
 		});
-		/*cartProducts.addListener((ListChangeListener<CartProduct>) change -> {
-			totalPriceText.setText(""+);
-			while (change.next()) {
-                if (change.wasAdded()) {
-                    System.out.println(change.getAddedSubList().get(0)
-                            + " was added to the list!");
-                } else if (change.wasRemoved()) {
-                    System.out.println(change.getRemoved().get(0)
-                            + " was removed from the list!");
-                }
-            }
-        });*/
 		if(cartProducts.isEmpty())
 			cartItems.setVisible(false);
 		emptyLabel.visibleProperty().bind(cartItems.visibleProperty().not());
-		cartItems.setCellFactory(x -> new CartProductCell());
+		cartItems.setCellFactory(x -> new CartProductCell(this));
 		cartItems.setItems(cartProducts);
 		cartItems.setSelectionModel(null);
 		refreshCart();
 	}
 	
-	private class CartProductCell extends ListCell<CartProduct> {
-		
-		private HBox mainBox;
-		private ImageView view;
-		private Label name;
-		private Label type;
-		private Button removeFromCart;
-		private Label priceText;
-		
-		public CartProductCell() {
-			setStyle("-fx-padding: 0px;");
-			mainBox = new HBox();
-			HBox productBox = new HBox();
-			HBox.setHgrow(productBox, Priority.ALWAYS);
-			VBox imageBox = new VBox();
-			view = new ImageView();
-			view.setPreserveRatio(true);
-			view.fitWidthProperty().bind(mainPane.widthProperty().multiply(0.2));
-			view.fitHeightProperty().bind(mainPane.heightProperty().multiply(0.4));
-			imageBox.getChildren().add(view);
-			VBox infoBox = new VBox();
-			name = new Label();
-			name.setWrapText(true);
-			//b.prefWidthProperty().bind(mainPane.widthProperty());
-			//b.maxWidthProperty().bind(mainPane.heightProperty().multiply(0.4));
-			/*b.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
-		            new BorderWidths(1))));*/
-			
-			type = new Label();
-			type.setStyle("-fx-fill: green; -fx-font-size: 19");
-			infoBox.getChildren().addAll(name, type);
-			productBox.getChildren().addAll(imageBox, infoBox);
-			removeFromCart = new Button("Delete");
-			infoBox.getChildren().addAll(removeFromCart);
-			priceText = new Label();
-			priceText.setStyle("-fx-font-weight: bold; -fx-font-size: 19");
-			mainBox.getChildren().addAll(productBox, priceText);
+	public void removeProductFromCart(CartProduct cartProduct) {
+		CartProductDto dto = new CartProductDto();
+		dto.setProductId(cartProduct.getProduct().getId());
+		try {
+			cartController.removeProductFromCart(dto);
+		} catch (EntityNotFoundException e1) {
+			//don't need to change anything, maybe there is a glitch that the product is not in the cart, so removing from cart is necessary
+			//but we will remove in case of a glitch, to avoid problems. 
 		}
-		
-		public void set(CartProduct cartProduct) {
-			Product product = cartProduct.getProduct();
-			Movie movie = product.getMovie();
-			try {
-				view.setImage(AppUtils.loadImageFromClass(movie.getPosterPath()));
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			}
-			name.setText(movie.getName());
-			type.setText(cartProduct.isBuying() ? "Buy" : "Rent");
-			removeFromCart.setOnAction(e -> {
-				CartProductDto dto = new CartProductDto();
-				dto.setProductId(product.getId());
-				try {
-					cartController.removeProductFromCart(dto);
-					cartProducts.remove(cartProduct);
-					refreshTotalPrice();
-				} catch (EntityNotFoundException e1) {
-					//don't need to change anything, maybe there is a glitch that the product is not in the cart, so removing from cart is necessary
-				}
-			});
-			double price = cartProduct.getPrice();
-			priceText.setText(""+price);
-		}
-		
-		public void reset() {
-			view.setImage(null);
-			name.setText(null);
-			type.setText(null);
-			removeFromCart.setOnAction(null);
-			priceText.setText(null);
-		}
-		
-	    @Override
-	    public void updateItem(CartProduct item, boolean empty) {
-	        super.updateItem(item, empty);
-	        if (item == null || empty) {
-	        	System.out.println("Bye");
-	            setGraphic(null);
-	            setText(null);
-	            reset();
-	        }
-	        else {
-	            setGraphic(mainBox);
-	            setText(null);
-	            set(item);
-	        }
-	        setAlignment(Pos.CENTER_LEFT);
-			setBorder(new Border(new BorderStroke(Color.PINK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
-		            new BorderWidths(1))));
-	        //setAlignment(Pos.CENTER);
-	    }
+		cartProducts.remove(cartProduct);
+		refreshTotalPrice();
 	}
 	
 	private void refreshCart() {
 		cartProducts.clear();
 		List<CartProduct> resp = cartController.getCartProducts();
 		if(resp != null) {
-			for(CartProduct cartProduct : resp) {
-				cartProducts.add(cartProduct);
-			}
+			cartProducts.setAll(resp);
 		}
 		refreshTotalPrice();
 	}
@@ -229,21 +111,16 @@ public class CartPageController {
 	
 	@FXML
 	private void purchaseCart() {
+		Order order = null;
 		try {
-			orderController.placeOrder();
+			order = orderController.placeOrder();
 		} catch (PurchaseOrderException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//we will alert the user for the exception reasons.
+			AppUtils.alertOfError("Problem with Purchasing Products", e.getMessage());
 		}
 		refreshCart();
-		List<Order> orders = orderController.getUserOrders();
-		for(Order order : orders) {
-			System.out.println(order.getUser().getUsername());
-			System.out.println(order.getTotalPrice());
-			System.out.println(order.getId());
-			for(MoviePurchased purchase : order.getPurchasedItems()) {
-				System.out.println(purchase.getMovie().getName());
-			}
+		if(order != null) {
+			AppUtils.alertOfInformation("Purchase is successfull", "Order number is: " + order.getId());
 		}
 	}
 }

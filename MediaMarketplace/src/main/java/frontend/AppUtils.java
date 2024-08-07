@@ -12,7 +12,7 @@ import backend.entities.Movie;
 import backend.entities.Product;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
-import frontend.help.MoviePageController;
+import frontend.moviePage.MoviePageController;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -22,6 +22,8 @@ import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -152,6 +154,21 @@ public class AppUtils {
 		}
 	}
 	
+	public static void alertOfError(String title, String bodyText) {
+		alertOfType(AlertType.ERROR, title, bodyText);
+	}
+	
+	public static void alertOfInformation(String title, String bodyText) {
+		alertOfType(AlertType.INFORMATION, title, bodyText);
+	}
+	
+	public static void alertOfType(AlertType type, String title, String bodyText) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(bodyText);
+        alert.show();
+	}
+	
 	public static void enterPanel(Node node) throws IOException {
 		App.getApplicationInstance().changeAppPanel(node);
 	}
@@ -203,6 +220,9 @@ public class AppUtils {
 					i = 0;
 				}
 			}
+		}
+		if(!movieRow.getMovies().isEmpty()) {
+			movies.add(movieRow);
 		}
 		movieListView.setItems(movies);
 	}
@@ -265,10 +285,9 @@ class MovieTableCellEditor extends ListCell<MovieRow> {
         else {
         	List<Movie> movies = item.getMovies();
         	for(int i = 0; i < cells.size(); i++) {
-        		Movie movie = movies.get(i);
         		MovieCell cell = cells.get(i);
         		if(i < movies.size()) {
-        			cell.set(movie);
+        			cell.set(movies.get(i));
         		}
         		else {
         			cell.clean();

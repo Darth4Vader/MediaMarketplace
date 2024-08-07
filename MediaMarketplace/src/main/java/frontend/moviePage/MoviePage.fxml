@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.TextFlow?>
+
+<ScrollPane fx:id="mainPane" fitToWidth="true" prefWidth="600.0" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="frontend.moviePage.MoviePageController">
+   <content>
+      <VBox>
+         <children>
+            <HBox>
+               <children>
+                  <ImageView fx:id="posterView" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+                  <BorderPane fx:id="backgroundView" HBox.hgrow="ALWAYS">
+                     <right>
+                        <VBox fx:id="productOptions" BorderPane.alignment="CENTER" />
+                     </right>
+                  </BorderPane>
+               </children>
+            </HBox>
+            <Label fx:id="nameLbl" text="Label">
+               <font>
+                  <Font size="23.0" />
+               </font>
+            </Label>
+            <HBox>
+               <children>
+                  <Label fx:id="yearLbl" text="?" />
+                  <Label text="•">
+                     <HBox.margin>
+                        <Insets left="5.0" right="5.0" />
+                     </HBox.margin>
+                  </Label>
+                  <Label fx:id="rutimeLbl" text="?" />
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_LEFT">
+               <children>
+                  <Label text="★" textFill="GOLD">
+                     <font>
+                        <Font size="24.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="movieRatingNumberLbl" style="-fx-font-weight: bold;" text="?" />
+                  <Label text="/100">
+                     <HBox.margin>
+                        <Insets right="20.0" />
+                     </HBox.margin>
+                  </Label>
+                  <TextFlow fx:id="ratingButton" onMouseClicked="#openAddRatingsPage" style="-fx-border-color: black; -fx-border-radius: 30;">
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </TextFlow>
+               </children>
+            </HBox>
+            <TextArea fx:id="synopsisArea" editable="false" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="80.0" wrapText="true" />
+            <HBox fx:id="watchOptions">
+               <children>
+                  <Label style="-fx-font-weight: bold; -fx-font-size: 17;" text="Directors">
+                     <font>
+                        <Font size="17.0" />
+                     </font></Label>
+               </children></HBox>
+            <ListView fx:id="directorsListView" orientation="HORIZONTAL" />
+            <Label style="-fx-font-weight: bold; -fx-font-size: 17;" text="Actors">
+               <font>
+                  <Font size="17.0" />
+               </font></Label>
+            <ListView fx:id="actorsListView" orientation="HORIZONTAL" />
+            <Label style="-fx-font-weight: bold; -fx-font-size: 17;" text="Reviews">
+               <font>
+                  <Font size="17.0" />
+               </font></Label>
+            <Button mnemonicParsing="false" onAction="#openAddReviewPage" text="Add Review" />
+            <ListView fx:id="reviewsListView" />
+         </children>
+      </VBox>
+   </content>
+</ScrollPane>

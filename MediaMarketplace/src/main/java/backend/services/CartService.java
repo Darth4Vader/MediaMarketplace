@@ -52,7 +52,15 @@ public class CartService {
     	Product product = productService.getProductByID(dto.getProductId());
     	Cart cart = getUserCart(user);
     	System.out.println("I am here");
-    	checkIfProductNotInCart(cart, product);
+    	
+    	
+    	CartProduct productInCart = getProductInCart(cart, product, dto);
+    	if(productInCart != null) {
+    		System.out.println("\n\n chris re");
+	    	if(dto.isBuying() == productInCart.isBuying())
+				throw new EntityAlreadyExistsException("The product is already in the cart");
+	    	removeProductFromCart(cart, product);
+    	}
     	//add product to cart
     	System.out.println("I am buying: " + dto.isBuying());
     	CartProduct cartProduct = new CartProduct();
@@ -68,6 +76,11 @@ public class CartService {
     public void removeProductFromCart(CartProductDto dto, User user) throws EntityNotFoundException {
     	Product product = productService.getProductByID(dto.getProductId());
     	Cart cart = getUserCart(user);
+    	removeProductFromCart(cart, product);
+    }
+    
+    @Transactional
+    public void removeProductFromCart(Cart cart, Product product) throws EntityNotFoundException {
     	List<CartProduct> cartProducts = cart.getCartProducts();
     	for(CartProduct cartProduct : cartProducts) {
     		if(cartProduct.getProduct().equals(product)) {
@@ -92,7 +105,7 @@ public class CartService {
     	cartRepository.delete(cart);
     }
     
-    private void checkIfProductNotInCart(Cart cart, Product product) throws EntityAlreadyExistsException {
+    /*private void checkIfProductNotInCart(Cart cart, Product product, CartProductDto dto) throws EntityAlreadyExistsException {
     	List<CartProduct> cartProducts = cart.getCartProducts();
     	System.out.println(cartProducts);
     	System.out.println(product.getId());
@@ -100,9 +113,28 @@ public class CartService {
     		System.out.println(cartProduct.getProduct());
     		System.out.println(product);
     		System.out.println();
-    		if(cartProduct.getProduct().equals(product))
-    			throw new EntityAlreadyExistsException("The product is already in the cart");
+    		if(cartProduct.getProduct().equals(product)) {
+    			if(dto.isBuying() == cartProduct.isBuying())
+    				throw new EntityAlreadyExistsException("The product is already in the cart");
+    		}
     	}
+    }*/
+    
+    private CartProduct getProductInCart(Cart cart, Product product, CartProductDto dto) throws EntityAlreadyExistsException {
+    	List<CartProduct> cartProducts = cart.getCartProducts();
+    	System.out.println(cartProducts);
+    	System.out.println(product.getId());
+    	for(CartProduct cartProduct : cartProducts) {
+    		System.out.println(cartProduct.getProduct());
+    		System.out.println(product);
+    		System.out.println();
+    		if(cartProduct.getProduct().equals(product)) {
+    			return cartProduct;
+    			/*if(dto.isBuying() == cartProduct.isBuying())
+    				throw new EntityAlreadyExistsException("The product is already in the cart");*/
+    		}
+    	}
+    	return null;
     }
     
     public Cart getUserCart(User user) {

@@ -97,7 +97,6 @@ public class AddMoviePageController {
 		previousPageLbl.visibleProperty().addListener(b -> {
 			
 		});*/
-		
 		movieListView.setCellFactory(x ->  new SearchMovieCell());
 		movieListView.setItems(movieList);
 		movieListView.setSelectionModel(null);

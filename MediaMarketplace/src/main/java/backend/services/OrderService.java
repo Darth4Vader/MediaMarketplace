@@ -37,7 +37,7 @@ public class OrderService {
     }
 	
     @Transactional
-    public void placeOrder(User user) throws PurchaseOrderException {
+    public Order placeOrder(User user) throws PurchaseOrderException {
     	Cart cart = cartService.getUserCart(user);
     	List<CartProduct> cartProducts = cart.getCartProducts();
     	double totalPrice = 0;
@@ -65,6 +65,7 @@ public class OrderService {
     	order.setUser(user);
     	cartService.removeCartFromUser(cart);
     	orderRepository.save(order);
+    	return order;
     	/*
     	System.out.println("Added: " + mediaPurchasedRepository.findByOrder(order));
     	orderRepository.delete(order);

@@ -28,10 +28,10 @@ import frontend.admin.AddMoviePageController;
 import frontend.admin.AdminProductPageController;
 import frontend.auth.LogInUserController;
 import frontend.cartPage.CartPageController;
-import frontend.help.MoviePageController;
-import frontend.help.MoviePageController2;
 import frontend.homePage.HomePageController;
-import frontend.sortPage.SortPageController;
+import frontend.moviePage.MoviePageController;
+import frontend.moviePage.MoviePageController2;
+import frontend.searchPage.SearchPageController;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -107,8 +107,8 @@ public class App extends Application {
         });
 		this.stage = stage;
 		userAuth = appContext.getBean(UserAuthenticateController.class);
-		//LogInDto dto = new LogInDto("frodo", "bag");
-		LogInDto dto = new LogInDto("bilbo", "bag");
+		LogInDto dto = new LogInDto("frodo", "bag");
+		//LogInDto dto = new LogInDto("bilbo", "bag");
 		try {
 			LogInResponseDto d = userAuth.loginUser(dto);
 			//userAuth.registerUser(new UserInformationDto("frodo", "", "bag", "bag"));
@@ -205,9 +205,9 @@ public class App extends Application {
 	
 	public void enterSearchPage(String searchMovie) {
 		try {
-			FXMLLoader loader = getFXMLLoader(SortPageController.PATH);
+			FXMLLoader loader = getFXMLLoader(SearchPageController.PATH);
 			Parent root = loader.load();
-			SortPageController controller = loader.getController();
+			SearchPageController controller = loader.getController();
 			controller.searchMovies(searchMovie);
 			changeAppPanel(root);
 		} catch (IOException e) {

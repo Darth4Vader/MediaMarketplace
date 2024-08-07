@@ -50,9 +50,9 @@ public class OrderController {
     }
 	
 	@GetMapping("/place_order")
-    public void placeOrder() throws PurchaseOrderException {
+    public Order placeOrder() throws PurchaseOrderException {
 		User user = tokenService.getCurretUser();
-		orderService.placeOrder(user);
+		return orderService.placeOrder(user);
     }
 	
 	/*@GetMapping("/add")
