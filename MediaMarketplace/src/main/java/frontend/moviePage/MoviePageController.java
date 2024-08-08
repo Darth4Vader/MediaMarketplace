@@ -32,7 +32,6 @@ import frontend.App;
 import frontend.AppUtils;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -41,7 +40,9 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -172,13 +173,13 @@ public class MoviePageController {
 	 * @param movie the movie to use
 	 * @throws MalformedURLException
 	 */
-	public void initializeMovie(Movie movie) throws MalformedURLException {
+	public void initializeMovie(Movie movie) {
 		this.movie = movie;
 		addPurchaseButtons();
 		ratingButton.getChildren().clear();
 		try {
 			MovieReview moviewReview = movieReviewController.getMovieReviewOfUser(movie.getId());
-			ratingButton.getChildren().addAll(getUserRating(moviewReview));
+			ratingButton.getChildren().addAll(MoviePageUtils.getUserRating(moviewReview));
 			ratingButton.getChildren().add(new Text("  Your Rating"));
 		} catch (EntityNotFoundException|UserNotLoggedInException e) {
 			// EntityNotFoundException: the logged user didn't rate already
@@ -190,7 +191,7 @@ public class MoviePageController {
 			ratingButton.getChildren().addAll(star, rateText);
 		}
 		String backdropPath = movie.getBackdropPath(); 
-		if(DataUtils.isNotBlank(backdropPath)) try {
+		if(DataUtils.isNotBlank(backdropPath)) {
 			BackgroundSize backgroundSize = new BackgroundSize(1,
 					1,
 			        true,
@@ -203,9 +204,6 @@ public class MoviePageController {
 			        BackgroundPosition.CENTER,
 			        backgroundSize);
 			backgroundView.setBackground(new Background(backgroudImage));
-		}
-		catch (MalformedURLException e) {
-			e.printStackTrace();
 		}
 		posterView.setImage(AppUtils.loadImageFromClass(movie.getPosterPath()));
 		nameLbl.setText(movie.getName());
@@ -254,9 +252,9 @@ public class MoviePageController {
 		boolean isRented = false;
 		if(remainingRentTime != null)
 			remainingRentTime.stop();
+		productOptions.getChildren().clear();
 		try {
-			LocalDateTime timeSince = null;
-			productOptions.getChildren().clear();
+			LocalDateTime currentRentTime = null;
 			List<MoviePurchased> purchasedLists = moviePurchasedController.getActiveListUserMovie(movie.getId());
 			for(MoviePurchased purchased : purchasedLists) {
 				if(!purchased.isRented()) {
@@ -265,53 +263,24 @@ public class MoviePageController {
 				}
 				else {
 					isRented = true;
-					timeSince = purchased.getCurrentRentTime();
+					currentRentTime = purchased.getCurrentRentTime();
 				}
 			}
 			if(isPurchased || isRented) {
-				Button viewButton = new Button();
-				String buttonText = "Watch Movie";
+				TextFlow btnTextFlow = new TextFlow();
+				btnTextFlow.getChildren().add(new Text("Watch Movie"));
 				if(!isPurchased && isRented) {
-					buttonText += " (Rent)\n Remaining Time: ";
-					final String buttonTextFinal = buttonText;
-					final LocalDateTime timeSinceFinal = timeSince;
-					remainingRentTime = new Timeline();
-					KeyFrame keyFrame = new KeyFrame(javafx.util.Duration.seconds(0), new EventHandler<ActionEvent>() {
-						
-						@Override
-						public void handle(ActionEvent event) {
-							Duration timeLeft = getRemainTime(timeSinceFinal);
-							if(timeLeft.isNegative() || mainPane.getParent() == null) {
-								remainingRentTime.stop();
-								if(timeLeft.isNegative()) {
-				    		        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-				    		        alert.setTitle("Rent of the movie is over");
-				    		        alert.setHeaderText("in order to watch movie purchase it or rent it again");
-				    		        alert.show();
-				    		        alert.setOnCloseRequest(new EventHandler<DialogEvent>() {
-										
-										@Override
-										public void handle(DialogEvent event) {
-											try {
-												initializeMovie(movie);
-											} catch (MalformedURLException e) {
-											}
-										}
-									});
-								}
-							}
-							else
-								viewButton.setText(buttonTextFinal+DataUtils.durationToString(timeLeft));
-						}
-						
-					});
-					remainingRentTime.getKeyFrames().addAll(keyFrame, new KeyFrame(javafx.util.Duration.seconds(1)));
-			        remainingRentTime.setCycleCount(Timeline.INDEFINITE);
-			        remainingRentTime.play();
+					Text remainTimeText = new Text();
+					btnTextFlow.getChildren().addAll(new Text(" (Rent)\nRemaining Time: "), remainTimeText);
+					createRentCountdown(currentRentTime, remainTimeText);
 				}
-				viewButton.setText(buttonText);
-				viewButton.setWrapText(true);
-				productOptions.getChildren().add(viewButton);
+				
+				btnTextFlow.setBorder(new Border(new BorderStroke(Color.PINK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
+			            new BorderWidths(1))));
+				btnTextFlow.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-radius: 5px; -fx-background-radius: 5px;");
+				btnTextFlow.setPadding(new Insets(5));
+				btnTextFlow.setCursor(Cursor.HAND);
+				productOptions.getChildren().add(btnTextFlow);
 			}
 		} catch (EntityNotFoundException e) {
 			//This is okay, no need to add exception handling, the product will not be owned by the user
@@ -326,6 +295,7 @@ public class MoviePageController {
 			buyBtn.setOnAction(e -> {
 				addToCart(product, true);
 			});
+			buyBtn.setMaxWidth(Double.MAX_VALUE);
 			productOptions.getChildren().add(buyBtn);
 			if(!isRented) {
 				Button rentBtn = new Button("Rent for: " + product.calculatePrice(false));
@@ -333,15 +303,48 @@ public class MoviePageController {
 				rentBtn.setOnAction(e -> {
 					addToCart(product, false);
 				});
+				rentBtn.setMaxWidth(Double.MAX_VALUE);
 				productOptions.getChildren().add(rentBtn);
 			}
 		} catch (EntityNotFoundException e) {
+			//catch when a product of the movie does not exists, it means that the movie is currently not for purchasing
 			if(!isPurchased && !isRented) {
-		        Alert alert = new Alert(Alert.AlertType.ERROR);
-		        alert.setTitle("Product Not available");
-		        alert.setHeaderText("The movie in unavailable for purchases and rents");
+				//if the movie is not available to purchase, and the user does not have an option to watch it, then alert him
+		        AppUtils.alertOfError("Product Not available", "The movie in unavailable for purchases and rents");
 			}
 		}
+	}
+	
+	private void createRentCountdown(LocalDateTime currentRentTime, Text remainTimeText) {
+		if(remainingRentTime != null)
+			remainingRentTime.stop();
+		remainingRentTime = new Timeline();
+		KeyFrame keyFrame = new KeyFrame(javafx.util.Duration.seconds(0), new EventHandler<ActionEvent>() {
+			
+			@Override
+			public void handle(ActionEvent event) {
+				Duration timeLeft = MoviePageUtils.getRemainTime(currentRentTime);
+				if(timeLeft == null || timeLeft.isNegative() || mainPane.getParent() == null) {
+					remainingRentTime.stop();
+					if(timeLeft != null && timeLeft.isNegative()) {
+						Alert alert = AppUtils.alertOfInformation("Rent of the movie is over", "in order to watch movie purchase it or rent it again");
+	    		        alert.setOnCloseRequest(new EventHandler<DialogEvent>() {
+							
+							@Override
+							public void handle(DialogEvent event) {
+								initializeMovie(movie);
+							}
+						});
+					}
+				}
+				else
+					remainTimeText.setText(DataUtils.durationToString(timeLeft));
+			}
+			
+		});
+		remainingRentTime.getKeyFrames().addAll(keyFrame, new KeyFrame(javafx.util.Duration.seconds(1)));
+        remainingRentTime.setCycleCount(Timeline.INDEFINITE);
+        remainingRentTime.play();
 	}
 	
 	private void addToCart(Product product, boolean isBuying) {
@@ -360,218 +363,147 @@ public class MoviePageController {
 		}
 	}
 	
-	public Duration getRemainTime(LocalDateTime timeSince) {
-		LocalDateTime now = LocalDateTime.now();
-		try {
-			return Duration.between(now, timeSince);
-		}
-		catch (Exception e) {
-			return null;
-		}
+	@FXML
+	private void openAddRatingsPage() {
+		new MovieReviewPage(false);
 	}
 	
 	@FXML
-	private void openAddRatingsPage() throws MalformedURLException {
-		if(movie == null)
-			return;
-		Integer ratings = null;
-		try {
-			MovieReview moviewReview = movieReviewController.getMovieReviewOfUser(movie.getId());
-			ratings = moviewReview.getRating();
-		} catch (EntityNotFoundException e) {
-			//it's okay, like if a user never rated this movie, then the exception will activate
-		}
-		VBox box = new VBox();
-		Label ratingsText = new Label("Add Ratings");
-		BorderPane ratingsTextBox = new BorderPane(ratingsText);
-		TextField ratingsField = new TextField();
-		ratingsField.setTextFormatter(new TextFormatter<Integer>(new IntegerStringConverter(), null, this::filter));
-		if(ratings != null)
-			ratingsField.setText(""+ratings);
-		Button addBtn = new Button("Add Ratings");
-		box.getChildren().addAll(ratingsTextBox, ratingsField, addBtn);
-		Scene scene = new Scene(box);
-		Stage stage = new Stage();
-		addBtn.setOnAction(e -> {
-			MovieReviewDto movieReviewDto = new MovieReviewDto();
-			movieReviewDto.setMovieId(movie.getId());
-			movieReviewDto.setRating(DataUtils.getIntegerNumber(ratingsField.getText()));
+	private void openAddReviewPage() {
+		new MovieReviewPage(true);
+	}
+	
+	private class MovieReviewPage extends Stage {
+		
+		private TextField titleField;
+		private TextArea contentArea;
+		private BorderPane titleTextBox;
+		private BorderPane contentTextBox;
+		
+		public MovieReviewPage(boolean isReview) {
+			if(movie == null)
+				return;
+			Integer ratings = null;
+			String reviewTitle = "", reviewContent = "";
 			try {
-				movieReviewController.addMovieRatingOfUser(movieReviewDto);
-				initializeMovie(movie);
-				stage.close();
-			} catch (DtoValuesAreIncorrectException e1) {
-				Map<String, String> map = e1.getMap();
-				for(Entry<String, String> entry : map.entrySet()) {
-					String val = entry.getValue();
-					switch (MovieReviewTypes.valueOf(entry.getKey())) {
-					case RATING:
-						bindValidation(ratingsField, ratingsTextBox, val);
-						break;
-					default:
-						break;
-					}
-				}
-			} catch (EntityNotFoundException e1) {
-				e1.printStackTrace();
-			} catch (MalformedURLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				MovieReview moviewReview = movieReviewController.getMovieReviewOfUser(movie.getId());
+				ratings = moviewReview.getRating();
+				reviewTitle = moviewReview.getReviewTitle();
+				reviewContent = moviewReview.getReview();
+			} catch (EntityNotFoundException e) {
+				//it's okay, like if a user never reviewed this movie, then the exception will activate
 			}
-		});
-		stage.setScene(scene);
-		stage.initModality(Modality.APPLICATION_MODAL);
-		stage.initOwner(App.getApplicationInstance().getStage());
-		stage.show();
-		Platform.runLater(() -> box.requestFocus());
-	}
-	
-	@FXML
-	private void openAddReviewPage() throws MalformedURLException {
-		if(movie == null)
-			return;
-		Integer ratings = null;
-		String reviewTitle = "", reviewContent = "";
-		try {
-			MovieReview moviewReview = movieReviewController.getMovieReviewOfUser(movie.getId());
-			ratings = moviewReview.getRating();
-			reviewTitle = moviewReview.getReviewTitle();
-			reviewContent = moviewReview.getReview();
-		} catch (EntityNotFoundException e) {
-			//it's okay, like if a user never reviewed this movie, then the exception will activate
-		}
-		VBox box = new VBox();
-		Label ratingsText = new Label("Add Ratings");
-		BorderPane ratingsTextBox = new BorderPane(ratingsText);
-		TextField ratingsField = new TextField();
-		ratingsField.setTextFormatter(new TextFormatter<Integer>(new IntegerStringConverter(), null, this::filter));
-		if(ratings != null)
-			ratingsField.setText(""+ratings);
-		Label titleText = new Label("Add Titles");
-		BorderPane titleTextBox = new BorderPane(titleText);
-		TextField titleField = new TextField(reviewTitle);
-		Label contentText = new Label("Write The Review");
-		BorderPane contentTextBox = new BorderPane(contentText);
-		TextArea contentArea = new TextArea(reviewContent);
-		Button addBtn = new Button("Add Review");
-		box.getChildren().addAll(ratingsTextBox, ratingsField, titleTextBox, titleField, contentTextBox, contentArea, addBtn);
-		Scene scene = new Scene(box);
-		Stage stage = new Stage();
-		addBtn.setOnAction(e -> {
-			MovieReviewDto movieReviewDto = new MovieReviewDto();
-			movieReviewDto.setMovieId(movie.getId());
-			movieReviewDto.setRating(DataUtils.getIntegerNumber(ratingsField.getText()));
-			movieReviewDto.setReviewTitle(titleField.getText());
-			movieReviewDto.setReview(contentArea.getText());
-			try {
-				movieReviewController.addMovieReviewOfUser(movieReviewDto);
-				initializeMovie(movie);
-				stage.close();
-			} catch (DtoValuesAreIncorrectException e1) {
-				Map<String, String> map = e1.getMap();
-				for(Entry<String, String> entry : map.entrySet()) {
-					String val = entry.getValue();
-					switch (MovieReviewTypes.valueOf(entry.getKey())) {
-					case CREATED_DATE:
-						break;
-					case RATING:
-						bindValidation(ratingsField, ratingsTextBox, val);
-						break;
-					case REVIEW:
-						bindValidation(contentArea, contentTextBox, val);
-						break;
-					case TITLE:
-						bindValidation(titleField, titleTextBox, val);
-						break;
-					default:
-						break;
-					}
-				}
-			} catch (EntityNotFoundException e1) {
-				e1.printStackTrace();
-			} catch (MalformedURLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+			VBox box = new VBox();
+			Label ratingsText = new Label("Add Ratings");
+			BorderPane ratingsTextBox = new BorderPane(ratingsText);
+			TextField ratingsField = new TextField();
+			ratingsField.setTextFormatter(new TextFormatter<Integer>(new IntegerStringConverter(), null, this::filter));
+			if(ratings != null)
+				ratingsField.setText(""+ratings);
+			box.getChildren().addAll(ratingsTextBox, ratingsField);
+			String btnText;
+			//TextField titleField = null;
+			//TextArea contentArea = null; 
+			//
+			//BorderPane titleTextBox = null, contentTextBox = null;
+			if(isReview) {
+				Label titleText = new Label("Add Titles");
+				titleTextBox = new BorderPane(titleText);
+				titleField = new TextField(reviewTitle);
+				Label contentText = new Label("Write The Review");
+				contentTextBox = new BorderPane(contentText);
+				contentArea = new TextArea(reviewContent);
+				box.getChildren().addAll(titleTextBox, titleField, contentTextBox, contentArea);
+				btnText = "Add Review";
 			}
-		});
-		stage.setScene(scene);
-		stage.initModality(Modality.APPLICATION_MODAL);
-		stage.initOwner(App.getApplicationInstance().getStage());
-		stage.show();
-		Platform.runLater(() -> box.requestFocus());
-	}
-	
-	public static TextFlow getUserRating(Text rating) {
-		TextFlow textFlowPane = new TextFlow();
-		Text star = new Text("★");
-		star.setFill(Color.BLUE);
-		star.setFont(Font.font(star.getFont().getSize()+3));
-		rating.setStyle("-fx-font-weight: bold; -fx-font-size: 19");
-		Text rangeRating = new Text("/100");
-		textFlowPane.getChildren().addAll(star, rating, rangeRating);
-		return textFlowPane;
-	}
-	
-	public static TextFlow getUserRating(MovieReview review) {
-		return getUserRating(new Text(" "+review.getRating()));
-	}
-	
-	private void bindValidation(TextInputControl textInput, BorderPane pane, String errorMessage) {
-		Label validate = new Label(errorMessage);
-		validate.setVisible(true);
-		validate.setTextFill(Color.RED);
-		pane.setBottom(validate);
-		StringProperty property = textInput.textProperty();
-		ChangeListener<String> listener = new ChangeListener<String>() {
+			else
+				btnText = "Add Ratings";
 			
-			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				if(DataUtils.isNotBlank(newValue)) {
-					validate.setVisible(false);
-					pane.setBottom(null);
-					property.removeListener(this);
+			Button addBtn = new Button(btnText);
+			box.getChildren().addAll(addBtn);
+			Scene scene = new Scene(box);
+			addBtn.setOnAction(e -> {
+				MovieReviewDto movieReviewDto = new MovieReviewDto();
+				movieReviewDto.setMovieId(movie.getId());
+				movieReviewDto.setRating(DataUtils.getIntegerNumber(ratingsField.getText()));
+				try {
+					if(isReview) {
+						movieReviewDto.setReviewTitle(titleField.getText());
+						movieReviewDto.setReview(contentArea.getText());
+						movieReviewController.addMovieReviewOfUser(movieReviewDto);
+					}
+					else {
+						movieReviewController.addMovieRatingOfUser(movieReviewDto);
+					}
+					initializeMovie(movie);
+					this.close();
+				} catch (DtoValuesAreIncorrectException e1) {
+					//if there is a problem with adding the review, then we will display the user with the reasons
+					Map<String, String> map = e1.getMap();
+					for(Entry<String, String> entry : map.entrySet()) {
+						String val = entry.getValue();
+						switch (MovieReviewTypes.valueOf(entry.getKey())) {
+						case CREATED_DATE:
+							break;
+						case RATING:
+							bindValidation(ratingsField, ratingsTextBox, val);
+							break;
+						case REVIEW:
+							bindValidation(contentArea, contentTextBox, val);
+							break;
+						case TITLE:
+							bindValidation(titleField, titleTextBox, val);
+							break;
+						default:
+							break;
+						}
+					}
+				} catch (EntityNotFoundException e1) {
+					//can happen if the movie is removed from the database, and the user is trying to add to it a review
+					AppUtils.alertOfError("Review addition Problem", e1.getMessage());
 				}
-			}
-		};
-		property.addListener(listener);
-	}
-	
-    private Change filter(Change change) {
-    	String text = change.getControlNewText();
-    	boolean b = true;
-        if (text.matches("\\d*") && text.length() <= 3) {
-        	Integer val = DataUtils.getIntegerNumber(text);
-        	if(val != null && val >= 1 && val <= 100) {
-        		b = false;
-        	}
-        }
-        if(b)
-        	change.setText("");
-        return change;
-    }
-	
-	public static ChangeListener<String> ratingsPropertyChangeListener(TextInputControl control) {
-		return new ChangeListener<String>() {
-		    @Override
-		    public void changed(ObservableValue<? extends String> observable, String oldValue, 
-		        String newValue) {
-		    	try {
-			    	boolean b = true;
-			        if (newValue.matches("\\d*") && newValue.length() <= 3) {
-			        	Integer val = DataUtils.getIntegerNumber(newValue);
-			        	if(val != null && val >= 1 && val <= 100)
-			        		b = false;
-			        }
-			        if(b)
-			        	newValue = oldValue;
-			        if(DataUtils.isNotBlank(newValue))
-			        	control.setText(newValue);
-		    	}
-		    	catch (Throwable e) {
-					// TODO: handle exception
+			});
+			this.setScene(scene);
+			this.initModality(Modality.APPLICATION_MODAL);
+			this.initOwner(App.getApplicationInstance().getStage());
+			this.show();
+		}
+		
+	    private Change filter(Change change) {
+	    	String text = change.getControlNewText();
+	    	boolean b = true;
+	        if (text.matches("\\d*") && text.length() <= 3) {
+	        	Integer val = DataUtils.getIntegerNumber(text);
+	        	if(val != null && val >= 1 && val <= 100) {
+	        		b = false;
+	        	}
+	        }
+	        if(b)
+	        	change.setText("");
+	        return change;
+	    }
+	    
+		private void bindValidation(TextInputControl textInput, BorderPane pane, String errorMessage) {
+			if(textInput == null || pane == null)
+				return;
+			Label validate = new Label(errorMessage);
+			validate.setVisible(true);
+			validate.setTextFill(Color.RED);
+			pane.setBottom(validate);
+			StringProperty property = textInput.textProperty();
+			ChangeListener<String> listener = new ChangeListener<String>() {
+				
+				@Override
+				public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+					if(DataUtils.isNotBlank(newValue)) {
+						validate.setVisible(false);
+						pane.setBottom(null);
+						property.removeListener(this);
+					}
 				}
-		    }
-	    };
+			};
+			property.addListener(listener);
+		}
 	}
 	
 	private class PersonCell<T> extends ListCell<T> {

@@ -14,11 +14,7 @@ public class MovieImageView extends ImageView {
 	
 	public void setMovie(Movie movie) {
 		if(movie != null) {
-			try {
-				this.setImage(AppUtils.loadImageFromClass(movie.getPosterPath()));
-			} catch (MalformedURLException e) {
-				//this is ok, the app won't crash, and instead the movie image will be empty.
-			}
+			this.setImage(AppUtils.loadImageFromClass(movie.getPosterPath()));
 			this.setOnMouseClicked(evt -> {
 				App.getApplicationInstance().enterMoviePage(movie);
 			});

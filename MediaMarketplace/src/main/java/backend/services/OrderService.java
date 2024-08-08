@@ -56,7 +56,7 @@ public class OrderService {
     		System.out.println("Are you buying friend: " + isBuy);
     		orderItem.setRented(!isBuy);
     		if(!isBuy)
-    			orderItem.setRentTime(Duration.ofSeconds(15));
+    			orderItem.setRentTime(Duration.ofMinutes(3));
     			//orderItem.setRentTime(Duration.ofHours(72));
     		totalPrice += price;
     		order.addToPurchasedItems(orderItem);

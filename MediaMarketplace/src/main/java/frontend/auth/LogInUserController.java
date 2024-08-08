@@ -88,7 +88,7 @@ public class LogInUserController implements Serializable {
 	
 	@FXML
 	private void changeToRegisterUserPage() throws IOException {
-		App.getApplicationInstance().changeStageToFXML(RegisterUserController.PATH);
+		App.getApplicationInstance().activateLogPage(false);
 	}
 	
 	@FXML

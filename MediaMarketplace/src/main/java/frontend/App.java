@@ -27,10 +27,10 @@ import backend.exceptions.UserPasswordIsIncorrectException;
 import frontend.admin.AddMoviePageController;
 import frontend.admin.AdminProductPageController;
 import frontend.auth.LogInUserController;
+import frontend.auth.RegisterUserController;
 import frontend.cartPage.CartPageController;
 import frontend.homePage.HomePageController;
 import frontend.moviePage.MoviePageController;
-import frontend.moviePage.MoviePageController2;
 import frontend.searchPage.SearchPageController;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -45,8 +45,17 @@ import javafx.scene.control.Button;
 import javafx.scene.control.DialogEvent;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 @Component
@@ -76,6 +85,8 @@ public class App extends Application {
 		appContext = ActivateSpringApplication.create(args);
 	}
 	
+	private Stage userLogStage;
+	
 	@Override
 	public void start(Stage stage) throws IOException {
 		//caught every user operation a guest try to activate
@@ -87,6 +98,17 @@ public class App extends Application {
 		        Alert alert = new Alert(Alert.AlertType.ERROR);
 		        alert.setTitle("The user is not logged in");
 		        alert.setHeaderText("sign in or continue to browse as unlogged");
+		        
+		        Button signInBtn = createSignButton(alert, true);
+		        Button registerBtn = createSignButton(alert, false);
+		        HBox box = new HBox();
+		        box.setSpacing(10);
+				box.setBorder(new Border(new BorderStroke(Color.PINK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
+			            new BorderWidths(1))));
+		        //box.prefWidthProperty().bind(alert.widthProperty());
+		        //box.setMaxWidth(Double.MAX_VALUE);
+		        box.getChildren().addAll(signInBtn, registerBtn);
+		        alert.getDialogPane().setContent(box);
 		        alert.show();
 			}
 			else {
@@ -107,7 +129,7 @@ public class App extends Application {
         });
 		this.stage = stage;
 		userAuth = appContext.getBean(UserAuthenticateController.class);
-		LogInDto dto = new LogInDto("frodo", "bag");
+		/*LogInDto dto = new LogInDto("frodo", "bag");
 		//LogInDto dto = new LogInDto("bilbo", "bag");
 		try {
 			LogInResponseDto d = userAuth.loginUser(dto);
@@ -115,7 +137,9 @@ public class App extends Application {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
+		
+		
 		//changeStageToFXML(LogInUserController.PATH);
 		changeAppPanel(HomePageController.PATH);
 		
@@ -152,6 +176,39 @@ public class App extends Application {
 		Scene scene = new Scene(root);
 		stage.setScene(scene);
 		stage.show();*/
+	}
+	
+	private Button createSignButton(Alert alert, boolean logIn) {
+		String text = logIn ? "Sign in" : "Register";
+		Button signBtn = new Button(text);
+        signBtn.setOnAction(e -> {
+        	try {
+        		alert.close();
+				activateLogPage(false);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+        });
+        signBtn.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(signBtn, Priority.ALWAYS);
+        signBtn.setStyle("-fx-font-weight: bold;");
+        return signBtn;
+	}
+	
+	public void activateLogPage(boolean logIn) throws IOException {
+    	if(userLogStage == null) {
+    		userLogStage = new Stage();
+    		userLogStage.initModality(Modality.APPLICATION_MODAL);
+    		userLogStage.initOwner(App.getApplicationInstance().getStage());
+    		userLogStage.setOnCloseRequest(x -> {
+    			userLogStage = null;
+    		});
+    	}
+    	Parent root = loadFXML(logIn ? LogInUserController.PATH : RegisterUserController.PATH);
+		Scene scene = new Scene(root);
+		userLogStage.setScene(scene);
+		userLogStage.show();
 	}
 	
 	private boolean isCausedBy(Throwable caught, Class<? extends Throwable> isOfOrCausedBy) {

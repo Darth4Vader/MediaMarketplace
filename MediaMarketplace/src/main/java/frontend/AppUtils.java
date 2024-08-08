@@ -52,21 +52,27 @@ public class AppUtils {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public static Image loadImageFromClass(String path) throws MalformedURLException {
-		URL url;
+	public static Image loadImageFromClass(String path) {
 		try {
-			url = new URL(path);
+			URL url;
+			try {
+				url = new URL(path);
+			}
+			catch (MalformedURLException e) {
+				url = new File(path).toURI().toURL();
+			}
+			
+			String fullPath = url.toExternalForm();
+			System.out.println(fullPath);
+			return new Image(fullPath, true);
 		}
-		catch (MalformedURLException e) {
-			url = new File(path).toURI().toURL();
+		catch (Exception e) {
+			//if there is an exception with loading the image, or it is missing then return a null
+			return null;
 		}
-		
-		String fullPath = url.toExternalForm();
-		System.out.println(fullPath);
-		return new Image(fullPath, true);
 	}
 	
-	public static ImageView loadImageViewFromClass(String path) throws MalformedURLException {
+	public static ImageView loadImageViewFromClass(String path) {
 		return new ImageView(loadImageFromClass(path));
 	}
 	
@@ -98,10 +104,7 @@ public class AppUtils {
 	public static BorderPane getMoviePane(Movie movie, Region sizePane) {
 		BorderPane b = new BorderPane();
 		ImageView view = null;
-		try {
-			view = loadImageViewFromClass(movie.getPosterPath());
-		} catch (MalformedURLException e) {
-		}
+		view = loadImageViewFromClass(movie.getPosterPath());
 		if(view != null) {
 			view.setPreserveRatio(true);
 			view.fitWidthProperty().bind(sizePane.widthProperty().multiply(0.2));
@@ -154,19 +157,20 @@ public class AppUtils {
 		}
 	}
 	
-	public static void alertOfError(String title, String bodyText) {
-		alertOfType(AlertType.ERROR, title, bodyText);
+	public static Alert alertOfError(String title, String bodyText) {
+		return alertOfType(AlertType.ERROR, title, bodyText);
 	}
 	
-	public static void alertOfInformation(String title, String bodyText) {
-		alertOfType(AlertType.INFORMATION, title, bodyText);
+	public static Alert alertOfInformation(String title, String bodyText) {
+		return alertOfType(AlertType.INFORMATION, title, bodyText);
 	}
 	
-	public static void alertOfType(AlertType type, String title, String bodyText) {
+	public static Alert alertOfType(AlertType type, String title, String bodyText) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(bodyText);
         alert.show();
+        return alert;
 	}
 	
 	public static void enterPanel(Node node) throws IOException {
@@ -336,12 +340,7 @@ class MovieTableCellEditor extends ListCell<MovieRow> {
 		}
 		
 		public void set(Movie movie) {
-    		try {
-				view.setImage(AppUtils.loadImageFromClass(movie.getPosterPath()));
-			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			view.setImage(AppUtils.loadImageFromClass(movie.getPosterPath()));
     		name.setText(movie.getName());
     		b.setOnMouseClicked(evt -> {
     			App.getApplicationInstance().enterMoviePage(movie);

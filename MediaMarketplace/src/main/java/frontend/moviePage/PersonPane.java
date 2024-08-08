@@ -1,7 +1,5 @@
 package frontend.moviePage;
 
-import java.net.MalformedURLException;
-
 import backend.DataUtils;
 import backend.entities.Actor;
 import backend.entities.Director;
@@ -15,8 +13,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 
 class PersonPane extends HBox {
-	 Label actorName;
-	 ImageView actorImage;
+	 private Label actorName;
+	 private ImageView actorImage;
 	
 	public PersonPane(Region mainPane) {
 		VBox mainBox = new VBox();
@@ -55,12 +53,7 @@ class PersonPane extends HBox {
 		actorName.setText(name);
 		String personImagePath = person.getImagePath();
 		if(DataUtils.isNotBlank(personImagePath)) {
-			try {
-				actorImage.setImage(AppUtils.loadImageFromClass(personImagePath));
-			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			actorImage.setImage(AppUtils.loadImageFromClass(personImagePath));
 		}
 	}
 	

@@ -33,7 +33,7 @@ class MovieReviewCell extends ListCell<MovieReview> {
 		setStyle("-fx-padding: 0px;");
 		box = new VBox();
 		userRatings = new Text();
-		TextFlow textFlowPane = MoviePageController.getUserRating(userRatings);
+		TextFlow textFlowPane = MoviePageUtils.getUserRating(userRatings);
 		title = new Text();
 		title.setStyle("-fx-font-weight: bold;");
 		textFlowPane.getChildren().add(title);
@@ -70,7 +70,6 @@ class MovieReviewCell extends ListCell<MovieReview> {
     public void updateItem(MovieReview item, boolean empty) {
         super.updateItem(item, empty);
         if (item == null || empty) {
-        	System.out.println("Bye");
             setGraphic(null);
             setText(null);
             reset();

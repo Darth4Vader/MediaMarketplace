@@ -23,7 +23,10 @@
                   <ImageView fx:id="posterView" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
                   <BorderPane fx:id="backgroundView" HBox.hgrow="ALWAYS">
                      <right>
-                        <VBox fx:id="productOptions" BorderPane.alignment="CENTER" />
+                        <VBox fx:id="productOptions" spacing="10.0" BorderPane.alignment="CENTER">
+                           <BorderPane.margin>
+                              <Insets top="10.0" />
+                           </BorderPane.margin></VBox>
                      </right>
                   </BorderPane>
                </children>
@@ -64,7 +67,7 @@
                   </TextFlow>
                </children>
             </HBox>
-            <TextArea fx:id="synopsisArea" editable="false" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="80.0" wrapText="true" />
+            <TextArea fx:id="synopsisArea" editable="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="80.0" wrapText="true" />
             <HBox fx:id="watchOptions">
                <children>
                   <Label style="-fx-font-weight: bold; -fx-font-size: 17;" text="Directors">

@@ -211,12 +211,7 @@ public class AdminProductPageController {
 	
 	public void initializeProduct(Movie movie) {
 		this.movie = movie;
-		try {
-			posterView.setImage(AppUtils.loadImageFromClass(movie.getPosterPath()));
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		posterView.setImage(AppUtils.loadImageFromClass(movie.getPosterPath()));
 		try {
 			product = productController.getProductByMovieId(movie.getId());
 			/*statusLabel.setTextFill(Color.GREEN);

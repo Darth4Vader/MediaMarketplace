@@ -159,12 +159,7 @@ public class AddMoviePageController {
 		}
 		
 		private void set(MovieDto movie) {
-			try {
-				posterView.setImage(AppUtils.loadImageFromClass(movie.getPosterPath()));
-			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			posterView.setImage(AppUtils.loadImageFromClass(movie.getPosterPath()));
 			posterView.setOnMouseClicked(e -> {
 				try {
 					createMovie.addMovieToDatabase(
@@ -250,13 +245,7 @@ public class AddMoviePageController {
 		String posterPath = movieDto.getPosterPath();
 		System.out.println(posterPath);
 		ImageView posterView = new ImageView();
-		Image poster = null;
-		try {
-			poster = AppUtils.loadImageFromClass(posterPath);
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Image poster = AppUtils.loadImageFromClass(posterPath);
 		if(poster != null) {
 			posterView.setImage(poster);
 		}

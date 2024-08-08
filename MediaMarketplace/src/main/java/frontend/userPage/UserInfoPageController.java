@@ -5,8 +5,6 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.sun.prism.paint.Paint;
-
 import DataStructures.UserLogInfo;
 import backend.controllers.UserAuthenticateController;
 import backend.dto.users.UserInformationDto;
@@ -59,6 +57,7 @@ public class UserInfoPageController {
 			errorLabel.setTextFill(Color.GREEN);
 			errorLabel.setText("User updated successfullys");
 		} catch (LogValuesAreIncorrectException e) {
+			//if one of the fields text format is not valid, then we will notify the user the problem
 			Set<UserLogInfo> userLogInfo = e.getUserLogInfo();
 			if(userLogInfo != null) {
 				if(userLogInfo.contains(UserLogInfo.NAME))
@@ -71,6 +70,7 @@ public class UserInfoPageController {
 			errorLabel.setTextFill(Color.RED);
 			errorLabel.setText(e.getMessage());
 		} catch (UserPasswordIsIncorrectException e) {
+			//if the password is not matching the password confirm, then we will notify the user.
 			passwordField.setStyle("-fx-border-color: red");
 			passwordConfirmField.setStyle("-fx-border-color: red");
 			errorLabel.setTextFill(Color.RED);
