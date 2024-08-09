@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import backend.entities.Genre;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
+import backend.exceptions.EntityRemovalException;
 import backend.repositories.GenreRepository;
 
 @Service
@@ -36,6 +37,16 @@ public class GenreService {
     	catch (EntityNotFoundException e) {}
     	Genre genre = new Genre(genreName);
     	genreRepository.save(genre);
+    }
+    
+    public void removeGenre(String genreName) throws EntityNotFoundException, EntityRemovalException {
+    	try {
+        	Genre genre = getGenreByName(genreName);
+    		genreRepository.delete(genre);
+    	}
+    	catch (Throwable e) {
+    		throw new EntityRemovalException("Cannot Remove the Genre with id: ("+genreName+")");
+		}
     }
     
     public Genre getGenreByName(String genreName) throws EntityNotFoundException {

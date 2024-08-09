@@ -41,4 +41,10 @@ public class MovieController {
 		movieService.addMovie(movieDto);
         return new ResponseEntity<>("Created Successfully", HttpStatus.OK);
     }
+	
+	@GetMapping("/update")
+    public  ResponseEntity<String> updateMovie(@Valid @RequestBody MovieDto movieDto) throws EntityNotFoundException {
+		movieService.updateMovie(movieDto);
+		return new ResponseEntity<>("Created Successfully", HttpStatus.OK);
+    }
 }

@@ -18,6 +18,7 @@ import MediaData.Movie;
 import MediaData.CreateData.TmdbGoogleScrapper;
 import backend.ActivateSpringApplication;
 import backend.controllers.ActorController;
+import backend.controllers.DirectorController;
 import backend.controllers.GenreController;
 import backend.controllers.MovieController;
 import backend.controllers.PersonController;
@@ -47,17 +48,21 @@ public class createDatabaseFromJSONData {
 		
 		context = ActivateSpringApplication.create(args);
 		
-		
+		//spring.jpa.show-sql=true
 		
 		//PersonController genreRep = context.getBean(PersonController.class);
 		
 		MovieController genreRep = context.getBean(MovieController.class);
 		for(backend.entities.Movie movie : genreRep.getAllMovies()) {
-			List<Director> directors = movie.getDirectors();
+			if(movie.getName().contains("Inception")) {
+				System.out.println(movie.getName());
+				//removeMovie(movie);
+			}
+			/*List<Director> directors = movie.getDirectors();
 			System.out.println(directors + " " + movie.getName());
 			if(directors != null && directors.size() > 0) {
 				Director director = directors.get(0);
-			}
+			}*/
 		}
 		
 		/*for(Person person : genreRep.getAllPeople()) {
@@ -127,6 +132,41 @@ public class createDatabaseFromJSONData {
 		validateMovies();*/
 		
 		//validateMovies0222();
+	}
+	
+	public static void removeMovie(backend.entities.Movie movie) throws IOException {
+		GenreController genreRep = context.getBean(GenreController.class);
+		System.out.println(genreRep.getAllGenres());
+		
+		DirectorRepository directorRepository = context.getBean(DirectorRepository.class);
+		List<Director> directors = movie.getDirectors();
+		if(directors != null) for(Director director : directors) {
+			directorRepository.delete(director);
+		}
+		
+		
+		ActorRepository actorRepository = context.getBean(ActorRepository.class);
+		List<backend.entities.Actor> actors = movie.getActorsRoles();
+		if(actors != null) for(backend.entities.Actor actor : actors) {
+			actorRepository.delete(actor);
+		}
+		
+		MovieRepository movieRepository = context.getBean(MovieRepository.class);
+		movieRepository.delete(movie);
+		
+		//MediaGenreRepository genreRep = context.getBean(MediaGenreRepository.class);
+		/*List<Movie> list = MediaUtils.getAll(Movie.class);
+		for(Movie movie : list) {
+			List<String> genres = movie.getGenres();
+			if(genres != null) for(String genre : genres) {
+				try {
+					genreRep.createGenre(genre);
+				}
+				catch (Exception e) {
+					System.err.println(e.getMessage());
+				}
+			}
+		}*/
 	}
 	
 	public static void addGenres() throws IOException {

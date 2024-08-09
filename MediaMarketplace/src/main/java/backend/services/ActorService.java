@@ -15,7 +15,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import backend.dto.mediaProduct.ActorDto;
+import backend.dto.mediaProduct.DirectorDto;
+import backend.dto.mediaProduct.MovieDto;
 import backend.entities.Actor;
+import backend.entities.Director;
 import backend.entities.Genre;
 import backend.entities.Movie;
 import backend.entities.Person;
@@ -56,6 +59,31 @@ public class ActorService {
     	actorRepository.save(actor);
     	List<Actor> actors = movie.getActorsRoles();
     	actors.add(actor);
+    }
+    
+    @Transactional
+    public void removeActor(ActorDto actorDto) throws EntityNotFoundException {
+    	Person person = personService.getPersonByNameID(actorDto.getPersonMediaID());
+    	Movie movie = movieService.getMovieByNameID(actorDto.getMovieMediaId());
+    	Actor actor = getActorByMovie(movie.getId(), person.getId());
+    	List<Actor> actors = movie.getActorsRoles();
+    	actors.remove(actor);
+    	removeActor(movie, actor);
+    }
+    
+    @Transactional
+    public void removeAllActorsFromMovie(MovieDto movieDto) throws EntityNotFoundException {
+    	String mediaID = movieDto.getMediaID();
+    	Movie movie = movieService.getMovieByNameID(mediaID);
+    	List<Actor> actors = movie.getActorsRoles();
+		if(actors != null) for(Actor actor : actors) {
+			removeActor(movie, actor);
+		}
+		actors.clear();
+    }
+    
+    private void removeActor(Movie movie, Actor actor) {
+		actorRepository.delete(actor);
     }
     
     /*@Transactional

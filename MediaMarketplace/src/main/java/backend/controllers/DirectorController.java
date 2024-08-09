@@ -46,4 +46,16 @@ public class DirectorController {
 		directorService.addDirector(directorDto);
         return new ResponseEntity<>("Created Successfully", HttpStatus.OK);
 	}
+	
+	@GetMapping("/remove")
+    public ResponseEntity<String> removeDirector(@Valid @RequestBody DirectorDto directorDto) throws EntityNotFoundException {
+		directorService.removeDirector(directorDto);
+        return new ResponseEntity<>("Created Successfully", HttpStatus.OK);
+	}
+	
+	@GetMapping("/remove_all")
+    public ResponseEntity<String> removeAllDirectorsFromMovie(MovieDto movieDto) throws EntityNotFoundException {
+		directorService.removeAllDirectorsFromMovie(movieDto);
+        return new ResponseEntity<>("Created Successfully", HttpStatus.OK);
+	}
 }

@@ -129,15 +129,15 @@ public class App extends Application {
         });
 		this.stage = stage;
 		userAuth = appContext.getBean(UserAuthenticateController.class);
-		/*LogInDto dto = new LogInDto("frodo", "bag");
-		//LogInDto dto = new LogInDto("bilbo", "bag");
+		//LogInDto dto = new LogInDto("frodo", "bag");
+		LogInDto dto = new LogInDto("bilbo", "bag");
 		try {
 			LogInResponseDto d = userAuth.loginUser(dto);
 			//userAuth.registerUser(new UserInformationDto("frodo", "", "bag", "bag"));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}*/
+		}
 		
 		
 		//changeStageToFXML(LogInUserController.PATH);

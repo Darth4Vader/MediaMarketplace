@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import backend.dto.mediaProduct.ActorDto;
 import backend.dto.mediaProduct.MovieDto;
@@ -20,6 +21,7 @@ import backend.entities.Genre;
 import backend.entities.Movie;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
+import backend.exceptions.EntityRemovalException;
 import backend.repositories.MovieRepository;
 
 @Service
@@ -49,17 +51,42 @@ public class MovieService {
 		List<Genre> genres = new ArrayList<>();
 		for(String genreName : genresNames)
 			genres.add(genreService.getGenreByName(genreName));
-		Movie movie = getMovieFromDto(movieDto, genres);
+		Movie movie = new Movie();
+		movie.setGenres(genres);
+		updateMovieByDto(movie, movieDto);
     	movieRepository.save(movie);
-    	/*List<ActorDto> actorsList = movieDto.getActors();
-    	if(actorsList != null) 
-    		for(ActorDto actorDto : actorsList) {
-    			actorDto.setMovieMediaId(mediaID);
-    			actorService.addActorRole(actorDto, movie);
-    		}
-    		*/
     }
     
+    public void updateMovie(MovieDto movieDto) throws EntityNotFoundException {
+    	String mediaID = movieDto.getMediaID();
+    	Movie movie = getMovieByNameID(mediaID);
+		
+    	//we will replace the movie genre only if there is a new value to update them with
+    	List<String> genresNames = movieDto.getGenres();
+		if(genresNames != null) {
+			List<Genre> currentGenre = movie.getGenres();
+			//we removed the current genres of the movie
+			movie.setGenres(null);
+			//we add the new genres to the movie
+			List<Genre> newGenres = new ArrayList<>();
+			for(String genreName : genresNames)
+				newGenres.add(genreService.getGenreByName(genreName));
+			movie.setGenres(newGenres);
+			//if the movie had before genres, than we try to remove the genres if possible from the database
+			if(currentGenre != null)
+				for(Genre genre : currentGenre) {
+					try {
+						genreService.removeGenre(genre.getName());
+					} catch (EntityNotFoundException e) {
+					} catch (EntityRemovalException e) {
+					}
+				}
+		}
+		updateMovieByDto(movie, movieDto);
+    	movieRepository.save(movie);
+    }
+    
+    /*
     public static Movie getMovieFromDto(MovieDto movieDto, List<Genre> genres) {
         Movie movie = new Movie();
         movie.setMediaID(movieDto.getMediaID());
@@ -72,6 +99,27 @@ public class MovieService {
         movie.setReleaseDate(movieDto.getReleaseDate());
         movie.setYear(movieDto.getYear());
         return movie;
+    }*/
+    
+    public static void updateMovieByDto(Movie movie, MovieDto movieDto) {
+    	String movieId = movieDto.getMediaID();
+    	if(movieId != null)
+    		movie.setMediaID(movieId);
+    	String synopsis = movieDto.getSynopsis();
+    	if(synopsis != null)
+    		movie.setSynopsis(synopsis);
+    	String posterPath = movieDto.getPosterPath();
+    	if(posterPath != null)
+    		movie.setPosterPath(posterPath);
+    	String backdropPath = movieDto.getBackdropPath();
+    	if(backdropPath != null)
+    		movie.setBackdropPath(backdropPath);
+        movie.setRuntime(movieDto.getRuntime());
+    	String name = movieDto.getMediaName();
+    	if(name != null)
+    		movie.setName(name);
+        movie.setReleaseDate(movieDto.getReleaseDate());
+        movie.setYear(movieDto.getYear());
     }
     
     public Movie getMovieByNameID(String mediaID) throws EntityNotFoundException {

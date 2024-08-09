@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import backend.dto.mediaProduct.ActorDto;
 import backend.dto.mediaProduct.DirectorDto;
+import backend.dto.mediaProduct.MovieDto;
 import backend.entities.Actor;
 import backend.entities.Director;
 import backend.entities.Genre;
@@ -60,8 +61,33 @@ public class DirectorService {
     	directors.add(director);
     }
     
+    @Transactional
+    public void removeDirector(DirectorDto directorDto) throws EntityNotFoundException {
+    	Person person = personService.getPersonByNameID(directorDto.getPersonMediaID());
+    	Movie movie = movieService.getMovieByNameID(directorDto.getMovieMediaId());
+    	Director director = getDirectorByMovie(movie.getId(), person.getId());
+    	List<Director> directors = movie.getDirectors();
+    	directors.remove(director);
+    	removeDirector(movie, director);
+    }
+    
+    @Transactional
+    public void removeAllDirectorsFromMovie(MovieDto movieDto) throws EntityNotFoundException {
+    	String mediaID = movieDto.getMediaID();
+    	Movie movie = movieService.getMovieByNameID(mediaID);
+    	List<Director> directors = movie.getDirectors();
+		if(directors != null) for(Director director : directors) {
+			removeDirector(movie, director);
+		}
+		directors.clear();
+    }
+    
+    private void removeDirector(Movie movie, Director director) {
+		directorRepository.delete(director);
+    }
+    
     public Director getDirectorByMovie(Long movieId, Long personId) throws EntityNotFoundException {
     	return directorRepository.findByMovieIdAndPersonId(movieId, personId)
-    			.orElseThrow(() -> new EntityNotFoundException("The person (" + personId + ") is not airector in the movie"));
+    			.orElseThrow(() -> new EntityNotFoundException("The person (" + personId + ") is not a director in the movie"));
     }
 }

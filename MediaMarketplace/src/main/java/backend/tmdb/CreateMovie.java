@@ -11,7 +11,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
@@ -33,6 +35,7 @@ import backend.dto.mediaProduct.DirectorDto;
 import backend.dto.mediaProduct.MovieDto;
 import backend.dto.mediaProduct.PersonDto;
 import backend.entities.Actor;
+import backend.entities.Director;
 import backend.entities.Movie;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
@@ -52,7 +55,7 @@ public class CreateMovie {
 	
 	public static final String TMDB_IMAGE_FULL_URL = "https://www.themoviedb.org/t/p";
 	
-	public static final String TMDB_IMAGE_URL = "https://www.themoviedb.org/t/p/original";
+	public static final String TMDB_IMAGE_URL = "https://image.tmdb.org/t/p/original";
 	
 	public static final String TMDB_API_KEY = "1ebdc434f5ee818a93a99347f02a76bf";
 	
@@ -77,20 +80,17 @@ public class CreateMovie {
 	@Autowired
 	private DirectorController directorController;
 	
-	public MovieDtoSearchResult searchMovie(String text) throws ParseException {
+	public MovieDtoSearchResult searchMovie(String text) {
 		return searchMovie(text, null);
 	}
 	
-	public MovieDtoSearchResult searchMovie(String text, Integer page) throws ParseException {
+	public MovieDtoSearchResult searchMovie(String text, Integer page) {
 		TmdbApi tmdbApi = new TmdbApi(TMDB_API_KEY);
 		TmdbSearch tmdbSearch = tmdbApi.getSearch();
 		MovieResultsPage movieResultsPage = tmdbSearch.searchMovie(text, null, "en-US", false, page);
 		List<MovieDb> movieDbs = movieResultsPage.getResults();
 		List<MovieDto> movieDtos = new ArrayList<>();
 		if(movieDbs != null) for(MovieDb movieDb : movieDbs) {
-			System.out.println(movieDb);
-			System.out.println(movieDb.getBackdropPath());
-			System.out.println(movieDb.getPosterPath());
 			MovieDto movieDto = getMovieDto(movieDb);
 			movieDto.setPosterPath(TMDB_IMAGE_FULL_URL+"/w92"+movieDb.getPosterPath());
 			movieDtos.add(movieDto);
@@ -104,114 +104,152 @@ public class CreateMovie {
 		return movieDtoSearchResult;
 	}
 	
-	public static class MovieDtoSearchResult {
-		private String searchText;
-		private List<MovieDto> resultList;
-		private int currentPage;
-		private int totalPages;
-		public List<MovieDto> getResultList() {
-			return resultList;
-		}
-		public int getCurrentPage() {
-			return currentPage;
-		}
-		public int getTotalPages() {
-			return totalPages;
-		}
-		public void setResultList(List<MovieDto> resultList) {
-			this.resultList = resultList;
-		}
-		public void setCurrentPage(int currentPage) {
-			this.currentPage = currentPage;
-		}
-		public void setTotalPages(int totalPages) {
-			this.totalPages = totalPages;
-		}
-		public String getSearchText() {
-			return searchText;
-		}
-		public void setSearchText(String searchText) {
-			this.searchText = searchText;
-		}
+	/**
+	 * 
+	 * @param movieId
+	 * @throws EntityAlreadyExistsException if this is triggered, then the entity is already created
+	 * @throws CreateMovieException 
+	 * @throws CanUpdateException if movie exists, let the user have an option to update the movie
+	 */
+	public void addMovieToDatabase(int movieId) throws CreateMovieException, CanUpdateException {
+		List<NameAndException> exceptionList = new ArrayList<>();
+		MovieDb movieDb = getMovieDb(movieId);
 		
-		
-	}
-
-	public void addMovieToDatabase(int movieId) throws ParseException {
-		MovieDto movieDto = new MovieDto();
-		String key = null;
-		String movieID;
-		TmdbApi tmdbApi = new TmdbApi(TMDB_API_KEY);
-		TmdbMovies tmdbMovies = tmdbApi.getMovies();
-		
-		MovieDb movieDb = tmdbMovies.getMovie(movieId, "en-US", MovieMethod.credits);
-		movieDto.setMediaName(movieDb.getOriginalTitle());
-		movieDto.setRuntime(movieDb.getRuntime());
-		movieDto.setSynopsis(movieDb.getOverview());
-		List<Genre> genres = movieDb.getGenres();
-		List<String> movieGenres = new ArrayList<>();
-		for(Genre genre : genres) {
-			String genreName = genre.getName();
-			try {
-				genreController.createGenre(genreName);
-			}
-			catch (EntityAlreadyExistsException e) {
-				System.err.println(e.getMessage());
-			}
-			movieGenres.add(genreName);
-		}
-		movieDto.setGenres(movieGenres);
-		String releaseDateStr = movieDb.getReleaseDate();
-		LocalDate releaseDate = LocalDate.parse(releaseDateStr);
-		movieDto.setReleaseDate(releaseDate);
-		movieDto.setYear(releaseDate.getYear());
-		String movieMediaID = ""+movieDb.getId();
-		movieDto.setMediaID(movieMediaID);
-		movieDto.setPosterPath(POSTERS_PATH+movieDto.getMediaID()+".jpg");
-		movieDto.setBackdropPath(BACKDROP_PATH+movieDto.getMediaID()+".jpg");
+		MovieDto movieDto = getMovieDto(movieDb);
+		createGenres(movieDto);
+		String movieMediaID = movieDto.getMediaID();
 		try {
 			movieController.addMovie(movieDto);
-		} catch (EntityAlreadyExistsException | EntityNotFoundException e) {
-			System.err.println(e.getMessage());
+		} catch (EntityNotFoundException e) {
+			//this can happen if a genre does not exist, but we already added/verified that all of them are in the database, therefore the exception won't be triggered
+		} catch (EntityAlreadyExistsException e) {
+			throw new CanUpdateException(movieDb, e);
 		}
 		
+		addMovieImages(movieDb, movieDto, exceptionList);
+		addDirectors(movieDb.getCrew(), movieMediaID, exceptionList);
+		addActors(movieDb.getCast(), movieMediaID, exceptionList);
+		if(!exceptionList.isEmpty())
+			throw new CreateMovieException(exceptionList, "There were exceptions with creating the movie");
+	}
+	
+	public void updateMovieInDatabase(int movieId) throws CreateMovieException, EntityNotFoundException {
+		MovieDb movieDb = getMovieDb(movieId);
+		updateMovieInDatabase(movieDb);
+	}
+	
+	public void updateMovieInDatabase(CanUpdateException exception) throws CreateMovieException, EntityNotFoundException {
+		updateMovieInDatabase(exception.getMovieDb());
+	}
+	
+	/**
+	 * 
+	 * @param movieId
+	 * @throws EntityAlreadyExistsException if this is triggered, then the entity is already created
+	 * @throws CreateMovieException 
+	 * @throws EntityNotFoundException 
+	 */
+	private void updateMovieInDatabase(MovieDb movieDb) throws CreateMovieException, EntityNotFoundException {
+		List<NameAndException> exceptionList = new ArrayList<>();
+		MovieDto movieDto = getMovieDto(movieDb);
+		createGenres(movieDto);
+		String movieMediaID = movieDto.getMediaID();
+		movieController.updateMovie(movieDto);
+		
+		addMovieImages(movieDb, movieDto, exceptionList);
+		List<PersonCrew> crew = movieDb.getCrew();
+		if(crew != null) {
+			try {
+				directorController.removeAllDirectorsFromMovie(movieDto);
+			}
+			catch (EntityNotFoundException e) {
+				//this will not happen, because we checked that the movie is created.
+			}
+			addDirectors(crew, movieMediaID, exceptionList);
+		}
+		List<PersonCast> cast = movieDb.getCast();
+		if(cast != null) {
+			try {
+				actorController.removeAllActorsFromMovie(movieDto);
+			}
+			catch (EntityNotFoundException e) {
+				//this will not happen, because we checked that the movie is created.
+			}
+			addActors(cast, movieMediaID, exceptionList);
+		}
+		if(!exceptionList.isEmpty())
+			throw new CreateMovieException(exceptionList, "There were exceptions with updating the movie");
+	}
+	
+	private MovieDb getMovieDb(int movieId) {
+		TmdbApi tmdbApi = new TmdbApi(TMDB_API_KEY);
+		TmdbMovies tmdbMovies = tmdbApi.getMovies();
+		return tmdbMovies.getMovie(movieId, "en-US", MovieMethod.credits);
+	}
+	
+	private void createGenres(MovieDto movieDto) {
+		List<String> genres = movieDto.getGenres();
+		for(String genre : genres) {
+			try {
+				genreController.createGenre(genre);
+			}
+			catch (EntityAlreadyExistsException e) {
+				//this is okay, can be if the gene is already created, therefore we don't need to handle the exception
+			}
+		}
+	}
+	
+	private void addMovieImages(MovieDb movieDb, MovieDto movieDto, List<NameAndException> exceptionList) {
 		try {
 			saveImageFromURL(movieDb.getPosterPath(), movieDto.getPosterPath());
-			saveImageFromURL(movieDb.getBackdropPath(), movieDto.getBackdropPath());
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			exceptionList.add(new NameAndException("Poster Creation Failed", e));
 		}
-		List<PersonCrew> crew = movieDb.getCrew();
-		for(PersonCrew personCrew : crew) {
+		try {
+			saveImageFromURL(movieDb.getBackdropPath(), movieDto.getBackdropPath());
+		} catch (IOException e) {
+			exceptionList.add(new NameAndException("Backdrop Creation Failed", e));
+		}
+	}
+	
+	private void addDirectors(List<PersonCrew> crew, String movieMediaID, List<NameAndException> exceptionList) {
+		if(crew != null) for(PersonCrew personCrew : crew) {
 			String job = personCrew.getJob();
 			if(DataUtils.equalsIgnoreCase(job, DIRECTOR)) {
-				PersonDto personDto = getPersonDto(personCrew);
+				PersonDto personDto = getPersonDto(personCrew, exceptionList);
 				DirectorDto directorDto = new DirectorDto();
 				directorDto.setMovieMediaId(movieMediaID);
 				directorDto.setPersonMediaID(personDto.getPersonMediaID());
 				try {
 					directorController.addDirector(directorDto);
-				} catch (EntityNotFoundException | EntityAlreadyExistsException e) {
-					System.err.println(e.getMessage());
+				} catch (EntityNotFoundException e) {
+					//we checked that the movie and person exists
+					//but if there is a problem we will handle it
+					exceptionList.add(new NameAndException("Director Creation Failed", e));
+				} catch (EntityAlreadyExistsException e) {
+					//this is okay, can be if the person is already a director of the movie, therefore we don't need to handle the exception
 				}
 			}
 		}
-		List<PersonCast> cast = movieDb.getCast();
+	}
+	
+	private void addActors(List<PersonCast> cast, String movieMediaID, List<NameAndException> exceptionList) {
 		final int max = 15;
 		int count = 0;
-		for(PersonCast personCast : cast) {
-			PersonDto personDto = getPersonDto(personCast);
+		if(cast != null) for(PersonCast personCast : cast) {
+			PersonDto personDto = getPersonDto(personCast, exceptionList);
 			ActorDto actorDto = new ActorDto();
 			actorDto.setRoleName(personCast.getCharacter());
 			actorDto.setMovieMediaId(movieMediaID);
 			actorDto.setPersonMediaID(personDto.getPersonMediaID());
 			try {
 				actorController.addActor(actorDto);
-			} catch (EntityNotFoundException | EntityAlreadyExistsException e) {
-				System.err.println(e.getMessage());
+			} catch (EntityNotFoundException e) {
+				//we checked that the movie and person exists
+				//but if there is a problem we will handle it
+				exceptionList.add(new NameAndException("Director Creation Failed", e));
+			} catch (EntityAlreadyExistsException e) {
+				//this is okay, can be if the person is already an actor of the movie, therefore we don't need to handle the exception
 			}
 			count++;
 			if(count >= max)
@@ -236,21 +274,19 @@ public class CreateMovie {
 			movieDto.setYear(releaseDate.getYear());
 		}
 		catch (DateTimeParseException e) {
-			// TODO: handle exception
-			e.printStackTrace();
+			//if this happens, then don't set the release date of the movie
 		}
-		String movieMediaID = ""+movieDb.getId();
-		movieDto.setMediaID(movieMediaID);
-		
-		movieDto.setPosterPath(TMDB_IMAGE_URL+movieDb.getPosterPath());
-		movieDto.setBackdropPath(TMDB_IMAGE_URL+movieDb.getBackdropPath());
-		
-		//movieDto.setPosterPath(POSTERS_PATH+movieDto.getMediaID()+".jpg");
-		//movieDto.setBackdropPath(BACKDROP_PATH+movieDto.getMediaID()+".jpg");
+		movieDto.setMediaID(""+movieDb.getId());
+		String posterPath = movieDb.getPosterPath();
+		if(posterPath != null)
+			movieDto.setPosterPath(POSTERS_PATH+movieDto.getMediaID()+".jpg");
+		String backdropPath = movieDb.getBackdropPath();
+		if(backdropPath != null)
+			movieDto.setBackdropPath(BACKDROP_PATH+movieDto.getMediaID()+".jpg");
 		return movieDto;
 	}
 	
-	private PersonDto getPersonDto(Person person) {
+	private PersonDto getPersonDto(Person person, List<NameAndException> exceptionList) {
 		PersonDto personDto = new PersonDto();
 		personDto.setName(person.getName());
 		personDto.setPersonMediaID(""+person.getId());
@@ -261,24 +297,24 @@ public class CreateMovie {
 				String personImage = person.getProfilePath();
 				saveImageFromURL(personImage, personDto.getImagePath());
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				exceptionList.add(new NameAndException("Person Image Creation Failed", e));
 			}
 		}
 		catch (EntityAlreadyExistsException e) {
-			System.err.println(e.getMessage());
+			//this can happen when the person is already in the database, therefore we don't need to handle this exception
 		}
 		return personDto;
 	}
 	
 	public static File saveImageFromURL(String inputURL, String destPath) throws IOException {
 		File file = new File(destPath);
+		System.out.println("File: " + file);
 		if(!file.exists()) {
 			check(PEOPLE_PATH);check(POSTERS_PATH);check(BACKDROP_PATH);
 			URL url = new URL(TMDB_IMAGE_URL + inputURL);
 			BufferedImage image = ImageIO.read(url);
 			if(!ImageIO.write(image, "jpg", file))
-				throw new IllegalArgumentException("Failed to write");
+				throw new IOException("Failed to write");
 			sleep();
 		}
 		return file;

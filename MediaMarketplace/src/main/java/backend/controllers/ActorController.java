@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import backend.dto.mediaProduct.ActorDto;
+import backend.dto.mediaProduct.DirectorDto;
 import backend.dto.mediaProduct.MovieDto;
 import backend.entities.Actor;
 import backend.entities.Genre;
@@ -41,6 +42,18 @@ public class ActorController {
 	@GetMapping("/add")
     public ResponseEntity<String> addActor(@Valid @RequestBody ActorDto actorDto) throws EntityNotFoundException, EntityAlreadyExistsException {
 		actorService.addActorRole(actorDto);
+        return new ResponseEntity<>("Created Successfully", HttpStatus.OK);
+	}
+	
+	@GetMapping("/remove")
+    public ResponseEntity<String> removeActor(@Valid @RequestBody ActorDto actorDto) throws EntityNotFoundException {
+		actorService.removeActor(actorDto);
+        return new ResponseEntity<>("Created Successfully", HttpStatus.OK);
+	}
+	
+	@GetMapping("/remove_all")
+    public ResponseEntity<String> removeAllActorsFromMovie(MovieDto movieDto) throws EntityNotFoundException {
+		actorService.removeAllActorsFromMovie(movieDto);
         return new ResponseEntity<>("Created Successfully", HttpStatus.OK);
 	}
 }
