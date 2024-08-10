@@ -88,59 +88,14 @@ public class App extends Application {
 	
 	private Stage userLogStage;
 	
-	private class CustomExceptionHandler implements UncaughtExceptionHandler {
-
-		private UncaughtExceptionHandler prevHandler;
-		
-		public CustomExceptionHandler(UncaughtExceptionHandler prevHandler) {
-			this.prevHandler = prevHandler;
-		}
-		
-		private boolean isCausedBy(Throwable caught, Class<? extends Throwable> isOfOrCausedBy) {
-			if (caught == null) return false;
-			else if (isOfOrCausedBy.isAssignableFrom(caught.getClass())) return true;
-		    else return isCausedBy(caught.getCause(), isOfOrCausedBy);
-		}
-		
-		@Override
-		public void uncaughtException(Thread thread, Throwable throwable) {
-			System.out.println("culybaly");
-			if(isCausedBy(throwable, UserNotLoggedInException.class)) {
-				System.out.println("user is not logged to the system");
-		        Alert alert = new Alert(Alert.AlertType.ERROR);
-		        alert.setTitle("The user is not logged in");
-		        alert.setHeaderText("sign in or continue to browse as unlogged");
-		        
-		        Button signInBtn = createSignButton(alert, true);
-		        Button registerBtn = createSignButton(alert, false);
-		        HBox box = new HBox();
-		        box.setSpacing(10);
-				box.setBorder(new Border(new BorderStroke(Color.PINK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
-			            new BorderWidths(1))));
-		        //box.prefWidthProperty().bind(alert.widthProperty());
-		        //box.setMaxWidth(Double.MAX_VALUE);
-		        box.getChildren().addAll(signInBtn, registerBtn);
-		        alert.getDialogPane().setContent(box);
-		        alert.show();
-			}
-			else if(isCausedBy(throwable, AuthorizationDeniedException.class)) {
-				AppUtils.alertOfError("Accsses Deny", "cannot do this operation");
-			}
-			else {
-				prevHandler.uncaughtException(thread, throwable);
-			}
-		}
-		
-	}
-	
 	@Override
-	public void start(Stage stage) throws IOException {
+	public void start(Stage stage) {
 		//caught every user operation a guest try to activate
 		Thread curThread = Thread.currentThread();
 		UncaughtExceptionHandler catchExp = curThread.getUncaughtExceptionHandler();
-		curThread.setUncaughtExceptionHandler(new CustomExceptionHandler(catchExp));
+		curThread.setUncaughtExceptionHandler(new CustomExceptionHandler(catchExp, this));
 		
-		Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler(catchExp));
+		Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler(catchExp, this));
 		
 		/*curThread.setUncaughtExceptionHandler((thread, throwable) -> {
 			if(isCausedBy(throwable, UserNotLoggedInException.class)) {
@@ -192,7 +147,7 @@ public class App extends Application {
 		
 		//changeStageToFXML(LogInUserController.PATH);
 		
-		Platform.runLater(new Runnable() {
+		/*Platform.runLater(new Runnable() {
 			
 			@Override
 			public void run() {
@@ -203,7 +158,9 @@ public class App extends Application {
 					e.printStackTrace();
 				}
 			}
-		});
+		});*/
+		
+		changeAppPanel(HomePageController.PATH);
 		
 		//changeAppPanel(AddMoviePageController.PATH);
 		
@@ -240,25 +197,7 @@ public class App extends Application {
 		stage.show();*/
 	}
 	
-	private Button createSignButton(Alert alert, boolean logIn) {
-		String text = logIn ? "Sign in" : "Register";
-		Button signBtn = new Button(text);
-        signBtn.setOnAction(e -> {
-        	try {
-        		alert.close();
-				activateLogPage(false);
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-        });
-        signBtn.setMaxWidth(Double.MAX_VALUE);
-        HBox.setHgrow(signBtn, Priority.ALWAYS);
-        signBtn.setStyle("-fx-font-weight: bold;");
-        return signBtn;
-	}
-	
-	public void activateLogPage(boolean logIn) throws IOException {
+	public void activateLogPage(boolean logIn) {
     	if(userLogStage == null) {
     		userLogStage = new Stage();
     		userLogStage.initModality(Modality.APPLICATION_MODAL);
@@ -268,15 +207,24 @@ public class App extends Application {
     		});
     	}
     	Parent root = loadFXML(logIn ? LogInUserController.PATH : RegisterUserController.PATH);
-		Scene scene = new Scene(root);
-		userLogStage.setScene(scene);
-		userLogStage.show();
+		if(root != null) {
+	    	Scene scene = new Scene(root);
+			userLogStage.setScene(scene);
+			userLogStage.show();
+		}
 	}
 	
-	public Parent loadFXML(String fxmlPath) throws IOException {
-		FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-	    loader.setControllerFactory(appContext::getBean);
-	    return loader.load();
+	public Parent loadFXML(String fxmlPath) {
+		try {
+			FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+		    loader.setControllerFactory(appContext::getBean);
+		    return loader.load();
+		}
+		catch (IOException e) {
+			System.out.println("Pro");
+			Thread.getDefaultUncaughtExceptionHandler().uncaughtException(null, e);
+			return null;
+		}
 	}
 	
 	public FXMLLoader getFXMLLoader(String fxmlPath) {
@@ -285,29 +233,33 @@ public class App extends Application {
 	    return loader;
 	}
 	
-	public void changeStageToFXML(String fxmlPath) throws IOException {
+	public void changeStageToFXML(String fxmlPath) {
 		Parent root = loadFXML(fxmlPath);
-		Scene scene = new Scene(root);
-		stage.setScene(scene);
+		if(root != null) {
+			Scene scene = new Scene(root);
+			stage.setScene(scene);
+		}
 	}
 	
-	public void changeAppPanel(String fxmlPath) throws IOException {
+	public void changeAppPanel(String fxmlPath) {
 		changeAppPanel(loadFXML(fxmlPath));
 	}
 	
-	public void changeAppPanel(Node component) throws IOException {
+	public void changeAppPanel(Node component) {
 		if(appPane == null) {
 			appPane = new BorderPane();
 			Parent toolBar = loadFXML("/frontend/AppBar.fxml");
-			VBox box = new VBox();
-			box.setAlignment(Pos.CENTER);
-			box.getChildren().add(toolBar);
-			appPane.setTop(box);
-			Scene scene = new Scene(appPane);
-			stage.setScene(scene);
+			if(toolBar != null) {
+				VBox box = new VBox();
+				box.setAlignment(Pos.CENTER);
+				box.getChildren().add(toolBar);
+				appPane.setTop(box);
+				Scene scene = new Scene(appPane);
+				stage.setScene(scene);
+			}
 		}
-		appPane.setCenter(component);
-		System.gc();
+		if(component != null)
+			appPane.setCenter(component);
 	}
 	
 	private UserAuthenticateController userAuth;
@@ -330,19 +282,14 @@ public class App extends Application {
 	
 	public void enterCartOrAddMovies() {
 		boolean isAdmin = userAuth.isCurrentUserAdmin();
-		try {
-			String panePath;
-			if(isAdmin) {
-				panePath = AddMoviePageController.PATH;
-			}
-			else {
-				panePath = CartPageController.PATH;
-			}
-			changeAppPanel(panePath);
+		String panePath;
+		if(isAdmin) {
+			panePath = AddMoviePageController.PATH;
 		}
-		catch (IOException e) {
-			e.printStackTrace();
+		else {
+			panePath = CartPageController.PATH;
 		}
+		changeAppPanel(panePath);
 	}
 	
 	/*public void enterMoviePage(Movie movie) {
@@ -403,12 +350,7 @@ public class App extends Application {
 			Button goBack = new Button("← Go Back");
 			Node previous = appPane.getCenter();
 			goBack.setOnAction(event -> {
-				try {
-					changeAppPanel(previous);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				changeAppPanel(previous);
 			});
 			box.getChildren().add(goBack);
 			if(isAdmin) {
@@ -431,7 +373,7 @@ public class App extends Application {
 	}
 	
 	@Override
-	public void stop() throws IOException {
+	public void stop() {
 		appContext.close();
 		Platform.exit();
 		//System.exit(0);

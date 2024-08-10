@@ -79,6 +79,11 @@ public class SecurityConfig /*extends WebSecurityConfiguration*/ {
         return auth.build();
     }*/
     
+    
+    /**
+     * Ignoring the access deny exception, so that the user will get it and can handle it's exception
+     * @return
+     */
     @Bean
     public SimpleMappingExceptionResolver exceptionResolver() {
         SimpleMappingExceptionResolver exceptionResolver = new SimpleMappingExceptionResolver();
@@ -101,7 +106,8 @@ public class SecurityConfig /*extends WebSecurityConfiguration*/ {
         
         exceptionResolver.setExceptionMappings(exceptionMappings);
 
-        exceptionResolver.setExcludedExceptions(AuthorizationDeniedException.class, AccessDeniedException.class);
+       exceptionResolver.setExcludedExceptions(AuthorizationDeniedException.class, AccessDeniedException.class);
+        
         exceptionResolver.setDefaultErrorView("uncaughtException");
 
         return exceptionResolver;
@@ -181,36 +187,19 @@ public class SecurityConfig /*extends WebSecurityConfiguration*/ {
         
         http.exceptionHandling(cust -> cust
         		.accessDeniedHandler((request, response, accessDeniedException) -> {
-                    //response.sendError(HttpServletResponse.SC_FORBIDDEN);
-        			System.out.println("bag1");
-        			//throw new RuntimeException(accessDeniedException);
+        			throw new RuntimeException(accessDeniedException);
         		})
         		.authenticationEntryPoint((request, response, authException) -> {
-                    System.out.println("bag2");
                     throw new RuntimeException(authException);
-        			//response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-        		      //response.setContentType("application/json;charset=UTF-8");
-        		      //response.setStatus(403);
         		})
         		.defaultAccessDeniedHandlerFor((request, response, accessDeniedException) -> {
-        			System.out.println("bag1");
         			throw new RuntimeException(accessDeniedException);
         		}, null)
         		.defaultAuthenticationEntryPointFor((request, response, accessDeniedException) -> {
-        			System.out.println("bag1");
         			throw new RuntimeException(accessDeniedException);
         		}, null)
         		
         );
-        
-        /*http.addFilter(new ExceptionTranslationFilter((request, response, authException) -> {
-            System.out.println("bag2");
-            throw new RuntimeException(authException);
-			//response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-		      //response.setContentType("application/json;charset=UTF-8");
-		      //response.setStatus(403);
-			}));*/
-    	
     	return http.build();
     }
     

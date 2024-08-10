@@ -87,7 +87,7 @@ public class LogInUserController implements Serializable {
 	}*/
 	
 	@FXML
-	private void changeToRegisterUserPage() throws IOException {
+	private void changeToRegisterUserPage() {
 		App.getApplicationInstance().activateLogPage(false);
 	}
 	
@@ -100,7 +100,7 @@ public class LogInUserController implements Serializable {
 	}
 	
 	@FXML
-	void createAccount() throws IOException {
+	void createAccount() {
 		String name = nameField.getText();
 		String password = passwordField.getText();
 		try {

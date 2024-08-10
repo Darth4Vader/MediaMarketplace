@@ -173,7 +173,7 @@ public class AppUtils {
         return alert;
 	}
 	
-	public static void enterPanel(Node node) throws IOException {
+	public static void enterPanel(Node node) {
 		App.getApplicationInstance().changeAppPanel(node);
 	}
 	

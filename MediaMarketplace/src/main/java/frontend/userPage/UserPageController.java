@@ -28,21 +28,21 @@ public class UserPageController {
 	}
 	
 	@FXML
-	private void enterUserInfoPage() throws IOException {
+	private void enterUserInfoPage() {
 		setMainUserPanel(UserInfoPageController.PATH);
 	}
 	
 	@FXML
-	private void enterOrderHistoryPage() throws IOException {
+	private void enterOrderHistoryPage() {
 		setMainUserPanel(OrderHistoryController.PATH);
 	}
 	
 	@FXML
-	private void enterMediaLibraryPage() throws IOException {
+	private void enterMediaLibraryPage() {
 		setMainUserPanel(MediaLibraryController.PATH);
 	}
 	
-	private void setMainUserPanel(String path) throws IOException {
+	private void setMainUserPanel(String path) {
 		userAuthenticateController.authenticateLoggedUser();
 		Parent panel =  App.getApplicationInstance().loadFXML(path);
 		mainPane.setCenter(panel);

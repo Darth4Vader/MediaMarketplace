@@ -54,6 +54,7 @@ import backend.repositories.RoleRepository;
 import backend.repositories.UserRepository;
 import backend.services.MovieService;
 import backend.tmdb.CreateMovie;
+import javafx.application.Platform;
 
 public class createDatabaseFromJSONData {
 	
@@ -86,9 +87,26 @@ public class createDatabaseFromJSONData {
 		}
 		
 	}
+
+	/*public static Runnable getFxWrapper(final Runnable r) {
+	    return new Runnable() {
 	
-	public static void main(String... args) throws BeansException, Exception {
+	        @Override
+	        public void run() {
+	            try {
+	                r.run();
+	            } catch (Exception e) {
+	                //here you probably want to log something
+	                System.out.println("Found an exception");
+	            }
+	        }
+	    };
+	}*/
+	
+	public static void main(String... args) throws BeansException {
 		
+		
+		//Platform.runLater(getFxWrapper(yourRunnable));
 		
 		Thread curThread = Thread.currentThread();
 		UncaughtExceptionHandler catchExp = curThread.getUncaughtExceptionHandler();

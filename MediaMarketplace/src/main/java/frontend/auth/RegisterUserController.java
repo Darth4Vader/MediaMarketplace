@@ -94,7 +94,7 @@ public class RegisterUserController implements Serializable {
 	}*/
 	
 	@FXML
-	private void changeToLogInUserPage() throws IOException {
+	private void changeToLogInUserPage() {
 		App.getApplicationInstance().activateLogPage(true);
 	}
 	

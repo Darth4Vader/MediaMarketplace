@@ -24,18 +24,18 @@ public class AppBarController {
 	private TextField searchBar;
 	
 	@FXML
-	private void enterCart() throws IOException {
+	private void enterCart() {
 		//App.getApplicationInstance().changeAppPanel(CartPageController.PATH);
 		App.getApplicationInstance().enterCartOrAddMovies();
 	}
 	
 	@FXML
-	private void enterHome() throws IOException {
+	private void enterHome() {
 		App.getApplicationInstance().changeAppPanel(HomePageController.PATH);
 	}
 	
 	@FXML
-	private void enterUserPage() throws IOException {
+	private void enterUserPage() {
 		App.getApplicationInstance().changeAppPanel(UserPageController.PATH);
 	}
 	

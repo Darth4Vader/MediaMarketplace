@@ -34,9 +34,6 @@ public class ProductService {
     private MovieService movieService;
     
     //a non log user can get this information
-    
-    @AuthenticateAdmin
-    
     public List<Product> getAllProduct() {
     	return productRepository.findAll();
     }
