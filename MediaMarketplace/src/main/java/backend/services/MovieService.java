@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
@@ -15,6 +16,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import backend.auth.AuthenticateAdmin;
 import backend.dto.mediaProduct.ActorDto;
 import backend.dto.mediaProduct.MovieDto;
 import backend.entities.Genre;
@@ -33,13 +35,19 @@ public class MovieService {
     @Autowired
     private GenreService genreService;
     
-    /*@Autowired
-    private ActorService actorService;*/
+    //a non log user can get this information
+    
+   
+    @AuthenticateAdmin
+    
+    
     
     public List<Movie> getAllMovies() {
     	return movieRepository.findAll();
     }
 	
+    //only an admin can add a movie to the database
+    @AuthenticateAdmin
     public void addMovie(MovieDto movieDto) throws EntityAlreadyExistsException, EntityNotFoundException {
     	String mediaID = movieDto.getMediaID();
     	try {	
@@ -57,6 +65,8 @@ public class MovieService {
     	movieRepository.save(movie);
     }
     
+    //only an admin can update a movie in the database
+    @AuthenticateAdmin
     public void updateMovie(MovieDto movieDto) throws EntityNotFoundException {
     	String mediaID = movieDto.getMediaID();
     	Movie movie = getMovieByNameID(mediaID);
@@ -101,7 +111,7 @@ public class MovieService {
         return movie;
     }*/
     
-    public static void updateMovieByDto(Movie movie, MovieDto movieDto) {
+    private static void updateMovieByDto(Movie movie, MovieDto movieDto) {
     	String movieId = movieDto.getMediaID();
     	if(movieId != null)
     		movie.setMediaID(movieId);

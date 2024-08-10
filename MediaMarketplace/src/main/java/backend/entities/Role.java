@@ -6,6 +6,8 @@ import org.springframework.security.core.GrantedAuthority;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -15,32 +17,34 @@ import jakarta.persistence.Table;
 @Table(name="roles")
 public class Role implements GrantedAuthority {
 	
-	public static final String ADMIN = "ADMIN", USER = "USER";
+	//public static final String ADMIN = "ADMIN", USER = "USER";
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     //@Column(name="role_id")
     private Long id;
 
-    private String authority;
+    @Enumerated(EnumType.STRING)
+    @Column(unique = true, name = "authority")
+    private RoleType roleType;
     
     public Role(){
     }
 
-    public Role(String authority){
-        this.authority = authority;
+    public Role(RoleType roleType) {
+        this.roleType = roleType;
     }
 
     @Override
     public String getAuthority() {
-        return this.authority;
+        return this.roleType.toString();
     }
 
-    public void setAuthority(String authority){
-        this.authority = authority;
+    public void setAuthority(RoleType roleType){
+        this.roleType = roleType;
     }
 
-    public Long getRoleId(){
+    public Long getRoleId() {
         return this.id;
     }
 
@@ -50,7 +54,7 @@ public class Role implements GrantedAuthority {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(authority, id);
+		return Objects.hash(roleType, id);
 	}
 
 	@Override
@@ -62,6 +66,6 @@ public class Role implements GrantedAuthority {
 		if (getClass() != obj.getClass())
 			return false;
 		Role other = (Role) obj;
-		return Objects.equals(authority, other.authority) && Objects.equals(id, other.id);
+		return Objects.equals(roleType, other.roleType) && Objects.equals(id, other.id);
 	}
 }

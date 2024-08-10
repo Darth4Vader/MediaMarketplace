@@ -17,12 +17,15 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import backend.controllers.UserAuthenticateController;
 import backend.controllers.UserController;
 import backend.dto.users.UserInformationDto;
 import backend.entities.Role;
+import backend.entities.RoleType;
 import backend.repositories.RoleRepository;
 import backend.repositories.UserRepository;
 
@@ -44,10 +47,11 @@ public class ActivateSpringApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		if(!roleRepository.findByAuthority(Role.ADMIN).isPresent())
-			roleRepository.save(new Role(Role.ADMIN));
-		if(!roleRepository.findByAuthority(Role.USER).isPresent())
-			roleRepository.save(new Role(Role.USER));
+		RoleType[] roleTypes = RoleType.values();
+		for(RoleType roleType : roleTypes) {
+			if(!roleRepository.findByRoleType(roleType).isPresent())
+				roleRepository.save(new Role(roleType));
+		}
 	}
 
 }

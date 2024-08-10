@@ -1,12 +1,18 @@
 package backend;
 
+import java.util.Properties;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
@@ -20,8 +26,10 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -31,9 +39,12 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 
 import backend.auth.RSAKeysPair;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 @EnableWebSecurity
+//@ImportResource("classpath:security.xml")
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig /*extends WebSecurityConfiguration*/ {
 
 	/*private PersistentTokenRepository persistenceTokenRepository;
@@ -68,6 +79,34 @@ public class SecurityConfig /*extends WebSecurityConfiguration*/ {
         return auth.build();
     }*/
     
+    @Bean
+    public SimpleMappingExceptionResolver exceptionResolver() {
+        SimpleMappingExceptionResolver exceptionResolver = new SimpleMappingExceptionResolver();
+
+        System.out.println("welcooooomm");
+        
+        Properties exceptionMappings = new Properties();
+
+       // exceptionMappings.put("java.lang.Exception", "error/error");
+       // exceptionMappings.put("java.lang.RuntimeException", "error/error");
+        
+        //exceptionMappings.put("excludedExceptions", "org.springframework.security.access.AccessDeniedException");
+        //exceptionMappings.put("excludedExceptions", "org.springframework.security.authorization.AuthorizationDeniedException");
+        //exceptionMappings.put("defaultErrorView", "uncaughtException");
+
+        
+        exceptionMappings.put("org.springframework.security.AccessDeniedException", "accessDenied");
+        
+        //exceptionResolver.pr
+        
+        exceptionResolver.setExceptionMappings(exceptionMappings);
+
+        exceptionResolver.setExcludedExceptions(AuthorizationDeniedException.class, AccessDeniedException.class);
+        exceptionResolver.setDefaultErrorView("uncaughtException");
+
+        return exceptionResolver;
+    }
+    
     
     /**
      * Used for Swaager web gui
@@ -97,12 +136,18 @@ public class SecurityConfig /*extends WebSecurityConfiguration*/ {
         		
         		//This is for swagger, remove when using javafx
         		.requestMatchers(AUTH_WHITELIST).permitAll()
+        		
+        		
+        		
         		.requestMatchers("/auth/**").permitAll()
         		//.requestMatchers("/login").permitAll()
         			
                 .requestMatchers("/market").permitAll()
+                //.requestMatchers("/market/movies").hasRole("ADMIN")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/user/**").hasAnyRole("ADMIN", "USER")
+                
+                
                 .anyRequest().authenticated()
     		)
         	.formLogin(Customizer.withDefaults());
@@ -133,6 +178,38 @@ public class SecurityConfig /*extends WebSecurityConfiguration*/ {
         		.jwt(jwt -> jwt
         		//.decoder(jwtDecoder())
         		.jwtAuthenticationConverter(jwtAuthenticationConverter())));
+        
+        http.exceptionHandling(cust -> cust
+        		.accessDeniedHandler((request, response, accessDeniedException) -> {
+                    //response.sendError(HttpServletResponse.SC_FORBIDDEN);
+        			System.out.println("bag1");
+        			//throw new RuntimeException(accessDeniedException);
+        		})
+        		.authenticationEntryPoint((request, response, authException) -> {
+                    System.out.println("bag2");
+                    throw new RuntimeException(authException);
+        			//response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        		      //response.setContentType("application/json;charset=UTF-8");
+        		      //response.setStatus(403);
+        		})
+        		.defaultAccessDeniedHandlerFor((request, response, accessDeniedException) -> {
+        			System.out.println("bag1");
+        			throw new RuntimeException(accessDeniedException);
+        		}, null)
+        		.defaultAuthenticationEntryPointFor((request, response, accessDeniedException) -> {
+        			System.out.println("bag1");
+        			throw new RuntimeException(accessDeniedException);
+        		}, null)
+        		
+        );
+        
+        /*http.addFilter(new ExceptionTranslationFilter((request, response, authException) -> {
+            System.out.println("bag2");
+            throw new RuntimeException(authException);
+			//response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+		      //response.setContentType("application/json;charset=UTF-8");
+		      //response.setStatus(403);
+			}));*/
     	
     	return http.build();
     }

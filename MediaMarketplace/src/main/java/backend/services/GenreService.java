@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
+import backend.auth.AuthenticateAdmin;
 import backend.entities.Genre;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
@@ -25,10 +26,13 @@ public class GenreService {
     @Autowired
     private GenreRepository genreRepository;
     
+    //a non log user can get this information
     public List<Genre> getAllGenres() {
     	return genreRepository.findAll();
     }
 	
+    //only an admin can add a genre to the database
+    @AuthenticateAdmin
     public void createGenre(String genreName) throws EntityAlreadyExistsException {
     	try {	
     		getGenreByName(genreName);
@@ -39,6 +43,8 @@ public class GenreService {
     	genreRepository.save(genre);
     }
     
+    //only an admin can remove a genre in the database
+    @AuthenticateAdmin
     public void removeGenre(String genreName) throws EntityNotFoundException, EntityRemovalException {
     	try {
         	Genre genre = getGenreByName(genreName);

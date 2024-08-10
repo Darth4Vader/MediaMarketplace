@@ -16,6 +16,7 @@ import backend.dto.mediaProduct.ProductDto;
 import backend.entities.Movie;
 import backend.entities.Product;
 import backend.exceptions.EntityNotFoundException;
+import backend.tmdb.CreateMovie;
 import frontend.AppUtils;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -37,9 +38,6 @@ public class AdminProductPageController {
 	public static final String PATH = "/frontend/admin/AdminProductPage.fxml";
 	
 	@FXML
-	private ImageView posterView;
-	
-	@FXML
 	private Label statusLabel;
 	
 	@FXML
@@ -56,6 +54,9 @@ public class AdminProductPageController {
 	
 	@Autowired
 	private ProductController productController;
+	
+	@Autowired
+	private CreateMovie createMovie;
 	
 	@FXML
 	private void initialize() {
@@ -211,7 +212,6 @@ public class AdminProductPageController {
 	
 	public void initializeProduct(Movie movie) {
 		this.movie = movie;
-		posterView.setImage(AppUtils.loadImageFromClass(movie.getPosterPath()));
 		try {
 			product = productController.getProductByMovieId(movie.getId());
 			/*statusLabel.setTextFill(Color.GREEN);

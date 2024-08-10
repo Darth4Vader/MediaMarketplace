@@ -46,6 +46,7 @@ public class MovieReviewService {
     @Autowired
     private MovieService movieService;
     
+    //a non log user can get this information
     public List<MovieReview> getAllReviewOfMovie(Long movieId) throws EntityNotFoundException {
     	Movie movie = movieService.getMovieByID(movieId);
     	return movieReviewRepository.findAllByMovie(movie)

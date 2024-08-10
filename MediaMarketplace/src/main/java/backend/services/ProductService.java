@@ -14,6 +14,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
+import backend.auth.AuthenticateAdmin;
 import backend.dto.mediaProduct.ProductDto;
 import backend.entities.Genre;
 import backend.entities.Movie;
@@ -32,10 +33,16 @@ public class ProductService {
     @Autowired
     private MovieService movieService;
     
+    //a non log user can get this information
+    
+    @AuthenticateAdmin
+    
     public List<Product> getAllProduct() {
     	return productRepository.findAll();
     }
     
+    //only an admin can add a product to the database
+    @AuthenticateAdmin
     public Long addProduct(ProductDto productDto) throws EntityNotFoundException {
     	Movie movie = movieService.getMovieByID(productDto.getMovieId());
     	Product product = getProductFromDto(productDto, movie);
@@ -43,6 +50,8 @@ public class ProductService {
     	return product.getId();
     }
     
+    //only an admin can update a product to the database
+    @AuthenticateAdmin
     public void updateProduct(ProductDto productDto) throws EntityNotFoundException {
     	Product product = getProductByID(productDto.getProductId());
     	updateProductFromDto(product, productDto);

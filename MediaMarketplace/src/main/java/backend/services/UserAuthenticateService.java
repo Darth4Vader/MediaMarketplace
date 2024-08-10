@@ -23,6 +23,7 @@ import backend.dto.users.LogInDto;
 import backend.dto.users.LogInResponseDto;
 import backend.dto.users.UserInformationDto;
 import backend.entities.Role;
+import backend.entities.RoleType;
 import backend.entities.User;
 import backend.exceptions.LogValuesAreIncorrectException;
 import backend.exceptions.UserAlreadyExistsException;
@@ -60,7 +61,7 @@ public class UserAuthenticateService {
     	//encode the password
     	String encodedPassword = encodePassword(registerDto.getPassword());
         //create the authorities for the new user
-    	Role userRole = roleRepository.findByAuthority(Role.USER).get();
+    	Role userRole = roleRepository.findByRoleType(RoleType.ROLE_USER).get();
         Set<Role> authorities = new HashSet<>();
         authorities.add(userRole);
         User newUser = new User(username, encodedPassword, authorities);
@@ -127,7 +128,7 @@ public class UserAuthenticateService {
     
     public boolean isCurrentUserAdmin() {
     	User user = tokenService.getCurretUser();
-    	Role admin = roleRepository.findByAuthority(Role.ADMIN).orElseThrow(() -> new EntityNotFoundException("The role ADMIN does not exists"));
+    	Role admin = roleRepository.findByRoleType(RoleType.ROLE_ADMIN).orElseThrow(() -> new EntityNotFoundException("The role ADMIN does not exists"));
     	Collection<? extends GrantedAuthority> roles = user.getAuthorities();
         /*System.out.println("Les Admins");
         System.out.println(admin.getAuthority());

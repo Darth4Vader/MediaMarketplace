@@ -14,6 +14,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import backend.auth.AuthenticateAdmin;
 import backend.dto.mediaProduct.ActorDto;
 import backend.dto.mediaProduct.DirectorDto;
 import backend.dto.mediaProduct.MovieDto;
@@ -40,10 +41,13 @@ public class DirectorService {
     @Autowired
     private MovieService movieService;
     
+    //a non log user can get this information
     public List<Director> getAllDirectors() {
     	return directorRepository.findAll();
     }
     
+    //only an admin can add a director to the database
+    @AuthenticateAdmin
     @Transactional
     public void addDirector(DirectorDto directorDto) throws EntityNotFoundException, EntityAlreadyExistsException {
     	Person person = personService.getPersonByNameID(directorDto.getPersonMediaID());
@@ -61,6 +65,8 @@ public class DirectorService {
     	directors.add(director);
     }
     
+    //only an admin can remove a director from the database
+    @AuthenticateAdmin
     @Transactional
     public void removeDirector(DirectorDto directorDto) throws EntityNotFoundException {
     	Person person = personService.getPersonByNameID(directorDto.getPersonMediaID());
@@ -71,6 +77,8 @@ public class DirectorService {
     	removeDirector(movie, director);
     }
     
+    //only an admin can remove all of the directors from the database
+    @AuthenticateAdmin
     @Transactional
     public void removeAllDirectorsFromMovie(MovieDto movieDto) throws EntityNotFoundException {
     	String mediaID = movieDto.getMediaID();

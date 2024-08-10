@@ -1,13 +1,20 @@
 import java.io.IOException;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
 import org.springframework.stereotype.Component;
 
 import Interface.helpAction;
@@ -23,13 +30,19 @@ import backend.controllers.GenreController;
 import backend.controllers.MovieController;
 import backend.controllers.PersonController;
 import backend.controllers.ProductController;
+import backend.controllers.UserAuthenticateController;
 import backend.dto.mediaProduct.ActorDto;
 import backend.dto.mediaProduct.MovieDto;
 import backend.dto.mediaProduct.PersonDto;
 import backend.dto.mediaProduct.ProductDto;
+import backend.dto.users.LogInDto;
+import backend.dto.users.LogInResponseDto;
 import backend.entities.Director;
 import backend.entities.Genre;
 import backend.entities.Person;
+import backend.entities.Role;
+import backend.entities.RoleType;
+import backend.entities.User;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
 import backend.repositories.ActorRepository;
@@ -37,6 +50,8 @@ import backend.repositories.DirectorRepository;
 import backend.repositories.GenreRepository;
 import backend.repositories.MovieRepository;
 import backend.repositories.PersonRepository;
+import backend.repositories.RoleRepository;
+import backend.repositories.UserRepository;
 import backend.services.MovieService;
 import backend.tmdb.CreateMovie;
 
@@ -44,13 +59,71 @@ public class createDatabaseFromJSONData {
 	
 	private static ConfigurableApplicationContext context;
 	
+	private static UserAuthenticateController userAuth;
+	
+	private static class CustomExceptionHandler implements UncaughtExceptionHandler {
+
+		private UncaughtExceptionHandler prevHandler;
+		
+		public CustomExceptionHandler(UncaughtExceptionHandler prevHandler) {
+			this.prevHandler = prevHandler;
+		}
+		
+		private boolean isCausedBy(Throwable caught, Class<? extends Throwable> isOfOrCausedBy) {
+			if (caught == null) return false;
+			else if (isOfOrCausedBy.isAssignableFrom(caught.getClass())) return true;
+		    else return isCausedBy(caught.getCause(), isOfOrCausedBy);
+		}
+		
+		@Override
+		public void uncaughtException(Thread thread, Throwable throwable) {
+			if(isCausedBy(throwable, AuthorizationDeniedException.class)) {
+				System.out.println("culybaly");
+			}
+			else {
+				prevHandler.uncaughtException(thread, throwable);
+			}
+		}
+		
+	}
+	
 	public static void main(String... args) throws BeansException, Exception {
 		
+		
+		Thread curThread = Thread.currentThread();
+		UncaughtExceptionHandler catchExp = curThread.getUncaughtExceptionHandler();
+		curThread.setUncaughtExceptionHandler(new CustomExceptionHandler(catchExp));
+		
 		context = ActivateSpringApplication.create(args);
+		userAuth = context.getBean(UserAuthenticateController.class);
+		
+		LogInDto dto = new LogInDto("frodo", "bag");
+		//LogInDto dto = new LogInDto("bilbo", "bag");
+		try {
+			LogInResponseDto d = userAuth.loginUser(dto);
+			//userAuth.registerUser(new UserInformationDto("frodo", "", "bag", "bag"));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		/*UserRepository userRepository = context.getBean(UserRepository.class);;
+		RoleRepository roleRepository = context.getBean(RoleRepository.class);
+    	User user = userRepository.findByUsername(dto.getUserName()).get();
+    	user.authorities.add(roleRepository.findByRoleType(RoleType.ROLE_USER).get());
+    	//user.authorities.add(roleRepository.findByRoleType(RoleType.ROLE_ADMIN).get());
+    	userRepository.save(user);*/
+		
+		//System.out.println(new SecurityContextHolderAwareRequestWrapper().isUserInRole(Role.ADMIN));
 		
 		//spring.jpa.show-sql=true
 		
 		//PersonController genreRep = context.getBean(PersonController.class);
+		
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		System.out.println(auth.isAuthenticated());
+		System.out.println(auth.getAuthorities());
+		
 		
 		MovieController genreRep = context.getBean(MovieController.class);
 		for(backend.entities.Movie movie : genreRep.getAllMovies()) {
