@@ -80,22 +80,48 @@ public class App extends Application {
 	}
 	
 	@Override
-	public void init() throws Exception {
-		applicationInstance = this;
-		String[] args = getParameters().getRaw().toArray(new String[0]);
-		appContext = ActivateSpringApplication.create(args);
+	public void init() {
+		//caught every user operation a guest try to activate
+		Thread curThread = Thread.currentThread();
+		UncaughtExceptionHandler catchExp = curThread.getUncaughtExceptionHandler();
+		//UncaughtExceptionHandler catchExp = Thread.getDefaultUncaughtExceptionHandler();
+		curThread.setUncaughtExceptionHandler(new CustomExceptionHandler(catchExp, this));
+		Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler(catchExp, this));
+		
+		try {
+		
+			applicationInstance = this;
+			String[] args = getParameters().getRaw().toArray(new String[0]);
+			appContext = ActivateSpringApplication.create(args);
+		}
+		catch (Exception e) {
+			Thread thread = Thread.currentThread();
+			Platform.runLater(new Runnable() {
+			    @Override
+			    public void run() {
+					System.out.println("Pro2");
+					//catchExp.uncaughtException(thread, e);
+					Thread.getDefaultUncaughtExceptionHandler().uncaughtException(thread, e);
+			    }
+			});
+		}
 	}
 	
 	private Stage userLogStage;
 	
 	@Override
 	public void start(Stage stage) {
+		/*
 		//caught every user operation a guest try to activate
 		Thread curThread = Thread.currentThread();
 		UncaughtExceptionHandler catchExp = curThread.getUncaughtExceptionHandler();
 		curThread.setUncaughtExceptionHandler(new CustomExceptionHandler(catchExp, this));
 		
 		Thread.setDefaultUncaughtExceptionHandler(new CustomExceptionHandler(catchExp, this));
+		*/
+		
+		
+		
 		
 		/*curThread.setUncaughtExceptionHandler((thread, throwable) -> {
 			if(isCausedBy(throwable, UserNotLoggedInException.class)) {
@@ -133,68 +159,71 @@ public class App extends Application {
 			}*/
         //});
 		this.stage = stage;
-		userAuth = appContext.getBean(UserAuthenticateController.class);
-		LogInDto dto = new LogInDto("frodo", "bag");
-		//LogInDto dto = new LogInDto("bilbo", "bag");
-		try {
-			LogInResponseDto d = userAuth.loginUser(dto);
-			//userAuth.registerUser(new UserInformationDto("frodo", "", "bag", "bag"));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
-		//changeStageToFXML(LogInUserController.PATH);
-		
-		/*Platform.runLater(new Runnable() {
+		if(appContext != null) {
+			userAuth = appContext.getBean(UserAuthenticateController.class);
 			
-			@Override
-			public void run() {
-				try {
-					changeAppPanel(HomePageController.PATH);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			//LogInDto dto = new LogInDto("frodo", "bag");
+			LogInDto dto = new LogInDto("bilbo", "bag");
+			try {
+				LogInResponseDto d = userAuth.loginUser(dto);
+				//userAuth.registerUser(new UserInformationDto("frodo", "", "bag", "bag"));
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		});*/
-		
-		changeAppPanel(HomePageController.PATH);
-		
-		//changeAppPanel(AddMoviePageController.PATH);
-		
-		
-		//changeAppPanel(SortPageController.PATH);
-		
-		//changeAppPanel(CartPageController.PATH);
-		
-		//Don't forget about this
-		
-		/*ImageView imageView = new ImageView(AppUtils.loadImageFromClass("/frontend/markplace_logo.png"));
-	    imageView.setPreserveRatio(true);
-	    imageView.setFitWidth(64);
-	    imageView.setFitHeight(64);
-		stage.getIcons().add(imageView.snapshot(null, null));
-		
-	    imageView.setFitWidth(32);
-	    imageView.setFitHeight(32);
-		stage.getIcons().add(imageView.snapshot(null, null));*/
-		
-		
-		stage.getIcons().add(new Image(getClass().getResourceAsStream("markplace_logo.png")));
-		
-		//changeAppPanel(AddMoviePageController.PATH);
-		
-		stage.show();
-		/*FXMLLoader loader = new FXMLLoader(getClass().getResource("/frontend/auth/RegisterUser.fxml"));
-	    //System.out.println(getClass().getResource("/frontend/auth/RegisterUser.fxml"));
-	    loader.setControllerFactory(appContext::getBean);
-	    Parent root = loader.load();
-	    //final Controller controller = loader.getController();
-		Scene scene = new Scene(root);
-		stage.setScene(scene);
-		stage.show();*/
+			
+			
+			//changeStageToFXML(LogInUserController.PATH);
+			
+			/*Platform.runLater(new Runnable() {
+				
+				@Override
+				public void run() {
+					try {
+						changeAppPanel(HomePageController.PATH);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			});*/
+			
+			changeAppPanel(HomePageController.PATH);
+			
+			//changeAppPanel(AddMoviePageController.PATH);
+			
+			
+			//changeAppPanel(SortPageController.PATH);
+			
+			//changeAppPanel(CartPageController.PATH);
+			
+			//Don't forget about this
+			
+			/*ImageView imageView = new ImageView(AppUtils.loadImageFromClass("/frontend/markplace_logo.png"));
+		    imageView.setPreserveRatio(true);
+		    imageView.setFitWidth(64);
+		    imageView.setFitHeight(64);
+			stage.getIcons().add(imageView.snapshot(null, null));
+			
+		    imageView.setFitWidth(32);
+		    imageView.setFitHeight(32);
+			stage.getIcons().add(imageView.snapshot(null, null));*/
+			
+			
+			stage.getIcons().add(new Image(getClass().getResourceAsStream("markplace_logo.png")));
+			
+			//changeAppPanel(AddMoviePageController.PATH);
+			
+			stage.show();
+			/*FXMLLoader loader = new FXMLLoader(getClass().getResource("/frontend/auth/RegisterUser.fxml"));
+		    //System.out.println(getClass().getResource("/frontend/auth/RegisterUser.fxml"));
+		    loader.setControllerFactory(appContext::getBean);
+		    Parent root = loader.load();
+		    //final Controller controller = loader.getController();
+			Scene scene = new Scene(root);
+			stage.setScene(scene);
+			stage.show();*/
+		}
 	}
 	
 	public void activateLogPage(boolean logIn) {
@@ -215,9 +244,13 @@ public class App extends Application {
 	}
 	
 	public Parent loadFXML(String fxmlPath) {
+		FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+	    loader.setControllerFactory(appContext::getBean);
+	    return loadFXML(loader);
+	}
+	
+	private Parent loadFXML(FXMLLoader loader) {
 		try {
-			FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-		    loader.setControllerFactory(appContext::getBean);
 		    return loader.load();
 		}
 		catch (IOException e) {
@@ -269,14 +302,12 @@ public class App extends Application {
 	}
 	
 	public void enterSearchPage(String searchMovie) {
-		try {
-			FXMLLoader loader = getFXMLLoader(SearchPageController.PATH);
-			Parent root = loader.load();
+		FXMLLoader loader = getFXMLLoader(SearchPageController.PATH);
+		Parent root = loadFXML(loader);
+		if(root != null) {
 			SearchPageController controller = loader.getController();
 			controller.searchMovies(searchMovie);
 			changeAppPanel(root);
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 	
@@ -343,38 +374,39 @@ public class App extends Application {
 		catch (UserNotLoggedInException e) {
 			//ok, let guests view the movie product page.
 		}
-		try {
-			System.out.println("In Admin: " + isAdmin);
-			Parent root;
-			VBox box = new VBox();
-			Button goBack = new Button("← Go Back");
-			Node previous = appPane.getCenter();
-			goBack.setOnAction(event -> {
-				changeAppPanel(previous);
-			});
-			box.getChildren().add(goBack);
-			if(isAdmin) {
-				FXMLLoader loader = App.getApplicationInstance().getFXMLLoader(AdminProductPageController.PATH);
-				root = loader.load();
+		System.out.println("In Admin: " + isAdmin);
+		Parent root;
+		VBox box = new VBox();
+		Button goBack = new Button("← Go Back");
+		Node previous = appPane.getCenter();
+		goBack.setOnAction(event -> {
+			changeAppPanel(previous);
+		});
+		box.getChildren().add(goBack);
+		if(isAdmin) {
+			FXMLLoader loader = getFXMLLoader(AdminProductPageController.PATH);
+			root = loadFXML(loader);
+			if(root != null) {
 				AdminProductPageController controller = loader.getController();
 				controller.initializeProduct(movie);
 				box.getChildren().add(root);
 			}
-			FXMLLoader loader = App.getApplicationInstance().getFXMLLoader(MoviePageController.PATH);
-			root = loader.load();
+		}
+		FXMLLoader loader = getFXMLLoader(MoviePageController.PATH);
+		root = loadFXML(loader);
+		if(root != null) {
 			MoviePageController controller = loader.getController();
 			controller.initializeMovie(movie);
 			box.getChildren().add(root);
 			changeAppPanel(box);
 		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	@Override
 	public void stop() {
-		appContext.close();
+		if(appContext != null) {
+			appContext.close();
+		}
 		Platform.exit();
 		//System.exit(0);
 	}

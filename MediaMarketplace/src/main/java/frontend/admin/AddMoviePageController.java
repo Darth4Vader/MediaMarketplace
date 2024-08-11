@@ -5,14 +5,15 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import backend.controllers.UserAuthenticateController;
 import backend.dto.mediaProduct.MovieDto;
 import backend.exceptions.EntityNotFoundException;
 import backend.tmdb.CanUpdateException;
 import backend.tmdb.CreateMovie;
 import backend.tmdb.CreateMovieException;
 import backend.tmdb.MovieDtoSearchResult;
-import backend.tmdb.NameAndException;
 import frontend.AppUtils;
+import frontend.admin.createMovieLogView.CreateMovieLoggerControl;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -20,11 +21,9 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 
 @Component
 public class AddMoviePageController {
@@ -52,12 +51,19 @@ public class AddMoviePageController {
 	@Autowired
 	private CreateMovie createMovie;
 	
+	@Autowired
+	private UserAuthenticateController userAuthenticateController;
+	
 	private MovieDtoSearchResult movieDtoSearchResult;
 	
 	private ObservableList<MovieDto> movieList;
 	
+	private CreateMovieLoggerControl createMovieLoggerControl;
+	
 	@FXML
 	private void initialize() {
+		//first check that the current user is an admin to enter this page
+		userAuthenticateController.checkIfCurrentUserIsAdmin();
 		this.movieList = FXCollections.observableArrayList();
 		movieListView.prefWidthProperty().bind(mainPane.widthProperty().multiply(0.6));
 		previousPageLbl.setVisible(false);
@@ -65,6 +71,8 @@ public class AddMoviePageController {
 		movieListView.setCellFactory(x ->  new SearchMovieCell(this));
 		movieListView.setItems(movieList);
 		movieListView.setSelectionModel(null);
+		
+		createMovieLoggerControl = new CreateMovieLoggerControl(createMovie);
 	}
 	
 	private void validatePageMoveLabels() {
@@ -87,19 +95,20 @@ public class AddMoviePageController {
 		viewMoviesSearched(movies);
 	}
 	
-	public void addMovieToDatabase(MovieDto movie){
+	public void addMovieToDatabase(MovieDto movie) {
 		String mediaId = movie.getMediaID();
+		createMovieLoggerControl.start();
 		try {
-			createMovie.addMovieToDatabase(
-					Integer.parseInt(mediaId));
+			createMovie.addMovieToDatabase(Integer.parseInt(mediaId));
+			createMovieLoggerControl.finishedTask();
 		} catch (NumberFormatException e1) {
-			//this can happen when the media id is not a number
-			//we will add an error message
-			AppUtils.alertOfError("Movie Creation failed", "The movie media id (" + mediaId + ") is not a number");
+			AdminPagesUtils.parseNumberException(mediaId);
 		} catch (CreateMovieException e) {
+			createMovieLoggerControl.close();
 			//when the movie creation fails, we will alert the user of the reasons
-			createMovieExceptionAlert(e);
+			AdminPagesUtils.createMovieExceptionAlert(e);
 		} catch (CanUpdateException e) {
+			createMovieLoggerControl.close();
 			//if the movie already exists, then we will  alert the user that he can update the movie if he wants
 			Alert alert = AppUtils.alertOfInformation("Movie Creation exception", e.getMessage());
 			VBox box = new VBox();
@@ -116,34 +125,20 @@ public class AddMoviePageController {
 	}
 	
 	private void updateMovieInDatabase(CanUpdateException e) {
+		createMovieLoggerControl.start();
 		try {
 			createMovie.updateMovieInDatabase(e);
+			createMovieLoggerControl.finishedTask();
 		} catch (CreateMovieException e1) {
+			createMovieLoggerControl.close();
 			//when the movie creation fails, we will alert the user of the reasons
-			createMovieExceptionAlert(e1);
+			AdminPagesUtils.createMovieExceptionAlert(e1);
 		} catch (EntityNotFoundException e1) {
+			createMovieLoggerControl.close();
 			//can ignore, because we create the genres, so the exception will not be triggered.
 			//and the movie is created, therefore it will be in the database, and the exception will not be triggered
+			AppUtils.alertOfError("Update Movie Error", e.getMessage());
 		}
-	}
-	
-	private void createMovieExceptionAlert(CreateMovieException e) {
-		Alert alert = AppUtils.alertOfError("Movie Creation exception", e.getMessage());
-		VBox box = new VBox();
-		box.setSpacing(5);
-		List<NameAndException> list = e.getList();
-		if(list != null) for(NameAndException nameAndException : list) {
-			HBox eBox = new HBox();
-			eBox.setSpacing(10);
-			Label nameLbl = new Label(nameAndException.getName());
-			nameLbl.setStyle("-fx-font-weight: bold;");
-			Label causeLbl = new Label(nameAndException.getException().getMessage());
-			causeLbl.setTextFill(Color.RED);
-			eBox.getChildren().addAll(nameLbl, causeLbl);
-			box.getChildren().add(eBox);
-		}
-		ScrollPane pane = new ScrollPane(box);
-        alert.getDialogPane().setGraphic(pane);
 	}
 	
 	private void viewMoviesSearched(List<MovieDto> movies) {

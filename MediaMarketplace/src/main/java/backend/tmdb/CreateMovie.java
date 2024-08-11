@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
@@ -119,6 +120,7 @@ public class CreateMovie {
 		createGenres(movieDto);
 		String movieMediaID = movieDto.getMediaID();
 		try {
+			LOGGER.info("Starting to create the movie information");
 			movieController.addMovie(movieDto);
 		} catch (EntityNotFoundException e) {
 			//this can happen if a genre does not exist, but we already added/verified that all of them are in the database, therefore the exception won't be triggered
@@ -142,6 +144,16 @@ public class CreateMovie {
 		updateMovieInDatabase(exception.getMovieDb());
 	}
 	
+	private static final Logger LOGGER = Logger.getLogger(CreateMovie.class.getName());
+	
+    static {
+        LOGGER.setUseParentHandlers(false);
+    }
+	
+	public Logger getLogger() {
+		return LOGGER;
+	}
+	
 	/**
 	 * 
 	 * @param movieId
@@ -154,27 +166,32 @@ public class CreateMovie {
 		MovieDto movieDto = getMovieDto(movieDb);
 		createGenres(movieDto);
 		String movieMediaID = movieDto.getMediaID();
+		LOGGER.info("Starting to update the movie information");
 		movieController.updateMovie(movieDto);
 		
 		addMovieImages(movieDb, movieDto, exceptionList);
 		List<PersonCrew> crew = movieDb.getCrew();
 		if(crew != null) {
+			LOGGER.info("Removing all of the movie directors");
 			try {
 				directorController.removeAllDirectorsFromMovie(movieDto);
 			}
 			catch (EntityNotFoundException e) {
 				//this will not happen, because we checked that the movie is created.
 			}
+			LOGGER.info("Finished removing");
 			addDirectors(crew, movieMediaID, exceptionList);
 		}
 		List<PersonCast> cast = movieDb.getCast();
 		if(cast != null) {
+			LOGGER.info("Removing all of the movie actors");
 			try {
 				actorController.removeAllActorsFromMovie(movieDto);
 			}
 			catch (EntityNotFoundException e) {
 				//this will not happen, because we checked that the movie is created.
 			}
+			LOGGER.info("Finished removing");
 			addActors(cast, movieMediaID, exceptionList);
 		}
 		if(!exceptionList.isEmpty())
@@ -188,10 +205,12 @@ public class CreateMovie {
 	}
 	
 	private void createGenres(MovieDto movieDto) {
+		LOGGER.info("Starting to create genres");
 		List<String> genres = movieDto.getGenres();
 		for(String genre : genres) {
 			try {
 				genreController.createGenre(genre);
+				LOGGER.info(" The Genre \"" + genre + "\" has been created");
 			}
 			catch (EntityAlreadyExistsException e) {
 				//this is okay, can be if the gene is already created, therefore we don't need to handle the exception
@@ -200,11 +219,13 @@ public class CreateMovie {
 	}
 	
 	private void addMovieImages(MovieDb movieDb, MovieDto movieDto, List<NameAndException> exceptionList) {
+		LOGGER.info("Adding poster to the movie");
 		try {
 			saveImageFromURL(movieDb.getPosterPath(), movieDto.getPosterPath());
 		} catch (IOException e) {
 			exceptionList.add(new NameAndException("Poster Creation Failed", e));
 		}
+		LOGGER.info("Adding backdrop to the movie");
 		try {
 			saveImageFromURL(movieDb.getBackdropPath(), movieDto.getBackdropPath());
 		} catch (IOException e) {
@@ -222,6 +243,7 @@ public class CreateMovie {
 				directorDto.setPersonMediaID(personDto.getPersonMediaID());
 				try {
 					directorController.addDirector(directorDto);
+					LOGGER.info("The Director \"" + personDto.getName() +"\" has been added");
 				} catch (EntityNotFoundException e) {
 					//we checked that the movie and person exists
 					//but if there is a problem we will handle it
@@ -244,6 +266,7 @@ public class CreateMovie {
 			actorDto.setPersonMediaID(personDto.getPersonMediaID());
 			try {
 				actorController.addActor(actorDto);
+				LOGGER.info("The Actor \"" + personDto.getName() + "\" in the role \"" + actorDto.getRoleName() + "\" has been added");
 			} catch (EntityNotFoundException e) {
 				//we checked that the movie and person exists
 				//but if there is a problem we will handle it
@@ -294,7 +317,9 @@ public class CreateMovie {
 		try {
 			try {
 				personController.addPerson(personDto);
+				LOGGER.info("The Person \"" + personDto.getName() +"\" has been added");
 				String personImage = person.getProfilePath();
+				LOGGER.info("Saving Person \"" + personDto.getName() +"\" image");
 				saveImageFromURL(personImage, personDto.getImagePath());
 			} catch (IOException e) {
 				exceptionList.add(new NameAndException("Person Image Creation Failed", e));

@@ -1,7 +1,0 @@
-Interface\Application.class
-Database\UserService.class
-DataStructures\User.class
-Database\UserServiceImpl.class
-Database\UserController.class
-Database\UserRepository.class
-DataStructures\Media.class

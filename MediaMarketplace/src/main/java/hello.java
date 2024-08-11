@@ -1,10 +1,12 @@
 import java.io.File;
 import java.net.URL;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.MonthDay;
+import java.time.ZoneId;
 import java.time.chrono.Chronology;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -13,6 +15,10 @@ import java.time.temporal.TemporalAccessor;
 import org.springframework.beans.BeansException;
 
 public class hello {
+	
+	private static final DateTimeFormatter formatter = DateTimeFormatter//.ofLocalizedDateTime(FormatStyle.LONG)
+																		.ofPattern("dd/MM/yyyy HH:mm:ss")
+																		.withZone(ZoneId.systemDefault());;
 
 	public static void main(String... args) throws BeansException, Exception {
 		LocalDate localDate = LocalDate.of(2019, 8, 1);
@@ -29,6 +35,10 @@ public class hello {
 		
 		
 		Duration initialDuration = Duration.ofHours(21).plusMinutes(34);
+		
+		
+		Instant now = Instant.now();
+		System.out.println(formatter.format(now));
 		
 	}
 

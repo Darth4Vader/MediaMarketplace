@@ -36,12 +36,6 @@ public class MovieService {
     private GenreService genreService;
     
     //a non log user can get this information
-    
-   
-    @AuthenticateAdmin
-    
-    
-    
     public List<Movie> getAllMovies() {
     	return movieRepository.findAll();
     }

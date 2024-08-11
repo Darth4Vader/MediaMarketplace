@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import backend.DataUtils;
+import backend.auth.AuthenticateAdmin;
 import backend.dto.users.LogInDto;
 import backend.dto.users.LogInResponseDto;
 import backend.dto.users.UserInformationDto;
@@ -124,6 +125,11 @@ public class UserAuthenticateService {
             throw new UsernameNotFoundException("User not found");
         }
         return user;*/
+    }
+    
+    @AuthenticateAdmin
+    public void checkIfCurrentUserIsAdmin() {
+    	
     }
     
     public boolean isCurrentUserAdmin() {

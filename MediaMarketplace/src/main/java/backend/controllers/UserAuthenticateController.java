@@ -45,6 +45,11 @@ public class UserAuthenticateController {
     	userAuthService.updateUserInformation(userDto);
     }
     
+    @PostMapping("/checkIfAdmin")
+    public void checkIfCurrentUserIsAdmin() {
+    	userAuthService.checkIfCurrentUserIsAdmin();
+    }
+    
     @PostMapping("/get/current_user")
     public UserInformationDto getCurrentUserDto() throws UserNotLoggedInException {
     	return userAuthService.getCurrentUserDto();

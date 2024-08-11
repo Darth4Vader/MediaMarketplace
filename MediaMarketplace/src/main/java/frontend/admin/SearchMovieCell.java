@@ -1,6 +1,5 @@
 package frontend.admin;
 
-import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -57,15 +56,12 @@ class SearchMovieCell extends  ListCell<MovieDto> {
 		textArea = new TextArea();
 		textArea.setWrapText(true);
 		textArea.setEditable(false);
-		//textArea.setDisable(true);
 		infoBox.getChildren().add(textArea);
-		//textArea.setMinWidth(Region.USE_PREF_SIZE);
 		VBox.setVgrow(textArea, Priority.ALWAYS);
 		textArea.setMaxHeight(Double.MAX_VALUE);
 		
 		infoBox.prefHeightProperty().bind(moviePane.heightProperty());
 		infoBox.prefHeightProperty().bind(moviePane.heightProperty());
-		//infoBox.setStyle("-fx-border-color: blue");
 		
 		moviePane.getChildren().add(infoBox);
 		HBox.setHgrow(infoBox, Priority.ALWAYS);
@@ -73,10 +69,6 @@ class SearchMovieCell extends  ListCell<MovieDto> {
 		moviePane.setBorder(Border.stroke(Color.BLUE));
 		
 		infoBox.setBorder(Border.stroke(Color.GREEN));
-		
-		//moviePane.setBorder(new Border(new BorderStroke(Color.GREEN, BorderStrokeStyle.SOLID, null, BorderWidths.FULL)));
-		
-		//HBox.setVgrow(textArea, Priority.ALWAYS);
 	}
 	
 	private void set(MovieDto movie) {
@@ -104,19 +96,15 @@ class SearchMovieCell extends  ListCell<MovieDto> {
     public void updateItem(MovieDto item, boolean empty) {
         super.updateItem(item, empty);
         if (item == null || empty) {
-        	System.out.println("Bye");
             setGraphic(null);
-            setText(null);
             reset();
         }
         else {
             setGraphic(moviePane);
-            setText(null);
             set(item);
         }
         setAlignment(Pos.CENTER_LEFT);
 		setBorder(new Border(new BorderStroke(Color.PINK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
 	            new BorderWidths(1))));
-        //setAlignment(Pos.CENTER);
     }
 }

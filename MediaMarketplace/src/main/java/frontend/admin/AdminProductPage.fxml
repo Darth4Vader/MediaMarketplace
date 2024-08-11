@@ -9,9 +9,10 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="frontend.admin.AdminProductPageController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="frontend.admin.AdminProductPageController">
    <children>
       <Label fx:id="statusLabel" text="?" />
+      <Button mnemonicParsing="false" onAction="#updateMovie" text="Update Movie" />
       <GridPane>
         <columnConstraints>
             <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -36,7 +37,7 @@
       </GridPane>
       <HBox alignment="CENTER">
          <children>
-            <Button mnemonicParsing="false" onAction="#updateProduct" text="Update" />
+            <Button mnemonicParsing="false" onAction="#updateProductPrice" text="Update Price" />
          </children>
       </HBox>
    </children>
