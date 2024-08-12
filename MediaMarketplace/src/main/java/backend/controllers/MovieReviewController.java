@@ -66,7 +66,13 @@ public class MovieReviewController {
 		movieReviewService.addMovieRatingOfUser(movieReviewDto, user);
     }
 	
-	public static double calculateRating(List<MovieReview> reviews) {
+	@GetMapping("/get_ratings/{movieId}")
+	@ResponseStatus(code = HttpStatus.OK)
+    public Integer getMovieRatings(Long movieId) {
+		return movieReviewService.getMovieRatings(movieId);
+    }
+	
+	/*public static double calculateRating(List<MovieReview> reviews) {
 		double size = reviews.size();
 		double sum = 0;
 		for(MovieReview review : reviews) {
@@ -76,5 +82,5 @@ public class MovieReviewController {
 		System.out.println(size);
 		System.out.println(sum / size);
 		return sum / size;
-	}
+	}*/
 }

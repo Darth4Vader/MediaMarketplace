@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 
 import backend.controllers.ProductController;
 import backend.entities.Product;
-import frontend.AppUtils;
-import frontend.MovieRow;
+import frontend.utils.AppUtils;
+import frontend.utils.MovieRow;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 

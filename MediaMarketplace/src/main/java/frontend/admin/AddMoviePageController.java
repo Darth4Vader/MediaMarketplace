@@ -12,8 +12,8 @@ import backend.tmdb.CanUpdateException;
 import backend.tmdb.CreateMovie;
 import backend.tmdb.CreateMovieException;
 import backend.tmdb.MovieDtoSearchResult;
-import frontend.AppUtils;
 import frontend.admin.createMovieLogView.CreateMovieLoggerControl;
+import frontend.utils.AppUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -110,7 +110,7 @@ public class AddMoviePageController {
 		} catch (CanUpdateException e) {
 			createMovieLoggerControl.close();
 			//if the movie already exists, then we will  alert the user that he can update the movie if he wants
-			Alert alert = AppUtils.alertOfInformation("Movie Creation exception", e.getMessage());
+			Alert alert = AppUtils.createAlertOfInformation("Movie Creation exception", e.getMessage());
 			VBox box = new VBox();
 			Label description = new Label("The movie can be updated if the update button is clicked");
 			Button btn = new Button("Update the movie");
@@ -121,6 +121,7 @@ public class AddMoviePageController {
 	        btn.setStyle("-fx-font-weight: bold;");
 	        box.getChildren().addAll(description, btn);
 	        alert.getDialogPane().setGraphic(box);
+	        alert.show();
 		}
 	}
 	

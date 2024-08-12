@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 import backend.tmdb.CreateMovieException;
 import backend.tmdb.NameAndException;
-import frontend.AppUtils;
+import frontend.utils.AppUtils;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Alert;
@@ -38,7 +38,7 @@ public class AdminPagesUtils {
 	}
 	
 	private static void addMovieExceptionAlert(CreateMovieException e, String message) {
-		Alert alert = AppUtils.alertOfError(message, e.getMessage());
+		Alert alert = AppUtils.createAlertOfError(message, e.getMessage());
 		VBox box = new VBox();
 		box.setSpacing(5);
 		List<NameAndException> list = e.getList();
@@ -54,6 +54,7 @@ public class AdminPagesUtils {
 		}
 		ScrollPane pane = new ScrollPane(box);
         alert.getDialogPane().setGraphic(pane);
+        alert.show();
 	}
 	
 	private static final String NUM_REGEX = "\\d{0,%d}(\\.\\d{0,2})?";

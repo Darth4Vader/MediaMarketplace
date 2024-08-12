@@ -1,6 +1,5 @@
-package frontend;
+package frontend.utils;
 
-import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 
 import org.hibernate.exception.JDBCConnectionException;
@@ -8,6 +7,7 @@ import org.springframework.security.authentication.AuthenticationCredentialsNotF
 import org.springframework.security.authorization.AuthorizationDeniedException;
 
 import backend.exceptions.UserNotLoggedInException;
+import frontend.App;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Border;
@@ -22,10 +22,8 @@ import javafx.scene.paint.Color;
 public class CustomExceptionHandler implements UncaughtExceptionHandler {
 
 	private App app;
-	private UncaughtExceptionHandler prevHandler;
 	
-	public CustomExceptionHandler(UncaughtExceptionHandler prevHandler, App app) {
-		this.prevHandler = prevHandler;
+	public CustomExceptionHandler(App app) {
 		this.app = app;
 	}
 	
@@ -37,7 +35,6 @@ public class CustomExceptionHandler implements UncaughtExceptionHandler {
 	
 	@Override
 	public void uncaughtException(Thread thread, Throwable throwable) {
-		//System.out.println("culybaly");
 		if(isCausedBy(throwable, UserNotLoggedInException.class)) {
 			userNotLogException();
 		}
@@ -51,9 +48,6 @@ public class CustomExceptionHandler implements UncaughtExceptionHandler {
 			AppUtils.alertOfError("Open Server Error", "Unable to connect to server");
 		}
 		else {
-			//System.out.println("kkk ");
-			//throwable.printStackTrace();
-			//prevHandler.uncaughtException(thread, throwable);
             String name = "";
             if(thread != null)
             	name = thread.getName();
@@ -64,19 +58,13 @@ public class CustomExceptionHandler implements UncaughtExceptionHandler {
 	}
 	
 	private void userNotLogException() {
-		//System.out.println("user is not logged to the system");
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("The user is not logged in");
-        alert.setHeaderText("sign in or continue to browse as unlogged");
-        
+		Alert alert = AppUtils.createAlertOfError("The user is not logged in", "sign in or continue to browse as unlogged");
         Button signInBtn = createSignButton(alert, true);
         Button registerBtn = createSignButton(alert, false);
         HBox box = new HBox();
         box.setSpacing(10);
 		box.setBorder(new Border(new BorderStroke(Color.PINK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
 	            new BorderWidths(1))));
-        //box.prefWidthProperty().bind(alert.widthProperty());
-        //box.setMaxWidth(Double.MAX_VALUE);
         box.getChildren().addAll(signInBtn, registerBtn);
         alert.getDialogPane().setContent(box);
         alert.show();
@@ -87,7 +75,7 @@ public class CustomExceptionHandler implements UncaughtExceptionHandler {
 		Button signBtn = new Button(text);
         signBtn.setOnAction(e -> {
     		alert.close();
-			this.app.activateLogPage(false);
+			this.app.activateLogPage(logIn);
         });
         signBtn.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(signBtn, Priority.ALWAYS);

@@ -87,6 +87,23 @@ public class MovieReviewService {
     	getMovieRatingFromDto(movieReview, movieReviewDto);
     	movieReviewRepository.save(movieReview);
     }
+    
+    public Integer getMovieRatings(Long movieId) {
+    	List<MovieReview> movieReviews;
+		try {
+			movieReviews = getAllReviewOfMovie(movieId);
+		} catch (EntityNotFoundException e) {
+			//if there are no reviews of the movie then we will return a null.
+			return null;
+		}
+    	double size = movieReviews.size();
+    	double sum = 0;
+    	for(MovieReview review : movieReviews) {
+    		sum += review.getRating();
+    	}
+    	return (int) (sum / size);
+    }
+    
     private void getMovieRatingFromDto(MovieReview movieReview, MovieReviewDto movieReviewDto) {
     	movieReview.setRating(movieReviewDto.getRating());
     }

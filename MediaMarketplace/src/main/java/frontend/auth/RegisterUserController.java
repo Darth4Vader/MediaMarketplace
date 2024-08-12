@@ -1,7 +1,5 @@
 package frontend.auth;
 
-import java.io.IOException;
-import java.io.Serializable;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,20 +11,16 @@ import backend.dto.users.UserInformationDto;
 import backend.exceptions.LogValuesAreIncorrectException;
 import backend.exceptions.UserAlreadyExistsException;
 import backend.exceptions.UserPasswordIsIncorrectException;
-import backend.repositories.UserRepository;
 import frontend.App;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
 @Component
-public class RegisterUserController implements Serializable {
+public class RegisterUserController {
 	
 	public static final String PATH = "/frontend/auth/RegisterUser.fxml";
 	
@@ -38,11 +32,13 @@ public class RegisterUserController implements Serializable {
 	
 	@FXML
 	private PasswordField passwordField;
+	
 	@FXML
 	private TextField passwordTextField;
 	
 	@FXML
 	private PasswordField passwordConfirmField;
+	
 	@FXML
 	private TextField passwordConfirmTextField;
 	
@@ -57,41 +53,14 @@ public class RegisterUserController implements Serializable {
 	
 	@FXML
 	private void initialize() {
-		usernameField.textProperty().addListener(textFielsListener(usernameField));
+		usernameField.textProperty().addListener(UserLogPageUtils.textFielsListener(usernameField, errorLabel));
 		
-		passwordField.textProperty().addListener(textFielsListener(passwordTextField.getParent()));
+		passwordField.textProperty().addListener(UserLogPageUtils.textFielsListener(passwordTextField.getParent(), errorLabel));
 		passwordField.textProperty().bindBidirectional(passwordTextField.textProperty());
 		
-		passwordConfirmField.textProperty().addListener(textFielsListener(passwordConfirmTextField.getParent()));
+		passwordConfirmField.textProperty().addListener(UserLogPageUtils.textFielsListener(passwordConfirmTextField.getParent(), errorLabel));
 		passwordConfirmField.textProperty().bindBidirectional(passwordConfirmTextField.textProperty());
 	}
-	
-	private ChangeListener<String> textFielsListener(Node textField) {
-		return new ChangeListener<String>() {
-
-			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				if(oldValue.trim().isEmpty() && !newValue.trim().isEmpty()) {
-					textField.setStyle("");
-					if(!errorLabel.getText().isEmpty())
-						errorLabel.setText("");
-				}
-			}
-		};
-	}
-	
-	/*@FXML
-	private void changeToRegisterUserPage(ActionEvent e) throws IOException {
-		e.consume();
-		Object object = e.getSource();
-		if(object instanceof Button) {
-			Button btn = (Button) object;
-			final Stage stage = (Stage) btn.getScene().getWindow();
-			Parent root = App.getApplicationInstance().loadFXML(LogInUserController.PATH);
-			Scene scene = new Scene(root);
-			stage.setScene(scene);
-		}
-	}*/
 	
 	@FXML
 	private void changeToLogInUserPage() {
@@ -110,9 +79,6 @@ public class RegisterUserController implements Serializable {
 		}
 	}
 	
-	@Autowired
-	private UserRepository userRepository;
-	
 	@FXML
 	void createAccount() {
 		try {
@@ -122,12 +88,16 @@ public class RegisterUserController implements Serializable {
 			registerDto.setPassword(passwordField.getText());
 			registerDto.setPasswordConfirm(passwordConfirmField.getText());
 			this.userAuth.registerUser(registerDto);
+			App.getApplicationInstance().closeLogPage();
 		} catch (UserAlreadyExistsException e) {
-			usernameField.setText("");
+			//This happens when the user account already exists (it's username exists for an existing account)
+			//we will inform the user
 			passwordField.setText("");
 			passwordConfirmField.setText("");
 			errorLabel.setText("The user is already existing, use a different username");
 		} catch (LogValuesAreIncorrectException e) {
+			//One of the inputed field text is not in a valid format
+			//we will inform the user
 			Set<UserLogInfo> userLogInfo = e.getUserLogInfo();
 			if(userLogInfo != null) {
 				if(userLogInfo.contains(UserLogInfo.NAME))
@@ -139,6 +109,8 @@ public class RegisterUserController implements Serializable {
 			}
 			errorLabel.setText(e.getMessage());
 		} catch (UserPasswordIsIncorrectException e) {
+			//happens when the password does not match the confirm password
+			//we will inform the user
 			passwordField.getParent().setStyle("-fx-border-color: red");
 			passwordConfirmField.getParent().setStyle("-fx-border-color: red");
 			errorLabel.setText(e.getMessage());

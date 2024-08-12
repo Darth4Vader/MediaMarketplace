@@ -4,7 +4,7 @@ import backend.DataUtils;
 import backend.entities.Actor;
 import backend.entities.Director;
 import backend.entities.Person;
-import frontend.AppUtils;
+import frontend.AppImageUtils;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -53,7 +53,7 @@ class PersonPane extends HBox {
 		actorName.setText(name);
 		String personImagePath = person.getImagePath();
 		if(DataUtils.isNotBlank(personImagePath)) {
-			actorImage.setImage(AppUtils.loadImageFromClass(personImagePath));
+			actorImage.setImage(AppImageUtils.loadImageFromClass(personImagePath));
 		}
 	}
 	

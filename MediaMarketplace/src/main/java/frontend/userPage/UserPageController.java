@@ -1,7 +1,5 @@
 package frontend.userPage;
 
-import java.io.IOException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -45,7 +43,8 @@ public class UserPageController {
 	private void setMainUserPanel(String path) {
 		userAuthenticateController.authenticateLoggedUser();
 		Parent panel =  App.getApplicationInstance().loadFXML(path);
-		mainPane.setCenter(panel);
+		if(panel != null)
+			mainPane.setCenter(panel);
 	}
 	
 }

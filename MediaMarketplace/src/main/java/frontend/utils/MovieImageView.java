@@ -1,8 +1,8 @@
-package frontend;
-
-import java.net.MalformedURLException;
+package frontend.utils;
 
 import backend.entities.Movie;
+import frontend.App;
+import frontend.AppImageUtils;
 import javafx.scene.Cursor;
 import javafx.scene.image.ImageView;
 
@@ -14,7 +14,7 @@ public class MovieImageView extends ImageView {
 	
 	public void setMovie(Movie movie) {
 		if(movie != null) {
-			this.setImage(AppUtils.loadImageFromClass(movie.getPosterPath()));
+			this.setImage(AppImageUtils.loadImageFromClass(movie.getPosterPath()));
 			this.setOnMouseClicked(evt -> {
 				App.getApplicationInstance().enterMoviePage(movie);
 			});

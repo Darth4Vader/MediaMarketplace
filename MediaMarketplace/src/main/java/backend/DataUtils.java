@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import javafx.scene.control.Label;
 
@@ -16,6 +17,10 @@ public class DataUtils {
 
 	public static boolean isNotBlank(String str) {
 		return str != null && !str.isBlank();
+	}
+	
+	public static boolean isListEmpty(List<?> list) {
+		return list == null || list.isEmpty();
 	}
 	
 	public static boolean equalsIgnoreCase(String str1, String str2) {

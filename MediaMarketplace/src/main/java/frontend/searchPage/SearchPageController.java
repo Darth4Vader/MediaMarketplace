@@ -11,10 +11,10 @@ import backend.DataUtils;
 import backend.controllers.GenreController;
 import backend.entities.Genre;
 import backend.entities.Movie;
-import frontend.AppUtils;
-import frontend.MovieRow;
 import frontend.searchPage.utils.SearchUtils;
 import frontend.searchPage.utils.SortDto;
+import frontend.utils.AppUtils;
+import frontend.utils.MovieRow;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -28,7 +28,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputControl;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -55,16 +54,16 @@ public class SearchPageController {
 	private HBox mainPane;
 	
 	@FXML
-	private TextField yearUp;
+	private TextField yearAbove;
 	
 	@FXML
-	private TextField yearDown;
+	private TextField yearBelow;
 	
 	@FXML
-	private TextField ratingUp;
+	private TextField ratingAbove;
 	
 	@FXML
-	private TextField ratingDown;
+	private TextField ratingBelow;
 	
 	@Autowired
 	private GenreController genreController;
@@ -78,10 +77,10 @@ public class SearchPageController {
         genresSelectedPane.setCellFactory(x -> new SelectedGenreListCell());
         genresSelectedPane.setItems(genresSelected);
         
-		yearUp.textProperty().addListener(textPropertyChangeListener(yearUp, 4));
-		yearDown.textProperty().addListener(textPropertyChangeListener(yearDown, 4));
-		ratingUp.textProperty().addListener(textPropertyChangeListener(ratingUp, 3));
-		ratingDown.textProperty().addListener(textPropertyChangeListener(ratingDown, 3));
+		yearAbove.textProperty().addListener(SearchPageUtils.textPropertyChangeListener(yearAbove, 4));
+		yearBelow.textProperty().addListener(SearchPageUtils.textPropertyChangeListener(yearBelow, 4));
+		ratingAbove.textProperty().addListener(SearchPageUtils.ratingChangeListener(ratingAbove));
+		ratingBelow.textProperty().addListener(SearchPageUtils.ratingChangeListener(ratingBelow));
 		
 		chooseGenres.setCellFactory(listView  -> new GenreListCell());
 		chooseGenres.setButtonCell(new GenreListCell());
@@ -182,25 +181,11 @@ public class SearchPageController {
 		for(Genre genre : genresSelected)
 			genresNames.add(genre.getName());
 		sortDto.setGenres(genresNames);
-		sortDto.setYearUp(DataUtils.getNumber(yearUp.getText()));
-		sortDto.setYearDown(DataUtils.getNumber(yearDown.getText()));
-		sortDto.setRatingUp(DataUtils.getNumber(ratingUp.getText()));
-		sortDto.setRatingDown(DataUtils.getNumber(ratingDown.getText()));
+		sortDto.setYearAbove(DataUtils.getNumber(yearAbove.getText()));
+		sortDto.setYearBelow(DataUtils.getNumber(yearBelow.getText()));
+		sortDto.setRatingAbove(DataUtils.getNumber(ratingAbove.getText()));
+		sortDto.setRatingBelow(DataUtils.getNumber(ratingBelow.getText()));
 		searchMovies(sortDto);
-	}
-	
-	public static ChangeListener<String> textPropertyChangeListener(TextInputControl control, int maxCharacters) {
-		return new ChangeListener<String>() {
-		    @Override
-		    public void changed(ObservableValue<? extends String> observable, String oldValue, 
-		        String newValue) {
-		        if (!newValue.matches("\\d*"))
-		        	newValue = newValue.replaceAll("[^\\d]", "");
-	        	if(newValue.length() > maxCharacters)
-	        		newValue = newValue.substring(0, maxCharacters);
-		        control.setText(newValue);
-		    }
-	    };
 	}
 	
 	private static class GenreListCell extends ListCell<Genre> {

@@ -3,7 +3,7 @@ package frontend.admin.createMovieLogView;
 import java.util.logging.Logger;
 
 import backend.tmdb.CreateMovie;
-import frontend.AppUtils;
+import frontend.utils.AppUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
@@ -47,7 +47,7 @@ public class CreateMovieLoggerControl {
 	private void createAlert() {
 		closeAlert();
 		if(this.alert == null)
-			this.alert = AppUtils.alertOfInformation("Updating Movie", "Starting to Update");;
+			this.alert = AppUtils.createAlertOfInformation("Updating Movie", "Starting to Update");;
 	}
 	
 	private void closeAlert() {

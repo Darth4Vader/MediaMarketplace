@@ -12,7 +12,7 @@ import backend.entities.CartProduct;
 import backend.entities.Order;
 import backend.exceptions.EntityNotFoundException;
 import backend.exceptions.PurchaseOrderException;
-import frontend.AppUtils;
+import frontend.utils.AppUtils;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.collections.FXCollections;

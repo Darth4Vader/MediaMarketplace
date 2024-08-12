@@ -1,7 +1,5 @@
 package frontend.auth;
 
-import java.io.IOException;
-import java.io.Serializable;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,25 +8,19 @@ import org.springframework.stereotype.Component;
 import DataStructures.UserLogInfo;
 import backend.controllers.UserAuthenticateController;
 import backend.dto.users.LogInDto;
-import backend.dto.users.LogInResponseDto;
 import backend.exceptions.LogValuesAreIncorrectException;
 import backend.exceptions.UserDoesNotExistsException;
 import backend.exceptions.UserPasswordIsIncorrectException;
-import backend.services.TokenService;
 import frontend.App;
-import frontend.homePage.HomePageController;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
 @Component
-public class LogInUserController implements Serializable {
+public class LogInUserController {
 	
 	public static final String PATH = "/frontend/auth/LogInUser.fxml";
 	
@@ -37,6 +29,7 @@ public class LogInUserController implements Serializable {
 	
 	@FXML
 	private PasswordField passwordField;
+	
 	@FXML
 	private TextField passwordTextField;
 	
@@ -49,42 +42,12 @@ public class LogInUserController implements Serializable {
 	@Autowired
 	private UserAuthenticateController userAuth;
 	
-	@Autowired
-	private TokenService tokenService;
-	
 	@FXML
 	private void initialize() {
-		nameField.textProperty().addListener(textFielsListener(nameField));
-		passwordField.textProperty().addListener(textFielsListener(passwordTextField.getParent()));
+		nameField.textProperty().addListener(UserLogPageUtils.textFielsListener(nameField, errorLabel));
+		passwordField.textProperty().addListener(UserLogPageUtils.textFielsListener(passwordTextField.getParent(), errorLabel));
 		passwordField.textProperty().bindBidirectional(passwordTextField.textProperty());
 	}
-	
-	private ChangeListener<String> textFielsListener(Node textField) {
-		return new ChangeListener<String>() {
-
-			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				if(oldValue.trim().isEmpty() && !newValue.trim().isEmpty()) {
-					textField.setStyle("");
-					if(!errorLabel.getText().isEmpty())
-						errorLabel.setText("");
-				}
-			}
-		};
-	}
-	
-	/*@FXML
-	private void changeToLogInUserPage(ActionEvent e) throws IOException {
-		e.consume();
-		Object object = e.getSource();
-		if(object instanceof Button) {
-			Button btn = (Button) object;
-			final Stage stage = (Stage) btn.getScene().getWindow();
-			Parent root = App.getApplicationInstance().loadFXML(RegisterUserController.PATH);
-			Scene scene = new Scene(root);
-			stage.setScene(scene);
-		}
-	}*/
 	
 	@FXML
 	private void changeToRegisterUserPage() {
@@ -104,21 +67,24 @@ public class LogInUserController implements Serializable {
 		String name = nameField.getText();
 		String password = passwordField.getText();
 		try {
-			LogInDto dto =new LogInDto(name, password);
-			LogInResponseDto d = this.userAuth.loginUser(dto);
-			App.getApplicationInstance().changeAppPanel(HomePageController.PATH);
-			//tokenService.invalidateJwt(d.getJwt());
-			//System.out.println(tokenService.getCurrentUser(d.getJwt()));
+			LogInDto dto = new LogInDto(name, password);
+			this.userAuth.loginUser(dto);
+			App.getApplicationInstance().closeLogPage();
 		} catch (UserDoesNotExistsException e) {
-			nameField.setText("");
+			//This happens when the user account does not exists (it's username does not exists)
+			//we will inform the user
 			passwordField.setText("");
 			errorLabel.setText("The user does not exists, use a different username");
 		} catch (UserPasswordIsIncorrectException e) {
+			//The password does not matches the password of the account that is associated with the username
+			//we will inform the user
 			passwordField.setText("");
 			passwordField.getParent().setStyle("-fx-border-color: red");
 			errorLabel.setText("The Password does not match the user password, try a different passsword");
 		}
 		catch (LogValuesAreIncorrectException e) {
+			//One of the inputed field text is not in a valid format
+			//we will inform the user
 			Set<UserLogInfo> userLogInfo = e.getUserLogInfo();
 			if(userLogInfo != null) {
 				if(userLogInfo.contains(UserLogInfo.NAME))

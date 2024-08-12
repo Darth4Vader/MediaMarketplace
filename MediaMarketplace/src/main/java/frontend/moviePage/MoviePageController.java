@@ -29,7 +29,8 @@ import backend.exceptions.EntityNotFoundException;
 import backend.exceptions.UserNotLoggedInException;
 import backend.exceptions.enums.MovieReviewTypes;
 import frontend.App;
-import frontend.AppUtils;
+import frontend.AppImageUtils;
+import frontend.utils.AppUtils;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.property.StringProperty;
@@ -56,6 +57,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.TextFormatter.Change;
 import javafx.scene.control.TextInputControl;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
@@ -147,8 +149,11 @@ public class MoviePageController {
 	
 	private ObservableList<MovieReview> movieReviewsList;
 	
+	private boolean notFirstTimeInsidePage;
+	
 	@FXML
 	private void initialize() {
+		this.notFirstTimeInsidePage = false;
 		directorsList = FXCollections.observableArrayList();
 		directorsListView.setCellFactory(x -> new PersonCell<Director>());
 		directorsListView.setItems(directorsList);
@@ -174,6 +179,10 @@ public class MoviePageController {
 	 * @throws MalformedURLException
 	 */
 	public void initializeMovie(Movie movie) {
+		if(this.movie == movie)
+			this.notFirstTimeInsidePage = true;
+		else
+			this.notFirstTimeInsidePage = false;
 		this.movie = movie;
 		addPurchaseButtons();
 		ratingButton.getChildren().clear();
@@ -192,20 +201,23 @@ public class MoviePageController {
 		}
 		String backdropPath = movie.getBackdropPath(); 
 		if(DataUtils.isNotBlank(backdropPath)) {
-			BackgroundSize backgroundSize = new BackgroundSize(1,
-					1,
-			        true,
-			        true,
-			        false,
-			        false);
-			BackgroundImage backgroudImage = new BackgroundImage(AppUtils.loadImageFromClass(movie.getBackdropPath()),
-			        BackgroundRepeat.NO_REPEAT,
-			        BackgroundRepeat.NO_REPEAT,
-			        BackgroundPosition.CENTER,
-			        backgroundSize);
-			backgroundView.setBackground(new Background(backgroudImage));
+			Image backgroundImage = AppImageUtils.loadImageFromClass(movie.getBackdropPath());
+			if(backgroundImage != null) {
+				BackgroundSize backgroundSize = new BackgroundSize(1,
+						1,
+				        true,
+				        true,
+				        false,
+				        false);
+				BackgroundImage backgroudImage = new BackgroundImage(backgroundImage,
+				        BackgroundRepeat.NO_REPEAT,
+				        BackgroundRepeat.NO_REPEAT,
+				        BackgroundPosition.CENTER,
+				        backgroundSize);
+				backgroundView.setBackground(new Background(backgroudImage));
+			}
 		}
-		posterView.setImage(AppUtils.loadImageFromClass(movie.getPosterPath()));
+		posterView.setImage(AppImageUtils.loadImageFromClass(movie.getPosterPath()));
 		nameLbl.setText(movie.getName());
 		String synopsis = movie.getSynopsis();
 		if(DataUtils.isBlank(synopsis))
@@ -234,8 +246,9 @@ public class MoviePageController {
 		try {
 			List<MovieReview> reviews = movieReviewController.getAllReviewOfMovie(movie.getId());
 			if(reviews != null && !reviews.isEmpty()) {
-				int ratingNumber = (int) MovieReviewController.calculateRating(reviews);
-				movieRatingNumberLbl.setText(""+ratingNumber);
+				Integer ratingNumber = movieReviewController.getMovieRatings(movie.getId());
+				if(ratingNumber != null)
+					movieRatingNumberLbl.setText(""+ratingNumber);
 				for(MovieReview review : reviews) {
 					if(DataUtils.isNotBlank(review.getReviewTitle())) {
 						movieReviewsList.add(review);	
@@ -284,6 +297,7 @@ public class MoviePageController {
 			}
 		} catch (EntityNotFoundException e) {
 			//This is okay, no need to add exception handling, the product will not be owned by the user
+			//it just means that the user never purchased the movie.
 		}
 		catch (UserNotLoggedInException e) {
 			//Can be if the user is not logged in, let him watch, but he can't buy as a guest
@@ -307,10 +321,13 @@ public class MoviePageController {
 				productOptions.getChildren().add(rentBtn);
 			}
 		} catch (EntityNotFoundException e) {
-			//catch when a product of the movie does not exists, it means that the movie is currently not for purchasing
-			if(!isPurchased && !isRented) {
-				//if the movie is not available to purchase, and the user does not have an option to watch it, then alert him
-		        AppUtils.alertOfError("Product Not available", "The movie in unavailable for purchases and rents");
+			//we don't want to spam the user with the alerts every time he rate or review the movie
+			if(notFirstTimeInsidePage == false) {
+				//catch when a product of the movie does not exists, it means that the movie is currently not for purchasing
+				if(!isPurchased && !isRented) {
+					//if the movie is not available to purchase, and the user does not have an option to watch it, then alert him
+			        AppUtils.alertOfError("Product Not available", "The movie in unavailable for purchases and rents");
+				}
 			}
 		}
 	}
@@ -392,6 +409,7 @@ public class MoviePageController {
 				reviewContent = moviewReview.getReview();
 			} catch (EntityNotFoundException e) {
 				//it's okay, like if a user never reviewed this movie, then the exception will activate
+				//so we don't need to handle the exception, because it is a possibility 
 			}
 			VBox box = new VBox();
 			Label ratingsText = new Label("Add Ratings");

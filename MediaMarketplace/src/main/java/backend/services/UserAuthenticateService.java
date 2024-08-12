@@ -60,19 +60,32 @@ public class UserAuthenticateService {
     	if(userRepository.findByUsername(username).isPresent())
     		throw new UserAlreadyExistsException();
     	//encode the password
-    	String encodedPassword = encodePassword(registerDto.getPassword());
+    	String password = registerDto.getPassword();
+    	String encodedPassword = encodePassword(password);
         //create the authorities for the new user
     	Role userRole = roleRepository.findByRoleType(RoleType.ROLE_USER).get();
         Set<Role> authorities = new HashSet<>();
         authorities.add(userRole);
         User newUser = new User(username, encodedPassword, authorities);
         userRepository.save(newUser);
+        //login user after registering finished
+        try {
+			loginUser(username, password);
+		} catch (UserDoesNotExistsException | UserPasswordIsIncorrectException | LogValuesAreIncorrectException e) {
+			//we just created so no exception can be made
+			//but in case of a glitch, we will throw a runtime exception
+			throw new RuntimeException(e);
+		}
         return "succsses";
     }
     
     public LogInResponseDto loginUser(LogInDto loginDto) throws UserDoesNotExistsException, UserPasswordIsIncorrectException, LogValuesAreIncorrectException {
     	String username = loginDto.getUserName();
     	String password = loginDto.getPassword();
+    	return loginUser(username, password);
+    }
+    
+    private LogInResponseDto loginUser(String username, String password) throws UserDoesNotExistsException, UserPasswordIsIncorrectException, LogValuesAreIncorrectException {
     	LogValuesAreIncorrectException.checkForException(username, password);
     	Optional<User> userOPt = userRepository.findByUsername(username);
     	if(userOPt.isEmpty())

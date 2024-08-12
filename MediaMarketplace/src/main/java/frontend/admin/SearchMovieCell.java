@@ -5,7 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 
 import backend.dto.mediaProduct.MovieDto;
-import frontend.AppUtils;
+import frontend.AppImageUtils;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.control.Label;
@@ -72,7 +72,7 @@ class SearchMovieCell extends  ListCell<MovieDto> {
 	}
 	
 	private void set(MovieDto movie) {
-		posterView.setImage(AppUtils.loadImageFromClass(movie.getPosterPath()));
+		posterView.setImage(AppImageUtils.loadImageFromClass(movie.getPosterPath()));
 		posterView.setOnMouseClicked(e -> {
 			addMoviePageController.addMovieToDatabase(movie);
 		});

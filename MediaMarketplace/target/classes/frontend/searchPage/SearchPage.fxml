@@ -36,15 +36,15 @@
                   <HBox>
                      <children>
                         <Label minHeight="-Infinity" minWidth="-Infinity" text="Ratings" />
-                        <TextField fx:id="ratingUp" />
-                        <TextField fx:id="ratingDown" />
+                        <TextField fx:id="ratingAbove" />
+                        <TextField fx:id="ratingBelow" />
                      </children>
                   </HBox>
                   <HBox>
                      <children>
                         <Label minHeight="-Infinity" minWidth="-Infinity" text="Year" />
-                        <TextField fx:id="yearUp" />
-                        <TextField fx:id="yearDown" />
+                        <TextField fx:id="yearAbove" />
+                        <TextField fx:id="yearBelow" />
                      </children>
                   </HBox>
                </children>

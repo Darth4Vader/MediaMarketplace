@@ -11,8 +11,15 @@ import java.time.chrono.Chronology;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.time.temporal.TemporalAccessor;
+import java.util.List;
 
 import org.springframework.beans.BeansException;
+import org.springframework.context.ConfigurableApplicationContext;
+
+import backend.ActivateSpringApplication;
+import backend.entities.Movie;
+import frontend.searchPage.utils.SearchUtils;
+import frontend.searchPage.utils.SortDto;
 
 public class hello {
 	
@@ -20,7 +27,21 @@ public class hello {
 																		.ofPattern("dd/MM/yyyy HH:mm:ss")
 																		.withZone(ZoneId.systemDefault());;
 
-	public static void main(String... args) throws BeansException, Exception {
+																		
+	private static ConfigurableApplicationContext context;
+																		
+	public static void main(String... args) {
+		context = ActivateSpringApplication.create(args);
+		SortDto sortDto = new SortDto("Star Wars");
+		List<Movie> list = SearchUtils.searchMoviesSort(sortDto);
+		for(Movie movie : list) {
+			System.out.println(movie.getName());
+		}
+	}																		
+																		
+																		
+																		
+	public static void main2(String... args) throws BeansException, Exception {
 		LocalDate localDate = LocalDate.of(2019, 8, 1);
 		System.out.println(localDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)));
 		

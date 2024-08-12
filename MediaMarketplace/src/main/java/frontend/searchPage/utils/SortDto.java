@@ -2,20 +2,18 @@ package frontend.searchPage.utils;
 
 import java.util.List;
 
-import javafx.fxml.FXML;
-import javafx.scene.control.TextField;
+import backend.DataUtils;
 
 public class SortDto {
 	
 	private String name;
 	private List<String> genres;
-	private Double yearUp;
-	private Double yearDown;
-	private Double ratingUp;
-	private Double ratingDown;
+	private Double yearAbove;
+	private Double yearBelow;
+	private Double ratingAbove;
+	private Double ratingBelow;
 
 	public SortDto() {
-		// TODO Auto-generated constructor stub
 	}
 	
 	public SortDto(String name) {
@@ -31,20 +29,20 @@ public class SortDto {
 		return genres;
 	}
 
-	public Double getYearUp() {
-		return yearUp;
+	public Double getYearAbove() {
+		return yearAbove;
 	}
 
-	public Double getYearDown() {
-		return yearDown;
+	public Double getYearBelow() {
+		return yearBelow;
 	}
 
-	public Double getRatingUp() {
-		return ratingUp;
+	public Double getRatingAbove() {
+		return ratingAbove;
 	}
 
-	public Double getRatingDown() {
-		return ratingDown;
+	public Double getRatingBelow() {
+		return ratingBelow;
 	}
 
 	public void setName(String name) {
@@ -55,20 +53,25 @@ public class SortDto {
 		this.genres = genres;
 	}
 
-	public void setYearUp(Double yearUp) {
-		this.yearUp = yearUp;
+	public void setYearAbove(Double yearAbove) {
+		this.yearAbove = yearAbove;
 	}
 
-	public void setYearDown(Double yearDown) {
-		this.yearDown = yearDown;
+	public void setYearBelow(Double yearBelow) {
+		this.yearBelow = yearBelow;
 	}
 
-	public void setRatingUp(Double ratingUp) {
-		this.ratingUp = ratingUp;
+	public void setRatingAbove(Double ratingAbove) {
+		this.ratingAbove = ratingAbove;
 	}
 
-	public void setRatingDown(Double ratingDown) {
-		this.ratingDown = ratingDown;
+	public void setRatingBelow(Double ratingBelow) {
+		this.ratingBelow = ratingBelow;
+	}
+	
+	public boolean isSortEmpty() {
+		return DataUtils.isBlank(name) && yearAbove == null && yearBelow == null
+				&& ratingAbove == null && ratingBelow == null && DataUtils.isListEmpty(genres);
 	}
 
 }
