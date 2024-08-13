@@ -1,41 +1,23 @@
 package backend.services;
 
-import java.time.Instant;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-import DataStructures.UserLogInfo;
 import backend.DataUtils;
 import backend.dto.mediaProduct.MovieReviewDto;
-import backend.dto.mediaProduct.ProductDto;
-import backend.entities.Genre;
+import backend.dto.mediaProduct.MovieReviewReference;
 import backend.entities.Movie;
 import backend.entities.MovieReview;
-import backend.entities.Product;
 import backend.entities.User;
 import backend.exceptions.DtoValuesAreIncorrectException;
-import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
 import backend.exceptions.enums.MovieReviewTypes;
-import backend.repositories.MovieRepository;
 import backend.repositories.MovieReviewRepository;
-import backend.repositories.ProductRepository;
 
 @Service
 public class MovieReviewService {
@@ -46,21 +28,31 @@ public class MovieReviewService {
     @Autowired
     private MovieService movieService;
     
+	@Autowired
+	private TokenService tokenService;
+    
     //a non log user can get this information
-    public List<MovieReview> getAllReviewOfMovie(Long movieId) throws EntityNotFoundException {
+    public List<MovieReviewDto> getAllReviewOfMovie(Long movieId) throws EntityNotFoundException {
     	Movie movie = movieService.getMovieByID(movieId);
-    	return movieReviewRepository.findAllByMovie(movie)
-    			.orElseThrow(() -> new EntityNotFoundException("There are no reviews of the given movie"));
+    	List<MovieReview> movieReviews = getAllReviewOfMovies(movie);
+    	List<MovieReviewDto> movieReviewDtos = new ArrayList<>();
+    	if(movieReviews != null)
+    		for(MovieReview movieReview : movieReviews) if(movieReview != null) {
+    			MovieReviewDto movieReviewDto = convertMovieReviewToDto(movieReview);
+    			movieReviewDtos.add(movieReviewDto);
+    		}
+    	return movieReviewDtos;
     }
     
-    public MovieReview getMovieReviewOfUser(Long movieId, User user) throws EntityNotFoundException  {
+    public MovieReviewReference getMovieReviewOfUser(Long movieId) throws EntityNotFoundException  {
+		User user = tokenService.getCurretUser();
     	Movie movie = movieService.getMovieByID(movieId);
-    	return getMovieReviewFromMovieUser(movie, user);
+    	return convertMovieReviewToReference(getMovieReviewFromMovieUser(movie, user));
     }
     
-    public void addMovieReviewOfUser(MovieReviewDto movieReviewDto, User user) throws DtoValuesAreIncorrectException, EntityNotFoundException {
-    	checkForExceptionReviews(movieReviewDto);
-    	Movie movie = movieService.getMovieByID(movieReviewDto.getMovieId());
+    public void addMovieReviewOfUser(MovieReviewReference movieReviewRef, User user) throws DtoValuesAreIncorrectException, EntityNotFoundException {
+    	checkForExceptionReviews(movieReviewRef);
+    	Movie movie = movieService.getMovieByID(movieReviewRef.getMovieId());
     	MovieReview movieReview;
     	try {
 			movieReview = getMovieReviewFromMovieUser(movie, user);
@@ -69,13 +61,13 @@ public class MovieReviewService {
 			movieReview.setUser(user);
 			movieReview.setMovie(movie);
 		}
-    	getMovieReviewFromDto(movieReview, movieReviewDto);
+    	getMovieReviewFromDto(movieReview, movieReviewRef);
     	movieReviewRepository.save(movieReview);
     }
     
-    public void addMovieRatingOfUser(MovieReviewDto movieReviewDto, User user) throws DtoValuesAreIncorrectException, EntityNotFoundException {
-    	checkForExceptionRatings(movieReviewDto);
-    	Movie movie = movieService.getMovieByID(movieReviewDto.getMovieId());
+    public void addMovieRatingOfUser(MovieReviewReference movieReviewRef, User user) throws DtoValuesAreIncorrectException, EntityNotFoundException {
+    	checkForExceptionRatings(movieReviewRef);
+    	Movie movie = movieService.getMovieByID(movieReviewRef.getMovieId());
     	MovieReview movieReview;
     	try {
 			movieReview = getMovieReviewFromMovieUser(movie, user);
@@ -84,14 +76,15 @@ public class MovieReviewService {
 			movieReview.setUser(user);
 			movieReview.setMovie(movie);
 		}
-    	getMovieRatingFromDto(movieReview, movieReviewDto);
+    	getMovieRatingFromDto(movieReview, movieReviewRef);
     	movieReviewRepository.save(movieReview);
     }
     
     public Integer getMovieRatings(Long movieId) {
     	List<MovieReview> movieReviews;
 		try {
-			movieReviews = getAllReviewOfMovie(movieId);
+			Movie movie = movieService.getMovieByID(movieId);
+			movieReviews = getAllReviewOfMovies(movie);
 		} catch (EntityNotFoundException e) {
 			//if there are no reviews of the movie then we will return a null.
 			return null;
@@ -104,14 +97,38 @@ public class MovieReviewService {
     	return (int) (sum / size);
     }
     
-    private void getMovieRatingFromDto(MovieReview movieReview, MovieReviewDto movieReviewDto) {
-    	movieReview.setRating(movieReviewDto.getRating());
+    private List<MovieReview> getAllReviewOfMovies(Movie movie) throws EntityNotFoundException{
+    	return movieReviewRepository.findAllByMovie(movie)
+    			.orElseThrow(() -> new EntityNotFoundException("There are no reviews of the given movie"));
     }
     
-    private void getMovieReviewFromDto(MovieReview movieReview, MovieReviewDto movieReviewDto) {
-    	getMovieRatingFromDto(movieReview, movieReviewDto);
-    	movieReview.setReviewTitle(movieReviewDto.getReviewTitle());
-    	movieReview.setReview(movieReviewDto.getReview());
+    private MovieReviewDto convertMovieReviewToDto(MovieReview movieReview) {
+    	MovieReviewDto movieReviewDto = new MovieReviewDto();
+    	MovieReviewReference movieReviewRef = convertMovieReviewToReference(movieReview);
+    	movieReviewDto.setMovieReview(movieReviewRef);
+    	User user = movieReview.getUser();
+    	movieReviewDto.setUserName(user.getUsername());
+    	return movieReviewDto;
+    }
+    
+    private MovieReviewReference convertMovieReviewToReference(MovieReview movieReview) {
+    	MovieReviewReference movieReviewRef = new MovieReviewReference();
+    	movieReviewRef.setMovieId(movieReview.getMovie().getId());
+    	movieReviewRef.setReview(movieReview.getReview());
+    	movieReviewRef.setCreatedDate(movieReview.getCreatedDate());
+    	movieReviewRef.setReviewTitle(movieReview.getReviewTitle());
+    	movieReviewRef.setRating(movieReview.getRating());
+    	return movieReviewRef;
+    }
+    
+    private void getMovieRatingFromDto(MovieReview movieReview, MovieReviewReference movieReviewRef) {
+    	movieReview.setRating(movieReviewRef.getRating());
+    }
+    
+    private void getMovieReviewFromDto(MovieReview movieReview, MovieReviewReference movieReviewRef) {
+    	getMovieRatingFromDto(movieReview, movieReviewRef);
+    	movieReview.setReviewTitle(movieReviewRef.getReviewTitle());
+    	movieReview.setReview(movieReviewRef.getReview());
     }
     
 	private MovieReview getMovieReviewFromMovieUser(Movie movie, User user) throws EntityNotFoundException {
@@ -119,32 +136,32 @@ public class MovieReviewService {
     			.orElseThrow(() -> new EntityNotFoundException("The user did not review the movie"));
 	}
     
-	private void checkForExceptionRatings(MovieReviewDto movieReviewDto) throws DtoValuesAreIncorrectException {
+	private void checkForExceptionRatings(MovieReviewReference movieReviewRef) throws DtoValuesAreIncorrectException {
 		Map<String, String> map = new HashMap<>();
-		exceptionMapRatings(movieReviewDto, map);
+		exceptionMapRatings(movieReviewRef, map);
 		if(!map.isEmpty())
 			throw new DtoValuesAreIncorrectException(map);
 	}
 	
-	private void checkForExceptionReviews(MovieReviewDto movieReviewDto) throws DtoValuesAreIncorrectException {
+	private void checkForExceptionReviews(MovieReviewReference movieReviewRef) throws DtoValuesAreIncorrectException {
 		Map<String, String> map = new HashMap<>();
-		exceptionMapReview(movieReviewDto, map);
+		exceptionMapReview(movieReviewRef, map);
 		if(!map.isEmpty())
 			throw new DtoValuesAreIncorrectException(map);
 	}
 	
-	private void exceptionMapRatings(MovieReviewDto movieReviewDto, Map<String, String> map) {
-		Integer rating = movieReviewDto.getRating();
+	private void exceptionMapRatings(MovieReviewReference movieReviewRef, Map<String, String> map) {
+		Integer rating = movieReviewRef.getRating();
 		if(rating == null)
 			map.put(MovieReviewTypes.RATING.name(), "Required field, the user must rate the movie");
 		else if(rating <= 0 || rating > 100)
 			map.put(MovieReviewTypes.RATING.name(), "The rating number must be between 1-100");
 	}
 	
-	private void exceptionMapReview(MovieReviewDto movieReviewDto, Map<String, String> map) {
-		exceptionMapRatings(movieReviewDto, map);
-		String reviewTitle = movieReviewDto.getReviewTitle();
-		String review = movieReviewDto.getReview();
+	private void exceptionMapReview(MovieReviewReference movieReviewRef, Map<String, String> map) {
+		exceptionMapRatings(movieReviewRef, map);
+		String reviewTitle = movieReviewRef.getReviewTitle();
+		String review = movieReviewRef.getReview();
 		if(DataUtils.isBlank(reviewTitle))
 			map.put(MovieReviewTypes.TITLE.name(), "Required field, the title must be written");
 		else if(reviewTitle.length() > 255)

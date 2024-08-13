@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import backend.dto.cart.CartProductDto;
+import backend.dto.cart.CartProductReference;
+import backend.dto.mediaProduct.OrderDto;
 import backend.entities.Cart;
 import backend.entities.CartProduct;
 import backend.entities.Genre;
@@ -44,9 +45,8 @@ public class OrderController {
 	private TokenService tokenService;
 	
 	@GetMapping("/get/orders")
-	public List<Order> getUserOrders() {
-		User user = tokenService.getCurretUser();
-		return orderService.getUserOrders(user);
+	public List<OrderDto> getUserOrders() {
+		return orderService.getUserOrders();
     }
 	
 	@GetMapping("/place_order")

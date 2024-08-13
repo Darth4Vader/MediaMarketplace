@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import backend.dto.mediaProduct.MovieReviewDto;
-import backend.dto.mediaProduct.ProductDto;
+import backend.dto.mediaProduct.MovieReviewReference;
+import backend.dto.mediaProduct.ProductReference;
 import backend.entities.Movie;
 import backend.entities.MovieReview;
 import backend.entities.Product;
@@ -41,27 +42,26 @@ public class MovieReviewController {
 	
 	@GetMapping("/get_all")
 	@ResponseStatus(code = HttpStatus.OK)
-    public List<MovieReview> getAllReviewOfMovie(Long movieId) throws EntityNotFoundException {
+    public List<MovieReviewDto> getAllReviewOfMovie(Long movieId) throws EntityNotFoundException {
 		return movieReviewService.getAllReviewOfMovie(movieId);
     }
 	
 	@GetMapping("/get/{movieId}/{userId}")
 	@ResponseStatus(code = HttpStatus.OK)
-    public MovieReview getMovieReviewOfUser(Long movieId) throws EntityNotFoundException, UserNotLoggedInException  {
-		User user = tokenService.getCurretUser();
-		return movieReviewService.getMovieReviewOfUser(movieId, user);
+    public MovieReviewReference getMovieReviewOfUser(Long movieId) throws EntityNotFoundException, UserNotLoggedInException  {
+		return movieReviewService.getMovieReviewOfUser(movieId);
     }
 	
 	@GetMapping("/add_review/{movieId}/{userId}")
 	@ResponseStatus(code = HttpStatus.OK)
-    public void addMovieReviewOfUser(MovieReviewDto movieReviewDto) throws DtoValuesAreIncorrectException, EntityNotFoundException  {
+    public void addMovieReviewOfUser(MovieReviewReference movieReviewDto) throws DtoValuesAreIncorrectException, EntityNotFoundException  {
 		User user = tokenService.getCurretUser();
 		movieReviewService.addMovieReviewOfUser(movieReviewDto, user);
 	}
 	
 	@GetMapping("/add_ratings/{movieId}/{userId}")
 	@ResponseStatus(code = HttpStatus.OK)
-    public void addMovieRatingOfUser(MovieReviewDto movieReviewDto) throws DtoValuesAreIncorrectException, EntityNotFoundException  {
+    public void addMovieRatingOfUser(MovieReviewReference movieReviewDto) throws DtoValuesAreIncorrectException, EntityNotFoundException  {
 		User user = tokenService.getCurretUser();
 		movieReviewService.addMovieRatingOfUser(movieReviewDto, user);
     }

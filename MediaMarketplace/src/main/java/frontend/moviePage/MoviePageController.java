@@ -11,12 +11,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import backend.DataUtils;
+import backend.controllers.ActorController;
 import backend.controllers.CartController;
+import backend.controllers.DirectorController;
+import backend.controllers.MovieController;
 import backend.controllers.MoviePurchasedController;
 import backend.controllers.MovieReviewController;
 import backend.controllers.ProductController;
-import backend.dto.cart.CartProductDto;
+import backend.dto.cart.CartProductReference;
+import backend.dto.mediaProduct.ActorDto;
+import backend.dto.mediaProduct.DirectorDto;
+import backend.dto.mediaProduct.MovieDto;
+import backend.dto.mediaProduct.MoviePurchasedDto;
+import backend.dto.mediaProduct.MovieReference;
 import backend.dto.mediaProduct.MovieReviewDto;
+import backend.dto.mediaProduct.MovieReviewReference;
+import backend.dto.mediaProduct.ProductDto;
 import backend.entities.Actor;
 import backend.entities.Director;
 import backend.entities.Movie;
@@ -119,16 +129,25 @@ public class MoviePageController {
 	private HBox watchOptions;
 	
 	@FXML
-	private ListView<Director> directorsListView;
+	private ListView<DirectorDto> directorsListView;
 	
 	@FXML
-	private ListView<Actor> actorsListView;
+	private ListView<ActorDto> actorsListView;
 	
 	@FXML
-	private ListView<MovieReview> reviewsListView;
+	private ListView<MovieReviewDto> reviewsListView;
+	
+	@Autowired
+	private MovieController movieController;
 	
 	@Autowired
 	private ProductController productController;
+	
+	@Autowired
+	private DirectorController directorController;
+	
+	@Autowired
+	private ActorController actorsController;
 	
 	@Autowired
 	private MoviePurchasedController moviePurchasedController;
@@ -139,15 +158,15 @@ public class MoviePageController {
 	@Autowired
 	private MovieReviewController movieReviewController;
 	
-	private Movie movie;
+	private MovieDto movie;
 	
 	private Timeline remainingRentTime;
 	
-	private ObservableList<Director> directorsList;
+	private ObservableList<DirectorDto> directorsList;
 	
-	private ObservableList<Actor> actorsList;
+	private ObservableList<ActorDto> actorsList;
 	
-	private ObservableList<MovieReview> movieReviewsList;
+	private ObservableList<MovieReviewDto> movieReviewsList;
 	
 	private boolean notFirstTimeInsidePage;
 	
@@ -155,13 +174,13 @@ public class MoviePageController {
 	private void initialize() {
 		this.notFirstTimeInsidePage = false;
 		directorsList = FXCollections.observableArrayList();
-		directorsListView.setCellFactory(x -> new PersonCell<Director>());
+		directorsListView.setCellFactory(x -> new PersonCell<DirectorDto>());
 		directorsListView.setItems(directorsList);
 		directorsListView.setSelectionModel(null);
 		directorsListView.prefHeightProperty().bind(mainPane.heightProperty().multiply(0.3).add(80));
 		
 		actorsList = FXCollections.observableArrayList();
-		actorsListView.setCellFactory(x ->  new PersonCell<Actor>());
+		actorsListView.setCellFactory(x ->  new PersonCell<ActorDto>());
 		actorsListView.setItems(actorsList);
 		actorsListView.setSelectionModel(null);
 		actorsListView.prefHeightProperty().bind(mainPane.heightProperty().multiply(0.3).add(80));
@@ -173,12 +192,22 @@ public class MoviePageController {
 		reviewsListView.prefHeightProperty().bind(mainPane.heightProperty().multiply(0.4));
 	}
 	
+	public void initializeMovie(MovieReference movieReference) {
+		try {
+			MovieDto movie = movieController.getMovie(movieReference.getId());
+			initializeMovie(movie);
+		} catch (EntityNotFoundException e) {
+			//if there is a problem with loading the movie page, then we will will notify the user
+			AppUtils.alertOfError("Loading Movie Error", e.getMessage());
+		}
+	}
+	
 	/**
 	 * Initializes the movie pane
 	 * @param movie the movie to use
 	 * @throws MalformedURLException
 	 */
-	public void initializeMovie(Movie movie) {
+	public void initializeMovie(MovieDto movie) {
 		if(this.movie == movie)
 			this.notFirstTimeInsidePage = true;
 		else
@@ -187,7 +216,7 @@ public class MoviePageController {
 		addPurchaseButtons();
 		ratingButton.getChildren().clear();
 		try {
-			MovieReview moviewReview = movieReviewController.getMovieReviewOfUser(movie.getId());
+			MovieReviewReference moviewReview = movieReviewController.getMovieReviewOfUser(movie.getId());
 			ratingButton.getChildren().addAll(MoviePageUtils.getUserRating(moviewReview));
 			ratingButton.getChildren().add(new Text("  Your Rating"));
 		} catch (EntityNotFoundException|UserNotLoggedInException e) {
@@ -232,25 +261,37 @@ public class MoviePageController {
 			int minutes = runtime - hours*60;
 			rutimeLbl.setText(""+hours+"h "+minutes+"m");			
 		}
-		directorsList.clear();
-		List<Director> directors = movie.getDirectors();
-		if(directors != null) {
-			directorsList.setAll(directors);
-		}
-		actorsList.clear();
-		List<Actor> actors = movie.getActorsRoles();
-		if(actors != null) {
-			actorsList.setAll(actors);
-		}
-		movieReviewsList.clear();
+		Long movieId = movie.getId();
 		try {
-			List<MovieReview> reviews = movieReviewController.getAllReviewOfMovie(movie.getId());
+			directorsList.clear();
+			List<DirectorDto> directors = directorController.getDirectorsOfMovie(movieId);
+			if(directors != null) {
+				directorsList.setAll(directors);
+			}
+		}
+		catch (EntityNotFoundException e) {
+			//if there is a problem with loading the movie, and there shouldn't be one, then we won't load the directors
+		}
+		try {
+			actorsList.clear();
+			List<ActorDto> actors = actorsController.getActorsOfMovie(movieId);
+			if(actors != null) {
+				actorsList.setAll(actors);
+			}
+		}
+		catch (EntityNotFoundException e) {
+			//if there is a problem with loading the movie, and there shouldn't be one, then we won't load the actors
+		}
+		try {
+			movieReviewsList.clear();
+			List<MovieReviewDto> reviews = movieReviewController.getAllReviewOfMovie(movie.getId());
 			if(reviews != null && !reviews.isEmpty()) {
 				Integer ratingNumber = movieReviewController.getMovieRatings(movie.getId());
 				if(ratingNumber != null)
 					movieRatingNumberLbl.setText(""+ratingNumber);
-				for(MovieReview review : reviews) {
-					if(DataUtils.isNotBlank(review.getReviewTitle())) {
+				for(MovieReviewDto review : reviews) {
+					MovieReviewReference movieReviewReference = review.getMovieReview();
+					if(movieReviewReference != null && DataUtils.isNotBlank(movieReviewReference.getReviewTitle())) {
 						movieReviewsList.add(review);	
 					}
 				}
@@ -268,15 +309,15 @@ public class MoviePageController {
 		productOptions.getChildren().clear();
 		try {
 			LocalDateTime currentRentTime = null;
-			List<MoviePurchased> purchasedLists = moviePurchasedController.getActiveListUserMovie(movie.getId());
-			for(MoviePurchased purchased : purchasedLists) {
+			List<MoviePurchasedDto> purchasedLists = moviePurchasedController.getActiveListUserMovie(movie.getId());
+			for(MoviePurchasedDto purchased : purchasedLists) {
 				if(!purchased.isRented()) {
 					isPurchased = true;
 					break;
 				}
 				else {
 					isRented = true;
-					currentRentTime = purchased.getCurrentRentTime();
+					currentRentTime = purchased.getRentTimeSincePurchase();
 				}
 			}
 			if(isPurchased || isRented) {
@@ -303,8 +344,8 @@ public class MoviePageController {
 			//Can be if the user is not logged in, let him watch, but he can't buy as a guest
 		}
 		if(!isPurchased) try {
-			Product product = productController.getProductByMovieId(movie.getId());
-			Button buyBtn = new Button("Buy for: " + product.calculatePrice(true));
+			ProductDto product = productController.getProductOfMovie(movie.getId());
+			Button buyBtn = new Button("Buy for: " + product.getFinalBuyPrice());
 			buyBtn.setWrapText(true);
 			buyBtn.setOnAction(e -> {
 				addToCart(product, true);
@@ -312,7 +353,7 @@ public class MoviePageController {
 			buyBtn.setMaxWidth(Double.MAX_VALUE);
 			productOptions.getChildren().add(buyBtn);
 			if(!isRented) {
-				Button rentBtn = new Button("Rent for: " + product.calculatePrice(false));
+				Button rentBtn = new Button("Rent for: " + product.getFinalRentPrice());
 				rentBtn.setWrapText(true);
 				rentBtn.setOnAction(e -> {
 					addToCart(product, false);
@@ -364,8 +405,8 @@ public class MoviePageController {
         remainingRentTime.play();
 	}
 	
-	private void addToCart(Product product, boolean isBuying) {
-		CartProductDto dto = new CartProductDto();
+	private void addToCart(ProductDto product, boolean isBuying) {
+		CartProductReference dto = new CartProductReference();
 		dto.setProductId(product.getId());
 		dto.setBuying(isBuying);
 		try {
@@ -403,7 +444,7 @@ public class MoviePageController {
 			Integer ratings = null;
 			String reviewTitle = "", reviewContent = "";
 			try {
-				MovieReview moviewReview = movieReviewController.getMovieReviewOfUser(movie.getId());
+				MovieReviewReference moviewReview = movieReviewController.getMovieReviewOfUser(movie.getId());
 				ratings = moviewReview.getRating();
 				reviewTitle = moviewReview.getReviewTitle();
 				reviewContent = moviewReview.getReview();
@@ -441,7 +482,7 @@ public class MoviePageController {
 			box.getChildren().addAll(addBtn);
 			Scene scene = new Scene(box);
 			addBtn.setOnAction(e -> {
-				MovieReviewDto movieReviewDto = new MovieReviewDto();
+				MovieReviewReference movieReviewDto = new MovieReviewReference();
 				movieReviewDto.setMovieId(movie.getId());
 				movieReviewDto.setRating(DataUtils.getIntegerNumber(ratingsField.getText()));
 				try {

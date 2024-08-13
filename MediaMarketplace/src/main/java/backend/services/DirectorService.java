@@ -1,6 +1,7 @@
 package backend.services;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,7 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import backend.auth.AuthenticateAdmin;
-import backend.dto.mediaProduct.ActorDto;
+import backend.dto.input.RefActorDto;
+import backend.dto.input.RefDirectorDto;
 import backend.dto.mediaProduct.DirectorDto;
 import backend.dto.mediaProduct.MovieDto;
 import backend.entities.Actor;
@@ -41,15 +43,29 @@ public class DirectorService {
     @Autowired
     private MovieService movieService;
     
-    //a non log user can get this information
+    /*//a non log user can get this information
     public List<Director> getAllDirectors() {
     	return directorRepository.findAll();
+    }*/
+    
+    //a non log user can get this information
+    public List<DirectorDto> getDirectorsOfMovie(Long movieId) throws EntityNotFoundException {
+    	Movie movie = movieService.getMovieByID(movieId);
+    	List<Director> directors = movie.getDirectors();
+    	List<DirectorDto> directorsDto = new ArrayList<>();
+    	if(directors != null) for(Director director : directors) {
+    		DirectorDto directorDto = new DirectorDto();
+    		directorDto.setMovieId(movieId);
+    		directorDto.setPerson(PersonService.convertPersonToDto(director.getPerson()));
+    		directorsDto.add(directorDto);
+    	}
+    	return directorsDto;
     }
     
     //only an admin can add a director to the database
     @AuthenticateAdmin
     @Transactional
-    public void addDirector(DirectorDto directorDto) throws EntityNotFoundException, EntityAlreadyExistsException {
+    public void addDirector(RefDirectorDto directorDto) throws EntityNotFoundException, EntityAlreadyExistsException {
     	Person person = personService.getPersonByNameID(directorDto.getPersonMediaID());
     	Movie movie = movieService.getMovieByNameID(directorDto.getMovieMediaId());
     	try {
@@ -68,7 +84,7 @@ public class DirectorService {
     //only an admin can remove a director from the database
     @AuthenticateAdmin
     @Transactional
-    public void removeDirector(DirectorDto directorDto) throws EntityNotFoundException {
+    public void removeDirector(RefDirectorDto directorDto) throws EntityNotFoundException {
     	Person person = personService.getPersonByNameID(directorDto.getPersonMediaID());
     	Movie movie = movieService.getMovieByNameID(directorDto.getMovieMediaId());
     	Director director = getDirectorByMovie(movie.getId(), person.getId());
@@ -81,8 +97,8 @@ public class DirectorService {
     @AuthenticateAdmin
     @Transactional
     public void removeAllDirectorsFromMovie(MovieDto movieDto) throws EntityNotFoundException {
-    	String mediaID = movieDto.getMediaID();
-    	Movie movie = movieService.getMovieByNameID(mediaID);
+    	Long movieId = movieDto.getId();
+    	Movie movie = movieService.getMovieByID(movieId);
     	List<Director> directors = movie.getDirectors();
 		if(directors != null) for(Director director : directors) {
 			removeDirector(movie, director);

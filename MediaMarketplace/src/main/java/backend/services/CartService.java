@@ -1,6 +1,7 @@
 package backend.services;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -15,7 +16,10 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import backend.dto.cart.CartDto;
 import backend.dto.cart.CartProductDto;
+import backend.dto.cart.CartProductReference;
+import backend.dto.mediaProduct.ProductDto;
 import backend.entities.Cart;
 import backend.entities.CartProduct;
 import backend.entities.Genre;
@@ -42,13 +46,41 @@ public class CartService {
     @Autowired
     private ProductService productService;
     
+	@Autowired
+	private TokenService tokenService;
+    
+    public CartDto getCart() {
+    	User user = tokenService.getCurretUser();
+    	Cart cart = getUserCart(user);
+    	CartDto cartDto = new CartDto();
+    	List<CartProduct> cartProducts = cart.getCartProducts();
+    	List<CartProductDto> cartProductsDtos = new ArrayList<>();
+		double totalPrice = 0;
+    	if(cartProducts != null) 
+    		for(CartProduct cartProduct : cartProducts) if(cartProduct != null) {
+    			CartProductDto cartProductDto = new CartProductDto();
+    			Product product = cartProduct.getProduct();
+    			ProductDto productDto = ProductService.convertProductToDto(product);
+    			cartProductDto.setProduct(productDto);
+    			boolean isBuy = cartProduct.isBuying();
+    			cartProductDto.setBuying(isBuy);
+    			double price = calculateCartProductPrice(product, isBuy);
+    			cartProductDto.setPrice(price);
+    			totalPrice += price;
+    			cartProductsDtos.add(cartProductDto);
+    		}
+    	cartDto.setCartProducts(cartProductsDtos);
+    	cartDto.setTotalPrice(totalPrice);
+    	return cartDto;
+    }
+    
     public List<CartProduct> getCartProducts(User user) {
     	Cart cart = getUserCart(user);
     	return cart.getCartProducts();
     }
     
     @Transactional
-    public void addProductToCart(CartProductDto dto, User user) throws EntityNotFoundException, EntityAlreadyExistsException {
+    public void addProductToCart(CartProductReference dto, User user) throws EntityNotFoundException, EntityAlreadyExistsException {
     	Product product = productService.getProductByID(dto.getProductId());
     	Cart cart = getUserCart(user);
     	System.out.println("I am here");
@@ -73,14 +105,14 @@ public class CartService {
     }
     
     @Transactional
-    public void removeProductFromCart(CartProductDto dto, User user) throws EntityNotFoundException {
+    public void removeProductFromCart(CartProductReference dto, User user) throws EntityNotFoundException {
     	Product product = productService.getProductByID(dto.getProductId());
     	Cart cart = getUserCart(user);
     	removeProductFromCart(cart, product);
     }
     
     @Transactional
-    public void removeProductFromCart(Cart cart, Product product) throws EntityNotFoundException {
+    private void removeProductFromCart(Cart cart, Product product) throws EntityNotFoundException {
     	List<CartProduct> cartProducts = cart.getCartProducts();
     	for(CartProduct cartProduct : cartProducts) {
     		if(cartProduct.getProduct().equals(product)) {
@@ -120,7 +152,7 @@ public class CartService {
     	}
     }*/
     
-    private CartProduct getProductInCart(Cart cart, Product product, CartProductDto dto) throws EntityAlreadyExistsException {
+    private CartProduct getProductInCart(Cart cart, Product product, CartProductReference dto) throws EntityAlreadyExistsException {
     	List<CartProduct> cartProducts = cart.getCartProducts();
     	System.out.println(cartProducts);
     	System.out.println(product.getId());
@@ -148,5 +180,11 @@ public class CartService {
     	cartRepository.save(cart);
     	return cart;
     }
+    
+	public static double calculateCartProductPrice(Product product, boolean isBuy) {
+		if(isBuy)
+			return ProductService.calculateBuyPrice(product);
+		return ProductService.calculateRentPrice(product);
+	}
     
 }

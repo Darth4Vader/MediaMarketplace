@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import backend.dto.mediaProduct.ProductDto;
+import backend.dto.mediaProduct.ProductReference;
 import backend.entities.Movie;
 import backend.entities.Product;
 import backend.entities.User;
@@ -32,25 +33,30 @@ public class ProductController {
 	
 	@GetMapping("/")
 	@ResponseStatus(code = HttpStatus.OK)
-    public List<Product> getAllProducts() {
-        List<Product> body = productService.getAllProduct();
+    public List<ProductDto> getAllProducts() {
+        List<ProductDto> body = productService.getAllProducts();
         return body;
     }
 	
 	@GetMapping("/add")
-    public Long addProduct(@Valid @RequestBody ProductDto productDto) throws EntityNotFoundException {
+    public Long addProduct(@Valid @RequestBody ProductReference productDto) throws EntityNotFoundException {
 		return productService.addProduct(productDto);
         //return new ResponseEntity<>("Created Successfully", HttpStatus.OK);
     }
 	
 	@GetMapping("/update")
-    public ResponseEntity<String> updateProduct(@Valid @RequestBody ProductDto productDto) throws EntityNotFoundException {
+    public ResponseEntity<String> updateProduct(@Valid @RequestBody ProductReference productDto) throws EntityNotFoundException {
 		productService.updateProduct(productDto);
         return new ResponseEntity<>("Created Successfully", HttpStatus.OK);
     }
 	
 	@GetMapping("/get/{movieId}")
-    public Product getProductByMovieId(Long movieId) throws EntityNotFoundException {
-		return productService.getProductByMovieId(movieId);
+    public ProductDto getProductOfMovie(Long movieId) throws EntityNotFoundException {
+		return productService.getProductOfMovie(movieId);
+    }
+	
+	@GetMapping("/get_reference/{movieId}")
+    public ProductReference getProductReferenceOfMovie(Long movieId) throws EntityNotFoundException {
+		return productService.getProductReferenceOfMovie(movieId);
     }
 }

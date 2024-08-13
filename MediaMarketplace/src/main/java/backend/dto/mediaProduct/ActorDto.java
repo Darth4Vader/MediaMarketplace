@@ -1,61 +1,37 @@
 package backend.dto.mediaProduct;
 
-import org.springframework.lang.NonNull;
-
-import backend.entities.Movie;
-import backend.entities.Person;
-import jakarta.annotation.Nonnull;
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.validation.constraints.NotBlank;
-
 public class ActorDto {
 	
-	@NotBlank
-	private String personMediaID;
-	
-	@NotBlank
+	private Long movieId;
+	private PersonDto person;
 	private String roleName;
-	
-	@Nonnull
-	private String movieMediaId;
-	
-	@Nonnull
-	private Long personId;
 
-	public String getPersonMediaID() {
-		return personMediaID;
+	public ActorDto() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	public Long getMovieId() {
+		return movieId;
+	}
+
+	public PersonDto getPerson() {
+		return person;
+	}
+
+	public void setMovieId(Long movieId) {
+		this.movieId = movieId;
+	}
+
+	public void setPerson(PersonDto person) {
+		this.person = person;
 	}
 
 	public String getRoleName() {
 		return roleName;
 	}
 
-	public String getMovieMediaId() {
-		return movieMediaId;
-	}
-
-	public Long getPersonId() {
-		return personId;
-	}
-
-	public void setPersonMediaID(String personMediaID) {
-		this.personMediaID = personMediaID;
-	}
-
 	public void setRoleName(String roleName) {
 		this.roleName = roleName;
 	}
 
-	public void setMovieMediaId(String movieMediaId) {
-		this.movieMediaId = movieMediaId;
-	}
-
-	public void setPersonId(Long personId) {
-		this.personId = personId;
-	}
 }

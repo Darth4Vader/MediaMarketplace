@@ -7,7 +7,9 @@ import org.springframework.stereotype.Component;
 
 import backend.controllers.CartController;
 import backend.controllers.OrderController;
+import backend.dto.cart.CartDto;
 import backend.dto.cart.CartProductDto;
+import backend.dto.cart.CartProductReference;
 import backend.entities.CartProduct;
 import backend.entities.Order;
 import backend.exceptions.EntityNotFoundException;
@@ -33,7 +35,7 @@ public class CartPageController {
 	VBox mainPane;
 	
 	@FXML
-	private ListView<CartProduct> cartItems;
+	private ListView<CartProductDto> cartItems;
 	
 	@FXML
 	private Label emptyLabel;
@@ -53,7 +55,7 @@ public class CartPageController {
 	@Autowired
 	private OrderController orderController;
 	
-	private ObservableList<CartProduct> cartProducts;
+	private ObservableList<CartProductDto> cartProducts;
 	
 	@FXML
 	private void initialize() {
@@ -79,8 +81,8 @@ public class CartPageController {
 		refreshCart();
 	}
 	
-	public void removeProductFromCart(CartProduct cartProduct) {
-		CartProductDto dto = new CartProductDto();
+	public void removeProductFromCart(CartProductDto cartProduct) {
+		CartProductReference dto = new CartProductReference();
 		dto.setProductId(cartProduct.getProduct().getId());
 		try {
 			cartController.removeProductFromCart(dto);
@@ -89,25 +91,37 @@ public class CartPageController {
 			//but we will remove in case of a glitch, to avoid problems. 
 		}
 		cartProducts.remove(cartProduct);
-		refreshTotalPrice();
+		refreshCart();
 	}
 	
 	private void refreshCart() {
+		cartProducts.clear();
+		CartDto cart = cartController.getCart();
+		List<CartProductDto> resp = cart.getCartProducts();
+		if(resp != null) {
+			cartProducts.setAll(resp);
+		}
+		double totalPrice = 0;
+		itemsNumberText.setText(""+cartProducts.size());
+		totalPriceText.setText(""+cart.getTotalPrice());
+	}	
+	
+	/*private void refreshCart() {
 		cartProducts.clear();
 		List<CartProduct> resp = cartController.getCartProducts();
 		if(resp != null) {
 			cartProducts.setAll(resp);
 		}
 		refreshTotalPrice();
-	}
+	}*/
 	
-	public void refreshTotalPrice() {
+	/*public void refreshTotalPrice() {
 		double totalPrice = 0;
 		itemsNumberText.setText(""+cartProducts.size());
 		for(CartProduct cartProduct : cartProducts)
 			totalPrice += cartProduct.getPrice();
 		totalPriceText.setText(""+totalPrice);
-	}
+	}*/
 	
 	@FXML
 	private void purchaseCart() {

@@ -3,6 +3,7 @@ package frontend.moviePage;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+import backend.dto.mediaProduct.MovieReviewReference;
 import backend.entities.MovieReview;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -22,7 +23,7 @@ public class MoviePageUtils {
 		return textFlowPane;
 	}
 	
-	public static TextFlow getUserRating(MovieReview review) {
+	public static TextFlow getUserRating(MovieReviewReference review) {
 		return getUserRating(new Text(" "+review.getRating()));
 	}
 	

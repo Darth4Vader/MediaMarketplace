@@ -12,7 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import backend.auth.AuthenticateAdmin;
+import backend.dto.mediaProduct.CreateMovieDto;
 import backend.dto.mediaProduct.MovieDto;
+import backend.dto.mediaProduct.MovieReference;
 import backend.entities.Movie;
 import backend.entities.User;
 import backend.exceptions.EntityAlreadyExistsException;
@@ -30,21 +33,31 @@ public class MovieController {
 	
 	@GetMapping("/")
 	@ResponseStatus(code = HttpStatus.OK)
-    public List<Movie> getAllMovies() {
-        List<Movie> body = movieService.getAllMovies();
+    public List<MovieReference> getAllMovies() {
+        List<MovieReference> body = movieService.getAllMovies();
         return body;
         //return new ResponseEntity<>(body, HttpStatus.OK);
     }
 	
+	@GetMapping("/get/{movieId}")
+    public  MovieDto getMovie(@PathVariable Long movieId) throws EntityNotFoundException {
+		return movieService.getMovie(movieId);
+    }
+	
 	@GetMapping("/add")
-    public ResponseEntity<String> addMovie(@Valid @RequestBody MovieDto movieDto) throws EntityAlreadyExistsException, EntityNotFoundException {
-		movieService.addMovie(movieDto);
+    public ResponseEntity<String> addMovie(@Valid @RequestBody CreateMovieDto createMovieDto) throws EntityAlreadyExistsException, EntityNotFoundException {
+		movieService.addMovie(createMovieDto);
         return new ResponseEntity<>("Created Successfully", HttpStatus.OK);
     }
 	
 	@GetMapping("/update")
-    public  ResponseEntity<String> updateMovie(@Valid @RequestBody MovieDto movieDto) throws EntityNotFoundException {
-		movieService.updateMovie(movieDto);
+    public  ResponseEntity<String> updateMovie(@Valid @RequestBody CreateMovieDto createMovieDto) throws EntityNotFoundException {
+		movieService.updateMovie(createMovieDto);
 		return new ResponseEntity<>("Created Successfully", HttpStatus.OK);
+    }
+	
+	@GetMapping("/get/{movieId}/mediaId")
+    public String getMovieMediaID(Long movieId) throws EntityNotFoundException {
+		return movieService.getMovieMediaID(movieId);
     }
 }

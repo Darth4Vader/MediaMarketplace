@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import backend.dto.input.RefActorDto;
+import backend.dto.input.RefDirectorDto;
 import backend.dto.mediaProduct.ActorDto;
 import backend.dto.mediaProduct.DirectorDto;
 import backend.dto.mediaProduct.MovieDto;
@@ -34,19 +36,24 @@ public class ActorController {
 	@Autowired
 	private ActorService actorService; 
 	
-	@GetMapping("/")
+	/*@GetMapping("/")
     public List<Actor> getAllActors() {
 		return actorService.getAllActors();
+    }*/
+	
+	@GetMapping("/get/{movieId}")
+    public List<ActorDto> getActorsOfMovie(@PathVariable Long movieId) throws EntityNotFoundException {
+		return actorService.getActorsOfMovie(movieId);
     }
 	
 	@GetMapping("/add")
-    public ResponseEntity<String> addActor(@Valid @RequestBody ActorDto actorDto) throws EntityNotFoundException, EntityAlreadyExistsException {
+    public ResponseEntity<String> addActor(@Valid @RequestBody RefActorDto actorDto) throws EntityNotFoundException, EntityAlreadyExistsException {
 		actorService.addActorRole(actorDto);
         return new ResponseEntity<>("Created Successfully", HttpStatus.OK);
 	}
 	
 	@GetMapping("/remove")
-    public ResponseEntity<String> removeActor(@Valid @RequestBody ActorDto actorDto) throws EntityNotFoundException {
+    public ResponseEntity<String> removeActor(@Valid @RequestBody RefActorDto actorDto) throws EntityNotFoundException {
 		actorService.removeActor(actorDto);
         return new ResponseEntity<>("Created Successfully", HttpStatus.OK);
 	}

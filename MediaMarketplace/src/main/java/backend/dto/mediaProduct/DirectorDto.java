@@ -1,41 +1,28 @@
 package backend.dto.mediaProduct;
 
-import jakarta.annotation.Nonnull;
-import jakarta.validation.constraints.NotBlank;
-
 public class DirectorDto {
+
+	private Long movieId;
+	private PersonDto person;
 	
-	@NotBlank
-	private String personMediaID;
-	
-	@Nonnull
-	private String movieMediaId;
-	
-	@Nonnull
-	private Long personId;
-
-	public String getPersonMediaID() {
-		return personMediaID;
+	public DirectorDto() {
+		// TODO Auto-generated constructor stub
 	}
 
-	public String getMovieMediaId() {
-		return movieMediaId;
+	public Long getMovieId() {
+		return movieId;
 	}
 
-	public Long getPersonId() {
-		return personId;
+	public PersonDto getPerson() {
+		return person;
 	}
 
-	public void setPersonMediaID(String personMediaID) {
-		this.personMediaID = personMediaID;
+	public void setMovieId(Long movieId) {
+		this.movieId = movieId;
 	}
 
-	public void setMovieMediaId(String movieMediaId) {
-		this.movieMediaId = movieMediaId;
-	}
-
-	public void setPersonId(Long personId) {
-		this.personId = personId;
+	public void setPerson(PersonDto person) {
+		this.person = person;
 	}
 
 }

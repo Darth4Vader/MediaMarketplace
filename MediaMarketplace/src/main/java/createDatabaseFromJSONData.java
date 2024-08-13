@@ -31,10 +31,10 @@ import backend.controllers.MovieController;
 import backend.controllers.PersonController;
 import backend.controllers.ProductController;
 import backend.controllers.UserAuthenticateController;
-import backend.dto.mediaProduct.ActorDto;
+import backend.dto.input.RefActorDto;
 import backend.dto.mediaProduct.MovieDto;
 import backend.dto.mediaProduct.PersonDto;
-import backend.dto.mediaProduct.ProductDto;
+import backend.dto.mediaProduct.ProductReference;
 import backend.dto.users.LogInDto;
 import backend.dto.users.LogInResponseDto;
 import backend.entities.Director;
@@ -143,7 +143,7 @@ public class createDatabaseFromJSONData {
 		System.out.println(auth.getAuthorities());
 		
 		
-		MovieController genreRep = context.getBean(MovieController.class);
+		/*MovieController genreRep = context.getBean(MovieController.class);
 		for(backend.entities.Movie movie : genreRep.getAllMovies()) {
 			if(movie.getName().contains("Inception")) {
 				System.out.println(movie.getName());
@@ -154,7 +154,7 @@ public class createDatabaseFromJSONData {
 			if(directors != null && directors.size() > 0) {
 				Director director = directors.get(0);
 			}*/
-		}
+		//}
 		
 		/*for(Person person : genreRep.getAllPeople()) {
 			genreRep.removePerson(person.getId());
@@ -302,6 +302,7 @@ public class createDatabaseFromJSONData {
 		}
 	}
 	
+	/*
 	public static void addMovies() throws IOException {
 		MovieController movieController = context.getBean(MovieController.class);
 		ActorController actorController = context.getBean(ActorController.class);
@@ -312,11 +313,11 @@ public class createDatabaseFromJSONData {
 	        mediaDto.setSynopsis(movie.getSynopsis());
 	        mediaDto.setPosterPath("posters/"+movie.getImdbID()+".jpg");
 	        //mediaDto.setPrice(mediaDto.getPrice());
-	        mediaDto.setMediaName(movie.getName());
+	        mediaDto.setName(movie.getName());
 	        mediaDto.setGenres(movie.getGenres());
 	        
 	        List<Actor> actors = movie.getMainCast();
-	        List<ActorDto> actorsList = new ArrayList<>();
+	        List<RefActorDto> actorsList = new ArrayList<>();
 	        //mediaDto.setActors(actorsList);
 	        //mediaDto.setPrice("10");
 	        try {
@@ -333,7 +334,7 @@ public class createDatabaseFromJSONData {
 			}
 	        try {
 		        if(actors != null) for(Actor actor : actors) {
-		        	ActorDto actorDto = new ActorDto();
+		        	RefActorDto actorDto = new RefActorDto();
 		        	actorDto.setRoleName(actor.getRole());
 		        	actorDto.setPersonMediaID(actor.getImdbID());
 		        	actorDto.setMovieMediaId(movie.getTmdbID());
@@ -353,7 +354,7 @@ public class createDatabaseFromJSONData {
 		MovieController movieController = context.getBean(MovieController.class);
 		ProductController productController = context.getBean(ProductController.class);
 		for(backend.entities.Movie movie : movieController.getAllMovies()) {
-	        ProductDto productDto = new ProductDto();
+	        ProductReference productDto = new ProductReference();
 	        productDto.setBuyPrice(0);
 	        productDto.setRentPrice(0);
 	        productDto.setMovieId(movie.getId());
@@ -365,6 +366,7 @@ public class createDatabaseFromJSONData {
 			}
 		}
 	}
+	*/
 	
 	public static final String ANSI_RESET = "\u001B[0m";
 	public static final String ANSI_BLACK = "\u001B[30m";

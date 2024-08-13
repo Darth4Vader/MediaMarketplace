@@ -11,10 +11,10 @@ import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 
 public class MovieDto {
-
-	private String tmdbID;
 	
-	private String mediaName;
+	private Long id;
+	
+	private String name;
 	
 	private String posterPath;
 	
@@ -26,34 +26,12 @@ public class MovieDto {
 	
 	private String synopsis;
 	
-	private int year;
+	private Integer year;
 	
 	private LocalDate releaseDate;
-	
-	/*private List<DirectorDto> directrs;
-	
-	private List<ActorDto> actors;*/
 
-	public MovieDto() {
-		
-	}
-	
-	public MovieDto(String tmdbID, String mediaName, String imagePath, double price, List<String> genres,
-			String synopsis) {
-		super();
-		this.tmdbID = tmdbID;
-		this.mediaName = mediaName;
-		this.posterPath = imagePath;
-		this.genres = genres;
-		this.synopsis = synopsis;
-	}
-
-	public String getMediaID() {
-		return tmdbID;
-	}
-
-	public String getMediaName() {
-		return mediaName;
+	public String getName() {
+		return name;
 	}
 
 	public String getPosterPath() {
@@ -64,12 +42,8 @@ public class MovieDto {
 		return genres;
 	}
 
-	public void setMediaID(String movieID) {
-		this.tmdbID = movieID;
-	}
-
-	public void setMediaName(String mediaName) {
-		this.mediaName = mediaName;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public void setPosterPath(String posterPath) {
@@ -88,7 +62,7 @@ public class MovieDto {
 		this.genres = genres;
 	}
 
-	public int getYear() {
+	public Integer getYear() {
 		return year;
 	}
 
@@ -96,7 +70,7 @@ public class MovieDto {
 		return releaseDate;
 	}
 
-	public void setYear(int year) {
+	public void setYear(Integer year) {
 		this.year = year;
 	}
 
@@ -120,20 +94,11 @@ public class MovieDto {
 		this.runtime = runtime;
 	}
 
-	/*public List<DirectorDto> getDirectrs() {
-		return directrs;
+	public Long getId() {
+		return id;
 	}
 
-	public List<ActorDto> getActors() {
-		return actors;
+	public void setId(Long id) {
+		this.id = id;
 	}
-
-	public void setDirectrs(List<DirectorDto> directrs) {
-		this.directrs = directrs;
-	}
-
-	public void setActors(List<ActorDto> actors) {
-		this.actors = actors;
-	}*/
-
 }

@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import backend.dto.cart.CartProductDto;
+import backend.dto.cart.CartDto;
+import backend.dto.cart.CartProductReference;
 import backend.entities.Cart;
 import backend.entities.CartProduct;
 import backend.entities.Genre;
@@ -36,14 +37,19 @@ public class CartController {
 	@Autowired
 	private TokenService tokenService;
 	
-	@GetMapping("/get/cart_products")
+	@GetMapping("/get")
+	public CartDto getCart() {
+		return cartService.getCart();
+    }
+	
+	/*@GetMapping("/get/cart_products")
 	public List<CartProduct> getCartProducts() {
 		User user = tokenService.getCurretUser();
 		return cartService.getCartProducts(user);
-    }
+    }*/
 	
 	@GetMapping("/add")
-    public ResponseEntity<String> addProductToCart(CartProductDto dto) throws EntityNotFoundException, EntityAlreadyExistsException  {
+    public ResponseEntity<String> addProductToCart(CartProductReference dto) throws EntityNotFoundException, EntityAlreadyExistsException  {
 		//String userName = tokenService.getCurrentUserName(token);
 		//User user = userService.getUserByUserName(userName);
 		User user = tokenService.getCurretUser();
@@ -53,7 +59,7 @@ public class CartController {
     }
 	
 	@GetMapping("/remove")
-    public ResponseEntity<String> removeProductFromCart(CartProductDto dto) throws EntityNotFoundException {
+    public ResponseEntity<String> removeProductFromCart(CartProductReference dto) throws EntityNotFoundException {
 		//String userName = tokenService.getCurrentUserName(token);
 		//User user = userService.getUserByUserName(userName);
 		User user = tokenService.getCurretUser();

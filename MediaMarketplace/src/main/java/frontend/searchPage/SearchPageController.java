@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 
 import backend.DataUtils;
 import backend.controllers.GenreController;
+import backend.dto.mediaProduct.MovieDto;
+import backend.dto.mediaProduct.MovieReference;
 import backend.entities.Genre;
 import backend.entities.Movie;
 import frontend.searchPage.utils.SearchUtils;
@@ -169,7 +171,7 @@ public class SearchPageController {
 	}
 	
 	private void searchMovies(SortDto sortDto) {
-		List<Movie> searchList = SearchUtils.searchMoviesSort(sortDto);
+		List<MovieReference> searchList = SearchUtils.searchMoviesSort(sortDto);
 		AppUtils.UpdatelistViewAsGridPage(movieResultPane, searchList);
 	}
 	

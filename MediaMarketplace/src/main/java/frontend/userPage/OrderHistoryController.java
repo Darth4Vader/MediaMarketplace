@@ -7,6 +7,9 @@ import org.springframework.stereotype.Component;
 
 import backend.DataUtils;
 import backend.controllers.OrderController;
+import backend.dto.mediaProduct.MoviePurchasedDto;
+import backend.dto.mediaProduct.MovieReference;
+import backend.dto.mediaProduct.OrderDto;
 import backend.entities.Movie;
 import backend.entities.MoviePurchased;
 import backend.entities.Order;
@@ -37,26 +40,26 @@ public class OrderHistoryController {
 	public static final String PATH = "/frontend/userPage/OrderHistory.fxml";
 	
 	@FXML
-	private ListView<Order> ordersPanel;
+	private ListView<OrderDto> ordersPanel;
 	
 	@Autowired
 	private OrderController orderController;
 	
 	@FXML
 	private void initialize() {
-		ordersPanel.setCellFactory(new Callback<ListView<Order>, ListCell<Order>>() {
+		ordersPanel.setCellFactory(new Callback<ListView<OrderDto>, ListCell<OrderDto>>() {
 			
 			@Override
-			public ListCell<Order> call(ListView<Order> param) {
+			public ListCell<OrderDto> call(ListView<OrderDto> param) {
 				return new OrderCell();
 			}
 		});
-		List<Order> orders = orderController.getUserOrders();
+		List<OrderDto> orders = orderController.getUserOrders();
 		ordersPanel.setItems(FXCollections.observableArrayList(orders));
 		ordersPanel.setSelectionModel(null);
 	}
 	
-	private class OrderCell extends ListCell<Order> {
+	private class OrderCell extends ListCell<OrderDto> {
 		
 		private VBox pane;
 		private Text number;
@@ -84,12 +87,12 @@ public class OrderHistoryController {
 			pane.getChildren().addAll(orderDescription, orderPanel, totalPrice);
 		}
 		
-		private void set(Order order) {
+		private void set(OrderDto order) {
 			number.setText(""+order.getId());
 			purchasedDate.setText(DataUtils.getLocalDateTimeInCurrentZone(order.getPurchasedDate()));
 			orderPanel.getChildren().clear();
-			List<MoviePurchased> orderItems = order.getPurchasedItems();
-			for(MoviePurchased orderItem : orderItems) {
+			List<MoviePurchasedDto> orderItems = order.getPurchasedItems();
+			for(MoviePurchasedDto orderItem : orderItems) {
 				System.out.println(order.getId() + " " + orderItem.getMovie().getName());
 				BorderPane itemPane = getMoviePurchasedPane(orderItem);
 				orderPanel.getChildren().add(itemPane);
@@ -105,7 +108,7 @@ public class OrderHistoryController {
 		}
 		
 	    @Override
-	    public void updateItem(Order item, boolean empty) {
+	    public void updateItem(OrderDto item, boolean empty) {
 	        super.updateItem(item, empty);
 	        if (item == null || empty) {
 	            setGraphic(null);
@@ -122,14 +125,16 @@ public class OrderHistoryController {
 	    }
 	}
 	
-	private BorderPane getMoviePurchasedPane(MoviePurchased moviePurchased) {
+	private BorderPane getMoviePurchasedPane(MoviePurchasedDto moviePurchased) {
 		BorderPane itemPane = new BorderPane();
 		itemPane.setStyle("-fx-border-color: black");
-		Movie movie = moviePurchased.getMovie();
+		MovieReference movie = moviePurchased.getMovie();
 		TextFlow nameFlow = new TextFlow();
 		String nameStr = movie.getName();
-		if(movie.getYear() != null)
-			nameStr += " (" + movie.getYear() + ")";
+		
+		/*if(movie.getYear() != null)
+			nameStr += " (" + movie.getYear() + ")";*/
+		
 		Text name = new Text(nameStr);
 		name.setCursor(Cursor.HAND);
 		name.setOnMouseClicked(event -> {
@@ -141,7 +146,7 @@ public class OrderHistoryController {
 		type.setStyle("-fx-font-weight: bold; -fx-font-size: 19");
 		nameFlow.getChildren().addAll(type, new Text(" ("));
 		Text use = new Text();
-		if(moviePurchased.isUseable()) {
+		if(MoviePurchasedDto.isUseable(moviePurchased)) {
 			use.setText("Useable");
 			use.setStyle("-fx-fill: green");
 		}

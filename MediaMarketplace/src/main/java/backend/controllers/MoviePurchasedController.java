@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import backend.dto.cart.CartProductDto;
+import backend.dto.cart.CartProductReference;
+import backend.dto.mediaProduct.MoviePurchasedDto;
+import backend.dto.mediaProduct.MovieReference;
 import backend.entities.Cart;
 import backend.entities.CartProduct;
 import backend.entities.Genre;
@@ -42,18 +44,13 @@ public class MoviePurchasedController {
 	@Autowired
 	private MoviePurchasedService moviePurchasedService;
 	
-	@Autowired
-	private TokenService tokenService;
-	
 	@GetMapping("/get/user_media_products")
-	public List<Movie> getAllActiveMediaProductsOfUser() {
-		User user = tokenService.getCurretUser();
-		return moviePurchasedService.getAllActiveMoviesOfUser(user);
+	public List<MovieReference> getAllActiveMediaProductsOfUser() {
+		return moviePurchasedService.getAllActiveMoviesOfUser();
     }
 	
 	@GetMapping("/get_active/{movieId}")
-    public List<MoviePurchased> getActiveListUserMovie(Long movieId) throws EntityNotFoundException, UserNotLoggedInException {
-		User user = tokenService.getCurretUser();
-    	return moviePurchasedService.getActiveListUserMovie(user, movieId);
+    public List<MoviePurchasedDto> getActiveListUserMovie(@PathVariable Long movieId) throws EntityNotFoundException {
+    	return moviePurchasedService.getActiveListUserMovie(movieId);
     }
 }

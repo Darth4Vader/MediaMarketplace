@@ -73,12 +73,12 @@ public class Product implements Serializable {
 		return rentPrice;
 	}
 
-	public double getBuyDiscount() {
-		return buyDiscount.doubleValue();
+	public BigDecimal getBuyDiscount() {
+		return buyDiscount;
 	}
 
-	public double getRentDiscount() {
-		return rentDiscount.doubleValue();
+	public BigDecimal getRentDiscount() {
+		return rentDiscount;
 	}
 
 	public Movie getMovie() {
@@ -113,7 +113,7 @@ public class Product implements Serializable {
 		this.movie = movie;
 	}
 	
-	private static final BigDecimal ONE_HUNDRED = new BigDecimal(100);
+	/*private static final BigDecimal ONE_HUNDRED = new BigDecimal(100);
 	
 	public double calculatePrice(boolean isBuy) {
 		double price;
@@ -132,7 +132,7 @@ public class Product implements Serializable {
 				.divide(ONE_HUNDRED)
 				.multiply(new BigDecimal(price, new MathContext(2, RoundingMode.HALF_EVEN)))
 				.doubleValue();
-	}
+	}*/
 
 	@Override
 	public String toString() {

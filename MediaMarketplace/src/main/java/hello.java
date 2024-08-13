@@ -33,10 +33,10 @@ public class hello {
 	public static void main(String... args) {
 		context = ActivateSpringApplication.create(args);
 		SortDto sortDto = new SortDto("Star Wars");
-		List<Movie> list = SearchUtils.searchMoviesSort(sortDto);
+		/*List<Movie> list = SearchUtils.searchMoviesSort(sortDto);
 		for(Movie movie : list) {
 			System.out.println(movie.getName());
-		}
+		}*/
 	}																		
 																		
 																		

@@ -115,6 +115,8 @@ public class MoviePurchased {
 		this.purchaseDate = purchaseDate;
 	}
 	
+	/*
+	
 	public boolean isUseable() {
 		if(!isRented)
 			return true;
@@ -126,11 +128,6 @@ public class MoviePurchased {
 	
 	public LocalDateTime getCurrentRentTime() {
 		LocalDateTime timeSince = purchaseDate.plusSeconds(rentTime.getSeconds());
-				/*.plusSeconds(rentTime.getSeconds())
-				.plusMinutes(rentTime.day())
-				.plusHours(rentTime.getHour())
-				.plusDays(rentTime.getDayOfMonth())
-				.plusMonths(rentTime.getMonthValue());*/
 		return timeSince;
 	}
 	
@@ -144,6 +141,10 @@ public class MoviePurchased {
 			return null;
 		}
 	}
+
+
+	*/
+
 
 	public boolean isRented() {
 		return isRented;

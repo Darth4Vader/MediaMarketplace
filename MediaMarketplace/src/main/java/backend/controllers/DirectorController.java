@@ -1,5 +1,6 @@
 package backend.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import backend.dto.mediaProduct.ActorDto;
+import backend.dto.input.RefActorDto;
+import backend.dto.input.RefDirectorDto;
 import backend.dto.mediaProduct.DirectorDto;
 import backend.dto.mediaProduct.MovieDto;
 import backend.entities.Actor;
@@ -26,6 +28,7 @@ import backend.exceptions.EntityNotFoundException;
 import backend.services.ActorService;
 import backend.services.DirectorService;
 import backend.services.GenreService;
+import backend.services.PersonService;
 import backend.services.UserServiceImpl;
 import jakarta.validation.Valid;
 
@@ -36,19 +39,24 @@ public class DirectorController {
 	@Autowired
 	private DirectorService directorService; 
 	
-	@GetMapping("/")
+	/*@GetMapping("/get_all")
     public List<Director> getAllDirectors() {
 		return directorService.getAllDirectors();
+    }*/
+	
+	@GetMapping("/get/{movieId}")
+    public List<DirectorDto> getDirectorsOfMovie(@PathVariable Long movieId) throws EntityNotFoundException {
+		return directorService.getDirectorsOfMovie(movieId);
     }
 	
 	@GetMapping("/add")
-    public ResponseEntity<String> addDirector(@Valid @RequestBody DirectorDto directorDto) throws EntityNotFoundException, EntityAlreadyExistsException {
+    public ResponseEntity<String> addDirector(@Valid @RequestBody RefDirectorDto directorDto) throws EntityNotFoundException, EntityAlreadyExistsException {
 		directorService.addDirector(directorDto);
         return new ResponseEntity<>("Created Successfully", HttpStatus.OK);
 	}
 	
 	@GetMapping("/remove")
-    public ResponseEntity<String> removeDirector(@Valid @RequestBody DirectorDto directorDto) throws EntityNotFoundException {
+    public ResponseEntity<String> removeDirector(@Valid @RequestBody RefDirectorDto directorDto) throws EntityNotFoundException {
 		directorService.removeDirector(directorDto);
         return new ResponseEntity<>("Created Successfully", HttpStatus.OK);
 	}

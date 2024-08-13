@@ -3,6 +3,8 @@ package frontend.moviePage;
 import java.time.LocalDateTime;
 
 import backend.DataUtils;
+import backend.dto.mediaProduct.MovieReviewDto;
+import backend.dto.mediaProduct.MovieReviewReference;
 import backend.entities.MovieReview;
 import backend.entities.User;
 import javafx.geometry.Insets;
@@ -20,7 +22,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
-class MovieReviewCell extends ListCell<MovieReview> {
+class MovieReviewCell extends ListCell<MovieReviewDto> {
 	
 	private VBox box;
 	private Text userRatings;
@@ -48,14 +50,16 @@ class MovieReviewCell extends ListCell<MovieReview> {
 		box.setStyle("-fx-border-color: black; -fx-border-radius: 5;");
 	}
 	
-	public void set(MovieReview review) {
-		userRatings.setText(""+review.getRating());
-		title.setText("    "+ review.getReviewTitle());
-		User user = review.getUser();
-		userName.setText(" "+user.getUsername() + "	");
-		LocalDateTime createDate = review.getCreatedDate();
-		createdDateLabel.setText(DataUtils.getLocalDateTimeInCurrentZone(createDate));
-		reviewText.setText(" "+review.getReview());
+	public void set(MovieReviewDto reviewDto) {
+		MovieReviewReference review = reviewDto.getMovieReview();
+		if(review != null) {
+			userRatings.setText(""+review.getRating());
+			title.setText("    "+ review.getReviewTitle());
+			LocalDateTime createDate = review.getCreatedDate();
+			createdDateLabel.setText(DataUtils.getLocalDateTimeInCurrentZone(createDate));
+			reviewText.setText(" "+review.getReview());
+			userName.setText(" "+reviewDto.getUserName() + "	");
+		}
 	}
 	
 	public void reset() {
@@ -67,7 +71,7 @@ class MovieReviewCell extends ListCell<MovieReview> {
 	}
 	
     @Override
-    public void updateItem(MovieReview item, boolean empty) {
+    public void updateItem(MovieReviewDto item, boolean empty) {
         super.updateItem(item, empty);
         if (item == null || empty) {
             setGraphic(null);

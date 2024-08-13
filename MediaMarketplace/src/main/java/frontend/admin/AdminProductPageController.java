@@ -1,12 +1,16 @@
 package frontend.admin;
 
+import java.math.BigDecimal;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import backend.DataUtils;
 import backend.controllers.ProductController;
 import backend.controllers.UserAuthenticateController;
+import backend.dto.mediaProduct.MovieReference;
 import backend.dto.mediaProduct.ProductDto;
+import backend.dto.mediaProduct.ProductReference;
 import backend.entities.Movie;
 import backend.entities.Product;
 import backend.exceptions.EntityNotFoundException;
@@ -50,8 +54,8 @@ public class AdminProductPageController {
 	
 	private CreateMovieLoggerControl createMovieLoggerControl;
 	
-	private Movie movie;
-	private Product product;
+	private MovieReference movie;
+	private ProductReference product;
 	
 	@FXML
 	private void initialize() {
@@ -64,7 +68,7 @@ public class AdminProductPageController {
 		this.createMovieLoggerControl = new CreateMovieLoggerControl(createMovie);
 	}
 	
-	public void initializeProduct(Movie movie) {
+	public void initializeProduct(MovieReference movie) {
 		this.movie = movie;
 		initializeProduct();
 	}
@@ -78,7 +82,7 @@ public class AdminProductPageController {
 	
 	private void setProduct() {
 		if(this.movie != null) try {
-			product = productController.getProductByMovieId(movie.getId());
+			product = productController.getProductReferenceOfMovie(movie.getId());
 		} catch (EntityNotFoundException e) {
 			//this is okay, it means that the movie is not a product (Not available for sale)
 			product = null;
@@ -89,10 +93,11 @@ public class AdminProductPageController {
 		if(product != null) {
 			statusLabel.setTextFill(Color.GREEN);
 			statusLabel.setText("The Movie is a Product");
-			buyPriceField.setText(""+product.getBuyPrice());
-			rentPriceField.setText(""+product.getRentPrice());
-			buyDiscountField.setText(""+product.getBuyDiscount());
-			rentDiscountField.setText(""+product.getRentDiscount());
+			System.out.println("Buy: " + product.getBuyPrice() + " Rent: " + product.getRentPrice());
+			setNumberTextField(buyPriceField,  ""+product.getBuyPrice());
+			setNumberTextField(rentPriceField, ""+product.getRentPrice());
+			setNumberTextField(buyDiscountField, product.getBuyDiscount());
+			setNumberTextField(rentDiscountField, product.getRentDiscount());
 		}
 		else {
 			statusLabel.setTextFill(Color.RED);
@@ -100,16 +105,33 @@ public class AdminProductPageController {
 		}
 	}
 	
+	private void setNumberTextField(TextField textField, BigDecimal bigDecimal) {
+		String numText;
+		if(bigDecimal == null)
+			numText = "0.00";
+		else
+			 numText = ""+bigDecimal;
+		setNumberTextField(textField, numText);
+	}
+	
+	private void setNumberTextField(TextField textField, String str) {
+		String numText;
+		if(DataUtils.isBlank(str))
+			numText = "0.00";
+		else
+			 numText = str;
+		textField.setText(numText);
+	}
+	
 	@FXML
 	private void updateMovie() {
-		String mediaId = movie.getMediaID();
 		createMovieLoggerControl.start();
 		try {
-			createMovie.updateMovieInDatabase(Integer.parseInt(movie.getMediaID()));
+			createMovie.updateMovieInDatabase(movie);
 			createMovieLoggerControl.finishedTask();
 		} catch (NumberFormatException e1) {
 			createMovieLoggerControl.close();
-			AdminPagesUtils.parseNumberException(mediaId);
+			AdminPagesUtils.parseNumberException(e1);
 		} catch (CreateMovieException e) {
 			createMovieLoggerControl.close();
 			//when the movie update fails, we will alert the user of the reasons
@@ -126,14 +148,15 @@ public class AdminProductPageController {
 	@FXML
 	private void updateProductPrice() {
 		//we create the new prices to update
-		ProductDto productDto = new ProductDto();
+		ProductReference productDto = new ProductReference();
+		productDto.setId(product.getId());
 		productDto.setBuyPrice(DataUtils.getNumber(buyPriceField.getText()));
 		productDto.setRentPrice(DataUtils.getNumber(rentPriceField.getText()));
-		productDto.setBuyDiscount(DataUtils.getNumber(buyDiscountField.getText()));
-		productDto.setRentDiscount(DataUtils.getNumber(rentDiscountField.getText()));
+		productDto.setBuyDiscount(DataUtils.getBigDecimal(buyDiscountField.getText()));
+		productDto.setRentDiscount(DataUtils.getBigDecimal(rentDiscountField.getText()));
 		//if there is a product set
 		if(product != null) {
-			productDto.setProductId(product.getId());
+			productDto.setId(product.getId());
 			try {
 				productController.updateProduct(productDto);
 			} catch (EntityNotFoundException e) {
@@ -153,5 +176,4 @@ public class AdminProductPageController {
 		//we refresh the product
 		initializeProduct();
 	}
-
 }

@@ -1,5 +1,7 @@
 package frontend.utils;
 
+import backend.dto.mediaProduct.MovieDto;
+import backend.dto.mediaProduct.MovieReference;
 import backend.entities.Movie;
 import frontend.App;
 import frontend.AppImageUtils;
@@ -12,7 +14,7 @@ public class MovieImageView extends ImageView {
 		this.setPreserveRatio(true);
 	}
 	
-	public void setMovie(Movie movie) {
+	public void setMovie(MovieReference movie) {
 		if(movie != null) {
 			this.setImage(AppImageUtils.loadImageFromClass(movie.getPosterPath()));
 			this.setOnMouseClicked(evt -> {

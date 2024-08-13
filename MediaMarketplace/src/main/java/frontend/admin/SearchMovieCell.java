@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 
+import backend.dto.mediaProduct.CreateMovieDto;
 import backend.dto.mediaProduct.MovieDto;
 import frontend.AppImageUtils;
 import javafx.geometry.Pos;
@@ -22,7 +23,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
-class SearchMovieCell extends  ListCell<MovieDto> {
+class SearchMovieCell extends  ListCell<CreateMovieDto> {
 	
 	private HBox moviePane;
 	private ImageView posterView;
@@ -71,12 +72,13 @@ class SearchMovieCell extends  ListCell<MovieDto> {
 		infoBox.setBorder(Border.stroke(Color.GREEN));
 	}
 	
-	private void set(MovieDto movie) {
+	private void set(CreateMovieDto createMovie) {
+		MovieDto movie = createMovie.getMovieDto(); 
 		posterView.setImage(AppImageUtils.loadImageFromClass(movie.getPosterPath()));
 		posterView.setOnMouseClicked(e -> {
-			addMoviePageController.addMovieToDatabase(movie);
+			addMoviePageController.addMovieToDatabase(createMovie);
 		});
-		name.setText(movie.getMediaName());
+		name.setText(movie.getName());
 		LocalDate releaseDate = movie.getReleaseDate();
 		if(releaseDate != null) {
 			date.setText(releaseDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)));
@@ -93,7 +95,7 @@ class SearchMovieCell extends  ListCell<MovieDto> {
 	}
 	
     @Override
-    public void updateItem(MovieDto item, boolean empty) {
+    public void updateItem(CreateMovieDto item, boolean empty) {
         super.updateItem(item, empty);
         if (item == null || empty) {
             setGraphic(null);

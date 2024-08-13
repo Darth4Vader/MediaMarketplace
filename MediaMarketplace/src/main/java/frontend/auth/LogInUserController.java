@@ -5,12 +5,12 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import DataStructures.UserLogInfo;
 import backend.controllers.UserAuthenticateController;
 import backend.dto.users.LogInDto;
 import backend.exceptions.LogValuesAreIncorrectException;
 import backend.exceptions.UserDoesNotExistsException;
 import backend.exceptions.UserPasswordIsIncorrectException;
+import backend.exceptions.enums.UserLogInfo;
 import frontend.App;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

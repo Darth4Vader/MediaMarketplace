@@ -1,5 +1,8 @@
 package frontend.cartPage;
 
+import backend.dto.cart.CartProductDto;
+import backend.dto.mediaProduct.MovieReference;
+import backend.dto.mediaProduct.ProductDto;
 import backend.entities.CartProduct;
 import backend.entities.Movie;
 import backend.entities.Product;
@@ -18,7 +21,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
-class CartProductCell extends ListCell<CartProduct> {
+class CartProductCell extends ListCell<CartProductDto> {
 	
 	private HBox mainBox;
 	private MovieImageView view;
@@ -53,9 +56,9 @@ class CartProductCell extends ListCell<CartProduct> {
 		mainBox.getChildren().addAll(productBox, priceText);
 	}
 	
-	public void set(CartProduct cartProduct) {
-		Product product = cartProduct.getProduct();
-		Movie movie = product.getMovie();
+	public void set(CartProductDto cartProduct) {
+		ProductDto productDto = cartProduct.getProduct();
+		MovieReference movie = productDto.getMovie();
 		view.setMovie(movie);
 		name.setText(movie.getName());
 		type.setText(cartProduct.isBuying() ? "Buy" : "Rent");
@@ -75,7 +78,7 @@ class CartProductCell extends ListCell<CartProduct> {
 	}
 	
     @Override
-    public void updateItem(CartProduct item, boolean empty) {
+    public void updateItem(CartProductDto item, boolean empty) {
         super.updateItem(item, empty);
         if (item == null || empty) {
             setGraphic(null);

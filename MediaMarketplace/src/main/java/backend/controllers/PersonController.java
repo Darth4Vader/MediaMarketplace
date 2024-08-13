@@ -31,13 +31,13 @@ public class PersonController {
 	@Autowired
 	private PersonService personService; 
 	
-	@GetMapping("/")
+	/*@GetMapping("/")
 	@ResponseStatus(code = HttpStatus.OK)
     public List<Person> getAllPeople() {
         List<Person> body = personService.getAllPeople();
         return body;
         //return new ResponseEntity<>(body, HttpStatus.OK);
-    }
+    }*/
 	
 	@GetMapping("/add")
     public ResponseEntity<String> addPerson(@Valid @RequestBody PersonDto personDto) throws EntityAlreadyExistsException {
@@ -51,8 +51,8 @@ public class PersonController {
         return new ResponseEntity<>("Removed Successfully", HttpStatus.OK);
     }
 	
-	@GetMapping("/get/{personImdbId}")
+	/*@GetMapping("/get/{personImdbId}")
     public Person getPerson(String personImdbId) throws EntityNotFoundException {
 		return personService.getPersonByNameID(personImdbId);
-    }
+    }*/
 }

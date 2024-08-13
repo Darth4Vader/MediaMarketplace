@@ -7,12 +7,19 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import backend.DataUtils;
+import backend.controllers.ActorController;
+import backend.controllers.DirectorController;
 import backend.controllers.MovieController;
 import backend.controllers.MovieReviewController;
+import backend.dto.mediaProduct.ActorDto;
+import backend.dto.mediaProduct.DirectorDto;
+import backend.dto.mediaProduct.MovieDto;
+import backend.dto.mediaProduct.MovieReference;
 import backend.entities.Actor;
 import backend.entities.Director;
 import backend.entities.Genre;
 import backend.entities.Movie;
+import backend.exceptions.EntityNotFoundException;
 
 @Component
 public class SearchUtils {
@@ -21,28 +28,44 @@ public class SearchUtils {
 	
 	private static MovieReviewController movieReviewController;
 	
-    public SearchUtils(MovieReviewController movieReviewController, MovieController movieController) {
+	private static DirectorController directorController;
+	
+	private static ActorController actorController;
+	
+    public SearchUtils(MovieReviewController movieReviewController, MovieController movieController,
+    		DirectorController directorController, ActorController actorController) {
         SearchUtils.movieController = movieController;
         SearchUtils.movieReviewController = movieReviewController;
+        SearchUtils.directorController = directorController;
+        SearchUtils.actorController = actorController;
     }
 	
-	public static List<Movie> searchMoviesSort(SortDto sortDto) {
-		List<Movie> movieList = new ArrayList<>();
+	public static List<MovieReference> searchMoviesSort(SortDto sortDto) {
+		List<MovieReference> movieList = new ArrayList<>();
 		if(!sortDto.isSortEmpty()) {
-			List<Movie> list = movieController.getAllMovies();
+			//we get references in order to decrease the space complexity, because we load a list of all the movies in the database
+			//so we load all of their references, and then we will load every on of the movies separately (one by one)
+			List<MovieReference> list = movieController.getAllMovies();
 	    	if(list != null) 
-	    		for(Movie media : list) {
-	        		if(searchMovie(media, sortDto))
-	        			movieList.add(media);
+	    		for(MovieReference media : list) if(media != null) {
+	    			try {
+		    			MovieDto movie = movieController.getMovie(media.getId());
+		        		if(searchMovie(movie, sortDto))
+		        			movieList.add(media);
+	    			}
+	    			catch (EntityNotFoundException e) {
+						//if the problem is not found (which shouldn't happen because we just asked for all the movies in the database, then ignore it
+					}
 	    		}
 		}
         return movieList;
 	}
 	
-	private static boolean searchMovie(Movie media, SortDto sortDto) {
+	private static boolean searchMovie(MovieDto media, SortDto sortDto) {
 		if(sortDto.isSortEmpty())
 			return false;
 		if(sortMovie(media, sortDto)) {
+			Long movieId = media.getId();
 			String name = sortDto.getName();
 			if(DataUtils.isBlank(name))
 				return true;
@@ -50,18 +73,26 @@ public class SearchUtils {
         	int cur = compare(movieName, name);
         	if(cur > 0)
         		return true;
-        	List<Actor> actors = media.getActorsRoles();
-        	if(searchActors(actors, name))
-        		return true;
-    		List<Director> directors = media.getDirectors();
-    		if(searchDirectors(directors, name))
-    			return true;
+			try {
+				List<ActorDto> actors = actorController.getActorsOfMovie(movieId);
+	        	if(searchActors(actors, name))
+	        		return true;
+			} catch (EntityNotFoundException e) {
+				//if there is a problem with loading the actors, then ignore them
+			}
+			try {
+				List<DirectorDto> directors = directorController.getDirectorsOfMovie(movieId);
+	    		if(searchDirectors(directors, name))
+	    			return true;
+			} catch (EntityNotFoundException e) {
+				//if there is a problem with loading the directors, then ignore them
+			}
 		}
 		return false;
 	}
 	
-	public static boolean searchActors(List<Actor> actors, String name) {
-		for(Actor actor : actors) {
+	public static boolean searchActors(List<ActorDto> actors, String name) {
+		for(ActorDto actor : actors) {
 			if(compare(actor.getRoleName(), name) > 1)
 				return true;
 			if(compare(actor.getPerson().getName(), name) > 1)
@@ -70,18 +101,15 @@ public class SearchUtils {
 		return false;
 	}
 	
-	public static boolean searchDirectors(List<Director> directors, String name) {
-		int cur1;
-		for(Director director : directors) {
-			cur1 = 0;
-			cur1 = compare(director.getPerson().getName(), name);
-			if(cur1 > 1)
+	public static boolean searchDirectors(List<DirectorDto> directors, String name) {
+		for(DirectorDto director : directors) {
+			if(compare(director.getPerson().getName(), name) > 1)
 				return true;
 		}
 		return false;
 	}
 	
-	private static boolean sortMovie(Movie movie, SortDto sortDto) {
+	private static boolean sortMovie(MovieDto movie, SortDto sortDto) {
 		boolean check = true;
 		check &= checkBetween(movie.getYear(), sortDto.getYearAbove(), sortDto.getYearBelow());
 		check &= checkGenres(movie, sortDto);
@@ -89,13 +117,13 @@ public class SearchUtils {
 				&& checkBetween(movieReviewController.getMovieRatings(movie.getId()), sortDto.getRatingAbove(), sortDto.getRatingBelow());
 	}
 	
-	private static boolean checkGenres(Movie movie, SortDto sortDto) {
+	private static boolean checkGenres(MovieDto movie, SortDto sortDto) {
 		List<String> genres = sortDto.getGenres();
-		List<Genre> movieGenres = movie.getGenres();
+		List<String> movieGenres = movie.getGenres();
 		if(movieGenres == null)
 			return false;
 		if(genres != null) for(String genre : genres) {
-			if(movieGenres.stream().noneMatch(g -> DataUtils.equalsIgnoreCase(g.getName(), genre)))
+			if(movieGenres.stream().noneMatch(g -> DataUtils.equalsIgnoreCase(g, genre)))
 				return false;
 		}
 		return true;

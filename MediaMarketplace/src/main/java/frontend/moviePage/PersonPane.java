@@ -1,6 +1,9 @@
 package frontend.moviePage;
 
 import backend.DataUtils;
+import backend.dto.mediaProduct.ActorDto;
+import backend.dto.mediaProduct.DirectorDto;
+import backend.dto.mediaProduct.PersonDto;
 import backend.entities.Actor;
 import backend.entities.Director;
 import backend.entities.Person;
@@ -33,23 +36,23 @@ class PersonPane extends HBox {
 	}
 	
 	public <T> void set(T item) {
-		if(item instanceof Director)
-			set((Director) item);
-		else if(item instanceof Actor)
-			set((Actor) item);
+		if(item instanceof DirectorDto)
+			set((DirectorDto) item);
+		else if(item instanceof ActorDto)
+			set((ActorDto) item);
 	}
 	
-	public void set(Director director) {
-		Person person = director.getPerson();
+	public void set(DirectorDto director) {
+		PersonDto person = director.getPerson();
 		set(person, person.getName());
 	}
 	
-	public void set(Actor actor) {
-		Person person = actor.getPerson();
+	public void set(ActorDto actor) {
+		PersonDto person = actor.getPerson();
 		set(person, person.getName() + "/" + actor.getRoleName());
 	}
 	
-	private void set(Person person, String name) {
+	private void set(PersonDto person, String name) {
 		actorName.setText(name);
 		String personImagePath = person.getImagePath();
 		if(DataUtils.isNotBlank(personImagePath)) {

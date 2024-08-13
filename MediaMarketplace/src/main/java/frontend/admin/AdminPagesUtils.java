@@ -27,6 +27,10 @@ public class AdminPagesUtils {
 	public static void parseNumberException(String mediaId) {
 		AppUtils.alertOfError("Movie Creation failed", "The movie media id (" + mediaId + ") is not a number");
 	}
+	
+	public static void parseNumberException(NumberFormatException exception) {
+		AppUtils.alertOfError("Movie Creation failed", exception.getMessage());
+	}
 
 
 	public static void createMovieExceptionAlert(CreateMovieException e) {

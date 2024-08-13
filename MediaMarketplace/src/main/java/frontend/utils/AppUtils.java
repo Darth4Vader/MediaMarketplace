@@ -2,6 +2,9 @@ package frontend.utils;
 
 import java.util.List;
 
+import backend.dto.mediaProduct.MovieDto;
+import backend.dto.mediaProduct.MovieReference;
+import backend.dto.mediaProduct.ProductDto;
 import backend.entities.Movie;
 import backend.entities.Product;
 import frontend.AppImageUtils;
@@ -70,11 +73,11 @@ public class AppUtils {
 		final int MAX = 5;
 		MovieRow movieRow = new MovieRow();
 		for(Object object : list) {
-			Movie movie = null;
-			if(object instanceof Product)
-				movie = ((Product)object).getMovie();
-			else if(object instanceof Movie)
-				movie = (Movie) object;
+			MovieReference movie = null;
+			if(object instanceof ProductDto)
+				movie = ((ProductDto)object).getMovie();
+			else if(object instanceof MovieReference)
+				movie = (MovieReference) object;
 			if(movie != null) {
 				movieRow.add(movie);
 				i++;

@@ -67,6 +67,15 @@ public class PersonService {
     	personRepository.delete(person);
     }
     
+    public static PersonDto convertPersonToDto(Person person) {
+        PersonDto personDto = new PersonDto();
+        personDto.setPersonMediaID(person.getPersonImdbId());
+        personDto.setImagePath(person.getImagePath());
+        personDto.setName(person.getName());
+        personDto.setBirthDate(person.getBirthDate());
+        return personDto;
+    }
+    
     public static Person getPersonFromDto(PersonDto personDto) {
         Person person = new Person();
         person.setPersonImdbId(personDto.getPersonMediaID());

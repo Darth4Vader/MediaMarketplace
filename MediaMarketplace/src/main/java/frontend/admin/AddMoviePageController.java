@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import backend.controllers.UserAuthenticateController;
+import backend.dto.mediaProduct.CreateMovieDto;
 import backend.dto.mediaProduct.MovieDto;
 import backend.exceptions.EntityNotFoundException;
 import backend.tmdb.CanUpdateException;
@@ -34,7 +35,7 @@ public class AddMoviePageController {
 	private HBox mainPane;
 	
 	@FXML
-	ListView<MovieDto> movieListView;
+	ListView<CreateMovieDto> movieListView;
 	
 	@FXML
 	private TextField searchField;
@@ -56,7 +57,7 @@ public class AddMoviePageController {
 	
 	private MovieDtoSearchResult movieDtoSearchResult;
 	
-	private ObservableList<MovieDto> movieList;
+	private ObservableList<CreateMovieDto> movieList;
 	
 	private CreateMovieLoggerControl createMovieLoggerControl;
 	
@@ -91,18 +92,17 @@ public class AddMoviePageController {
 		if(search.isEmpty()) return;
 		movieDtoSearchResult = createMovie.searchMovie(search);
 		validatePageMoveLabels();
-		List<MovieDto> movies = movieDtoSearchResult.getResultList();
+		List<CreateMovieDto> movies = movieDtoSearchResult.getResultList();
 		viewMoviesSearched(movies);
 	}
 	
-	public void addMovieToDatabase(MovieDto movie) {
-		String mediaId = movie.getMediaID();
+	public void addMovieToDatabase(CreateMovieDto movie) {
 		createMovieLoggerControl.start();
 		try {
-			createMovie.addMovieToDatabase(Integer.parseInt(mediaId));
+			createMovie.addMovieToDatabase(movie);
 			createMovieLoggerControl.finishedTask();
 		} catch (NumberFormatException e1) {
-			AdminPagesUtils.parseNumberException(mediaId);
+			AdminPagesUtils.parseNumberException(movie.getMediaID());
 		} catch (CreateMovieException e) {
 			createMovieLoggerControl.close();
 			//when the movie creation fails, we will alert the user of the reasons
@@ -142,7 +142,7 @@ public class AddMoviePageController {
 		}
 	}
 	
-	private void viewMoviesSearched(List<MovieDto> movies) {
+	private void viewMoviesSearched(List<CreateMovieDto> movies) {
 		movieList.setAll(movies);
 	}
 	
@@ -168,7 +168,7 @@ public class AddMoviePageController {
 				String search = movieDtoSearchResult.getSearchText();
 				movieDtoSearchResult = createMovie.searchMovie(search, page);
 				validatePageMoveLabels();
-				List<MovieDto> movies = movieDtoSearchResult.getResultList();
+				List<CreateMovieDto> movies = movieDtoSearchResult.getResultList();
 				viewMoviesSearched(movies);
 			}
 		}

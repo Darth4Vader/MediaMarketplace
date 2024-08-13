@@ -1,5 +1,6 @@
 package backend;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -43,6 +44,12 @@ public class DataUtils {
 		catch (NumberFormatException e) {
 			return null;
 		}
+	}
+	
+	public static BigDecimal getBigDecimal(String str) {
+		if(DataUtils.isNotBlank(str))
+			return new BigDecimal(getNumber(str));
+		return null;
 	}
 	
 	public static String getLocalDateTimeInCurrentZone(LocalDateTime localDateTime) {

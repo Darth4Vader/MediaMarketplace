@@ -3,17 +3,12 @@ package backend.tmdb;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.net.URI;
 import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.logging.Logger;
 
@@ -21,23 +16,19 @@ import javax.imageio.ImageIO;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import Interface.helpAction;
 import backend.DataUtils;
 import backend.controllers.ActorController;
 import backend.controllers.DirectorController;
 import backend.controllers.GenreController;
 import backend.controllers.MovieController;
 import backend.controllers.PersonController;
-import backend.dto.mediaProduct.ActorDto;
-import backend.dto.mediaProduct.DirectorDto;
+import backend.dto.input.RefActorDto;
+import backend.dto.input.RefDirectorDto;
+import backend.dto.mediaProduct.CreateMovieDto;
 import backend.dto.mediaProduct.MovieDto;
+import backend.dto.mediaProduct.MovieReference;
 import backend.dto.mediaProduct.PersonDto;
-import backend.entities.Actor;
-import backend.entities.Director;
-import backend.entities.Movie;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
 import info.movito.themoviedbapi.TmdbApi;
@@ -66,6 +57,8 @@ public class CreateMovie {
 	public static final String BACKDROP_PATH = "backdrops/";
 	public static final String PEOPLE_PATH = "people/";
 	
+	private static Random rnd = new Random();
+	
 	@Autowired
 	private GenreController genreController;
 	
@@ -90,16 +83,17 @@ public class CreateMovie {
 		TmdbSearch tmdbSearch = tmdbApi.getSearch();
 		MovieResultsPage movieResultsPage = tmdbSearch.searchMovie(text, null, "en-US", false, page);
 		List<MovieDb> movieDbs = movieResultsPage.getResults();
-		List<MovieDto> movieDtos = new ArrayList<>();
+		List<CreateMovieDto> createMovieDtos = new ArrayList<>();
 		if(movieDbs != null) for(MovieDb movieDb : movieDbs) {
-			MovieDto movieDto = getMovieDto(movieDb);
+			CreateMovieDto createMovieDto = getCreateMovieDto(movieDb);
+			MovieDto movieDto = createMovieDto.getMovieDto();
 			movieDto.setPosterPath(TMDB_IMAGE_FULL_URL+"/w92"+movieDb.getPosterPath());
-			movieDtos.add(movieDto);
+			createMovieDtos.add(createMovieDto);
 		}
 		movieResultsPage.getPage();
 		MovieDtoSearchResult movieDtoSearchResult = new MovieDtoSearchResult();
 		movieDtoSearchResult.setSearchText(text);
-		movieDtoSearchResult.setResultList(movieDtos);
+		movieDtoSearchResult.setResultList(createMovieDtos);
 		movieDtoSearchResult.setCurrentPage(movieResultsPage.getPage());
 		movieDtoSearchResult.setTotalPages(movieResultsPage.getTotalPages());
 		return movieDtoSearchResult;
@@ -116,16 +110,18 @@ public class CreateMovie {
 		List<NameAndException> exceptionList = new ArrayList<>();
 		MovieDb movieDb = getMovieDb(movieId);
 		
-		MovieDto movieDto = getMovieDto(movieDb);
+		
+		CreateMovieDto createMovieDto = getCreateMovieDto(movieDb);
+		MovieDto movieDto = createMovieDto.getMovieDto();
 		createGenres(movieDto);
-		String movieMediaID = movieDto.getMediaID();
+		String movieMediaID = createMovieDto.getMediaID();
 		try {
 			LOGGER.info("Starting to create the movie information");
-			movieController.addMovie(movieDto);
+			movieController.addMovie(createMovieDto);
 		} catch (EntityNotFoundException e) {
 			//this can happen if a genre does not exist, but we already added/verified that all of them are in the database, therefore the exception won't be triggered
 		} catch (EntityAlreadyExistsException e) {
-			throw new CanUpdateException(movieDb, e);
+			throw new CanUpdateException(createMovieDto, e);
 		}
 		
 		addMovieImages(movieDb, movieDto, exceptionList);
@@ -135,13 +131,31 @@ public class CreateMovie {
 			throw new CreateMovieException(exceptionList, "There were exceptions with creating the movie");
 	}
 	
-	public void updateMovieInDatabase(int movieId) throws CreateMovieException, EntityNotFoundException {
-		MovieDb movieDb = getMovieDb(movieId);
-		updateMovieInDatabase(movieDb);
+	public void addMovieToDatabase(CreateMovieDto createMovieDto) throws NumberFormatException, CreateMovieException, CanUpdateException {
+		String mediaId = createMovieDto.getMediaID();
+		addMovieToDatabase(Integer.parseInt(mediaId));
 	}
 	
+	/*
+	public void updateMovieInDatabase(Long movieId) throws EntityNotFoundException, NumberFormatException, CreateMovieException {
+		String mediaId = movieController.getMovieMediaID(movieId);
+		MovieDb movieDb = getMovieDb(Integer.parseInt(mediaId));
+		updateMovieInDatabase(movieDb);
+	}
+	*/
+	
 	public void updateMovieInDatabase(CanUpdateException exception) throws CreateMovieException, EntityNotFoundException {
-		updateMovieInDatabase(exception.getMovieDb());
+		updateMovieInDatabase(exception.getCreateMovieDto());
+	}
+	
+	private void updateMovieInDatabase(CreateMovieDto createMovieDto) throws NumberFormatException, CreateMovieException, EntityNotFoundException {
+		String mediaId = createMovieDto.getMediaID();
+		updateMovieInDatabase(Integer.parseInt(mediaId));
+	}
+	
+	public void updateMovieInDatabase(MovieReference movieReference) throws EntityNotFoundException, NumberFormatException, CreateMovieException {
+		String mediaId = movieController.getMovieMediaID(movieReference.getId());
+		updateMovieInDatabase(Integer.parseInt(mediaId));
 	}
 	
 	private static final Logger LOGGER = Logger.getLogger(CreateMovie.class.getName());
@@ -161,13 +175,15 @@ public class CreateMovie {
 	 * @throws CreateMovieException 
 	 * @throws EntityNotFoundException 
 	 */
-	private void updateMovieInDatabase(MovieDb movieDb) throws CreateMovieException, EntityNotFoundException {
+	private void updateMovieInDatabase(int mediaId) throws CreateMovieException, EntityNotFoundException {
 		List<NameAndException> exceptionList = new ArrayList<>();
-		MovieDto movieDto = getMovieDto(movieDb);
+		MovieDb movieDb = getMovieDb(mediaId);
+		CreateMovieDto createMovieDto = getCreateMovieDto(movieDb);
+		MovieDto movieDto = createMovieDto.getMovieDto();
 		createGenres(movieDto);
-		String movieMediaID = movieDto.getMediaID();
+		String movieMediaID = createMovieDto.getMediaID();
 		LOGGER.info("Starting to update the movie information");
-		movieController.updateMovie(movieDto);
+		movieController.updateMovie(createMovieDto);
 		
 		addMovieImages(movieDb, movieDto, exceptionList);
 		List<PersonCrew> crew = movieDb.getCrew();
@@ -233,12 +249,28 @@ public class CreateMovie {
 		}
 	}
 	
+	private void addMovieImages(CreateMovieDto createMovieDto, MovieDto movieDto, List<NameAndException> exceptionList) {
+		LOGGER.info("Adding poster to the movie");
+		MovieDto inputMovieDto = createMovieDto.getMovieDto();
+		try {
+			saveImageFromURL(inputMovieDto.getPosterPath(), movieDto.getPosterPath());
+		} catch (IOException e) {
+			exceptionList.add(new NameAndException("Poster Creation Failed", e));
+		}
+		LOGGER.info("Adding backdrop to the movie");
+		try {
+			saveImageFromURL(inputMovieDto.getBackdropPath(), movieDto.getBackdropPath());
+		} catch (IOException e) {
+			exceptionList.add(new NameAndException("Backdrop Creation Failed", e));
+		}
+	}
+	
 	private void addDirectors(List<PersonCrew> crew, String movieMediaID, List<NameAndException> exceptionList) {
 		if(crew != null) for(PersonCrew personCrew : crew) {
 			String job = personCrew.getJob();
 			if(DataUtils.equalsIgnoreCase(job, DIRECTOR)) {
 				PersonDto personDto = getPersonDto(personCrew, exceptionList);
-				DirectorDto directorDto = new DirectorDto();
+				RefDirectorDto directorDto = new RefDirectorDto();
 				directorDto.setMovieMediaId(movieMediaID);
 				directorDto.setPersonMediaID(personDto.getPersonMediaID());
 				try {
@@ -260,7 +292,7 @@ public class CreateMovie {
 		int count = 0;
 		if(cast != null) for(PersonCast personCast : cast) {
 			PersonDto personDto = getPersonDto(personCast, exceptionList);
-			ActorDto actorDto = new ActorDto();
+			RefActorDto actorDto = new RefActorDto();
 			actorDto.setRoleName(personCast.getCharacter());
 			actorDto.setMovieMediaId(movieMediaID);
 			actorDto.setPersonMediaID(personDto.getPersonMediaID());
@@ -280,9 +312,23 @@ public class CreateMovie {
 		}
 	}
 	
+	private CreateMovieDto getCreateMovieDto(MovieDb movieDb) {
+		CreateMovieDto createMovieDto = new CreateMovieDto();
+		MovieDto movieDto = getMovieDto(movieDb);
+		String mediaId = ""+movieDb.getId();
+		createMovieDto.setMediaID(mediaId);
+		String posterPath = movieDb.getPosterPath();
+		if(posterPath != null)
+			movieDto.setPosterPath(POSTERS_PATH+mediaId+".jpg");
+		String backdropPath = movieDb.getBackdropPath();
+		if(backdropPath != null)
+			movieDto.setBackdropPath(BACKDROP_PATH+mediaId+".jpg");
+		return createMovieDto;
+	}
+	
 	private MovieDto getMovieDto(MovieDb movieDb) {
 		MovieDto movieDto = new MovieDto();
-		movieDto.setMediaName(movieDb.getOriginalTitle());
+		movieDto.setName(movieDb.getOriginalTitle());
 		movieDto.setRuntime(movieDb.getRuntime());
 		movieDto.setSynopsis(movieDb.getOverview());
 		List<Genre> genres = movieDb.getGenres();
@@ -299,13 +345,6 @@ public class CreateMovie {
 		catch (DateTimeParseException e) {
 			//if this happens, then don't set the release date of the movie
 		}
-		movieDto.setMediaID(""+movieDb.getId());
-		String posterPath = movieDb.getPosterPath();
-		if(posterPath != null)
-			movieDto.setPosterPath(POSTERS_PATH+movieDto.getMediaID()+".jpg");
-		String backdropPath = movieDb.getBackdropPath();
-		if(backdropPath != null)
-			movieDto.setBackdropPath(BACKDROP_PATH+movieDto.getMediaID()+".jpg");
 		return movieDto;
 	}
 	
@@ -336,7 +375,13 @@ public class CreateMovie {
 		System.out.println("File: " + file);
 		if(!file.exists()) {
 			check(PEOPLE_PATH);check(POSTERS_PATH);check(BACKDROP_PATH);
-			URL url = new URL(TMDB_IMAGE_URL + inputURL);
+			URL url;
+			try {
+				url = URI.create(TMDB_IMAGE_URL + inputURL).toURL();
+			}
+			catch (Exception e) {
+				throw new IOException("Failed to write");
+			}
 			BufferedImage image = ImageIO.read(url);
 			if(!ImageIO.write(image, "jpg", file))
 				throw new IOException("Failed to write");
@@ -344,8 +389,6 @@ public class CreateMovie {
 		}
 		return file;
 	}
-	
-	private static Random rnd = new Random();
 	
 	private static void sleep() {
 		int num = rnd.nextInt(1500)+1000;

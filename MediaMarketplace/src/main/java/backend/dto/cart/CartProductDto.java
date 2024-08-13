@@ -1,46 +1,40 @@
 package backend.dto.cart;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import backend.dto.mediaProduct.ProductDto;
+import backend.dto.mediaProduct.ProductReference;
 
 public class CartProductDto {
 	
-	private @NotNull Long userId;
-	
-	private @NotNull Long productId;
-	
+	private ProductDto product;
 	private boolean isBuying;
+	private double price;
 
-	public CartProductDto() {}
-	
-	public CartProductDto(Long userId, Long productId) {
-		super();
-		this.userId = userId;
-		this.productId = productId;
+	public CartProductDto() {
+		// TODO Auto-generated constructor stub
 	}
 
-	public Long getUserId() {
-		return userId;
-	}
-
-	public Long getProductId() {
-		return productId;
-	}
-
-	public void setUserId(Long userId) {
-		this.userId = userId;
-	}
-
-	public void setProductId(Long productId) {
-		this.productId = productId;
+	public ProductDto getProduct() {
+		return product;
 	}
 
 	public boolean isBuying() {
 		return isBuying;
 	}
 
+	public void setProduct(ProductDto product) {
+		this.product = product;
+	}
+
 	public void setBuying(boolean isBuying) {
 		this.isBuying = isBuying;
+	}
+
+	public double getPrice() {
+		return price;
+	}
+
+	public void setPrice(double price) {
+		this.price = price;
 	}
 
 }

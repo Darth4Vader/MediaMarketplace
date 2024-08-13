@@ -76,9 +76,9 @@ public class CartProduct {
 		this.isBuying = isBuying;
 	}
 	
-	public double getPrice() {
+	/*public double getPrice() {
 		return product.calculatePrice(isBuying());
-	}
+	}*/
 
 	@Override
 	public String toString() {

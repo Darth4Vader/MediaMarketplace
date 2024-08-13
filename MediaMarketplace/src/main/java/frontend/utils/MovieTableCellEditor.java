@@ -3,6 +3,8 @@ package frontend.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import backend.dto.mediaProduct.MovieDto;
+import backend.dto.mediaProduct.MovieReference;
 import backend.entities.Movie;
 import frontend.App;
 import frontend.AppImageUtils;
@@ -60,7 +62,7 @@ public class MovieTableCellEditor extends ListCell<MovieRow> {
             	cell.clean();
         }
         else {
-        	List<Movie> movies = item.getMovies();
+        	List<MovieReference> movies = item.getMovies();
         	for(int i = 0; i < cells.size(); i++) {
         		MovieCell cell = cells.get(i);
         		if(i < movies.size()) {
@@ -96,7 +98,7 @@ public class MovieTableCellEditor extends ListCell<MovieRow> {
 		            new BorderWidths(1))));
 		}
 		
-		public void set(Movie movie) {
+		public void set(MovieReference movie) {
 			view.setImage(AppImageUtils.loadImageFromClass(movie.getPosterPath()));
     		name.setText(movie.getName());
     		b.setOnMouseClicked(evt -> {

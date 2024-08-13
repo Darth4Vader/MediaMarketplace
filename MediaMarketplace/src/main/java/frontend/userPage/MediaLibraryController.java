@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import backend.controllers.MoviePurchasedController;
+import backend.dto.mediaProduct.MovieReference;
 import backend.entities.Movie;
 import frontend.utils.AppUtils;
 import frontend.utils.MovieRow;
@@ -26,7 +27,7 @@ public class MediaLibraryController {
 
 	@FXML
 	private void initialize() throws MalformedURLException {
-		List<Movie> movies = mediaPurchasedController.getAllActiveMediaProductsOfUser();
+		List<MovieReference> movies = mediaPurchasedController.getAllActiveMediaProductsOfUser();
 		AppUtils.FullListViewAsGridPage(moviePane, movies);
 	}
 	

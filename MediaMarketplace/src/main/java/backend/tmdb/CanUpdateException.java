@@ -1,8 +1,7 @@
 package backend.tmdb;
 
-import backend.dto.mediaProduct.MovieDto;
+import backend.dto.mediaProduct.CreateMovieDto;
 import backend.exceptions.EntityAlreadyExistsException;
-import backend.exceptions.EntityNotFoundException;
 import info.movito.themoviedbapi.model.MovieDb;
 
 /**
@@ -10,24 +9,31 @@ import info.movito.themoviedbapi.model.MovieDb;
  */
 public class CanUpdateException extends Exception {
 
-	private MovieDb movieDb;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private CreateMovieDto createMovieDto;
 	private EntityAlreadyExistsException exception;
 	
-	public CanUpdateException(MovieDb movieDb, EntityAlreadyExistsException exception) {
-		super();
-		this.movieDb = movieDb;
+	public CanUpdateException(CreateMovieDto createMovieDto, EntityAlreadyExistsException exception) {
+		this.createMovieDto = createMovieDto;
 		this.exception = exception;
 	}
 	
-	public MovieDb getMovieDb() {
-		return movieDb;
+	public CreateMovieDto getCreateMovieDto() {
+		return createMovieDto;
 	}
+	
 	public EntityAlreadyExistsException getException() {
 		return exception;
 	}
-	public void setMovieDb(MovieDb movieDb) {
-		this.movieDb = movieDb;
+	
+	public void setCreateMovieDto(CreateMovieDto createMovieDto) {
+		this.createMovieDto = createMovieDto;
 	}
+	
 	public void setException(EntityAlreadyExistsException exception) {
 		this.exception = exception;
 	}
