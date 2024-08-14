@@ -183,7 +183,7 @@ public class CreateMovie {
 		createGenres(movieDto);
 		String movieMediaID = createMovieDto.getMediaID();
 		LOGGER.info("Starting to update the movie information");
-		movieController.updateMovie(createMovieDto);
+		movieDto.setId(movieController.updateMovie(createMovieDto));
 		
 		addMovieImages(movieDb, movieDto, exceptionList);
 		List<PersonCrew> crew = movieDb.getCrew();
@@ -323,6 +323,7 @@ public class CreateMovie {
 		String backdropPath = movieDb.getBackdropPath();
 		if(backdropPath != null)
 			movieDto.setBackdropPath(BACKDROP_PATH+mediaId+".jpg");
+		createMovieDto.setMovieDto(movieDto);
 		return createMovieDto;
 	}
 	

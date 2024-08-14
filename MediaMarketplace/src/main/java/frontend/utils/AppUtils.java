@@ -2,11 +2,8 @@ package frontend.utils;
 
 import java.util.List;
 
-import backend.dto.mediaProduct.MovieDto;
 import backend.dto.mediaProduct.MovieReference;
 import backend.dto.mediaProduct.ProductDto;
-import backend.entities.Movie;
-import backend.entities.Product;
 import frontend.AppImageUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

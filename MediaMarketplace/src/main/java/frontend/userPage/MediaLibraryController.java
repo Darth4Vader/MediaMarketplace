@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import backend.controllers.MoviePurchasedController;
 import backend.dto.mediaProduct.MovieReference;
-import backend.entities.Movie;
 import frontend.utils.AppUtils;
 import frontend.utils.MovieRow;
 import javafx.fxml.FXML;

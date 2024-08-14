@@ -3,7 +3,6 @@ package backend.entities;
 import java.util.Date;
 import java.util.List;
 
-import jakarta.annotation.Nonnull;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,7 +10,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
@@ -38,11 +36,9 @@ public class Person {
 	private Date birthDate;
 	
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "person", cascade = CascadeType.ALL)
-	//@JoinColumn(name = "actors_roles_id")
 	private List<Actor> actorRoles;
 	
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "person", cascade = CascadeType.ALL)
-	//@JoinColumn(name = "actors_roles_id")
 	private List<Director> directedMedia;
 	
 	public Person() {}
@@ -109,5 +105,4 @@ public class Person {
 	public void setDirectedMedia(List<Director> directedMedia) {
 		this.directedMedia = directedMedia;
 	}
-	
 }

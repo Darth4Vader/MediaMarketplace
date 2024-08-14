@@ -5,8 +5,6 @@ import java.time.LocalDateTime;
 import backend.DataUtils;
 import backend.dto.mediaProduct.MovieReviewDto;
 import backend.dto.mediaProduct.MovieReviewReference;
-import backend.entities.MovieReview;
-import backend.entities.User;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;

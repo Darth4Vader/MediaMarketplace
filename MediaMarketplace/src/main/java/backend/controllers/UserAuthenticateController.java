@@ -1,9 +1,7 @@
 package backend.controllers;
 
-import java.util.Collection;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.dao.DataAccessException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,16 +10,13 @@ import org.springframework.web.bind.annotation.RestController;
 import backend.dto.users.LogInDto;
 import backend.dto.users.LogInResponseDto;
 import backend.dto.users.UserInformationDto;
-import backend.entities.Role;
-import backend.entities.User;
+import backend.exceptions.EntityAdditionException;
 import backend.exceptions.LogValuesAreIncorrectException;
 import backend.exceptions.UserAlreadyExistsException;
 import backend.exceptions.UserDoesNotExistsException;
 import backend.exceptions.UserNotLoggedInException;
 import backend.exceptions.UserPasswordIsIncorrectException;
 import backend.services.UserAuthenticateService;
-import backend.services.UserServiceImpl;
-import jakarta.persistence.EntityNotFoundException;
 
 @RestController
 @RequestMapping("/auth")
@@ -32,7 +27,12 @@ public class UserAuthenticateController {
 	
     @PostMapping("/register")
     public String registerUser(@RequestBody UserInformationDto registerDto) throws UserAlreadyExistsException, LogValuesAreIncorrectException, UserPasswordIsIncorrectException {
-        return userAuthService.registerUser(registerDto);
+        try {
+        	return userAuthService.registerUser(registerDto);
+        }
+		catch (DataAccessException e) {//we will catch the Transactional runtime exception, and throw it as a custom exception
+			throw new EntityAdditionException("Unable to register the user", e);
+		}
     }
     
     @PostMapping("/login")
@@ -42,7 +42,12 @@ public class UserAuthenticateController {
     
     @PostMapping("/update")
     public void updateUserInformation(UserInformationDto userDto) throws UserNotLoggedInException, UserPasswordIsIncorrectException, LogValuesAreIncorrectException {
-    	userAuthService.updateUserInformation(userDto);
+    	try {
+    		userAuthService.updateUserInformation(userDto);
+    	}
+		catch (DataAccessException e) {//we will catch the Transactional runtime exception, and throw it as a custom exception
+			throw new EntityAdditionException("Unable to update the user information", e);
+		}
     }
     
     @PostMapping("/checkIfAdmin")

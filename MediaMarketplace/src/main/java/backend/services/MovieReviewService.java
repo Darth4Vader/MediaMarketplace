@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import backend.DataUtils;
 import backend.dto.mediaProduct.MovieReviewDto;
@@ -50,7 +51,9 @@ public class MovieReviewService {
     	return convertMovieReviewToReference(getMovieReviewFromMovieUser(movie, user));
     }
     
-    public void addMovieReviewOfUser(MovieReviewReference movieReviewRef, User user) throws DtoValuesAreIncorrectException, EntityNotFoundException {
+    @Transactional
+    public void addMovieReviewOfUser(MovieReviewReference movieReviewRef) throws DtoValuesAreIncorrectException, EntityNotFoundException {
+    	User user = tokenService.getCurretUser();
     	checkForExceptionReviews(movieReviewRef);
     	Movie movie = movieService.getMovieByID(movieReviewRef.getMovieId());
     	MovieReview movieReview;
@@ -65,7 +68,9 @@ public class MovieReviewService {
     	movieReviewRepository.save(movieReview);
     }
     
-    public void addMovieRatingOfUser(MovieReviewReference movieReviewRef, User user) throws DtoValuesAreIncorrectException, EntityNotFoundException {
+    @Transactional
+    public void addMovieRatingOfUser(MovieReviewReference movieReviewRef) throws DtoValuesAreIncorrectException, EntityNotFoundException {
+    	User user = tokenService.getCurretUser();
     	checkForExceptionRatings(movieReviewRef);
     	Movie movie = movieService.getMovieByID(movieReviewRef.getMovieId());
     	MovieReview movieReview;
@@ -80,6 +85,7 @@ public class MovieReviewService {
     	movieReviewRepository.save(movieReview);
     }
     
+    //a non log user can get this information
     public Integer getMovieRatings(Long movieId) {
     	List<MovieReview> movieReviews;
 		try {
@@ -169,5 +175,4 @@ public class MovieReviewService {
 		if(DataUtils.isNotBlank(review) && review.length() > 1000)
 			map.put(MovieReviewTypes.REVIEW.name(), "The Review Content length must be less than 1000");
 	}
-    
 }

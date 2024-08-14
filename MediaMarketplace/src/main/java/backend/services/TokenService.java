@@ -55,6 +55,11 @@ public class TokenService {
     	return (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
     
+    public void g() {
+    	Jwt t = jwtDecoder.decode(getCurretToken());
+    	//t.get
+    }
+    
     public User getCurretUser() throws UserNotLoggedInException {
     	Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     	if(auth == null)

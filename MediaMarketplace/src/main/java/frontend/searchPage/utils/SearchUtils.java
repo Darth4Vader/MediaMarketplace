@@ -15,10 +15,6 @@ import backend.dto.mediaProduct.ActorDto;
 import backend.dto.mediaProduct.DirectorDto;
 import backend.dto.mediaProduct.MovieDto;
 import backend.dto.mediaProduct.MovieReference;
-import backend.entities.Actor;
-import backend.entities.Director;
-import backend.entities.Genre;
-import backend.entities.Movie;
 import backend.exceptions.EntityNotFoundException;
 
 @Component

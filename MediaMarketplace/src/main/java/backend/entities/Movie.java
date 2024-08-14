@@ -2,12 +2,10 @@ package backend.entities;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -19,7 +17,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
@@ -61,9 +58,6 @@ public class Movie {
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "movie", cascade = CascadeType.ALL)
 	private List<Actor> actorsRoles;
 	
-	//@OneToMany(fetch = FetchType.LAZY, targetEntity = MediaGenre.class)
-	//@JoinColumn(name = "genres", insertable = false, updatable = false)
-	//@OneToMany(fetch = FetchType.LAZY, mappedBy = "media", cascade = CascadeType.ALL)
 	@ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "movie_genres",
@@ -145,18 +139,6 @@ public class Movie {
 		return Objects.hash(id);
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Movie other = (Movie) obj;
-		return Objects.equals(id, other.id);
-	}
-
 	public List<Director> getDirectors() {
 		return directors;
 	}
@@ -192,7 +174,4 @@ public class Movie {
 	public void setReleaseDate(LocalDate releaseDate) {
 		this.releaseDate = releaseDate;
 	}
-	
-	
-
 }

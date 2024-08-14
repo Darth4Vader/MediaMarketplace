@@ -1,6 +1,10 @@
 import backend.controllers.UserAuthenticateController;
 import backend.dto.users.LogInDto;
 import backend.dto.users.LogInResponseDto;
+import backend.entities.User;
+import backend.exceptions.PurchaseOrderException;
+import backend.services.OrderService;
+import backend.services.TokenService;
 import frontend.App;
 import frontend.AppImageUtils;
 import frontend.homePage.HomePageController;

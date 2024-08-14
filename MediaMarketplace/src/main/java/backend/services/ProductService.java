@@ -3,31 +3,19 @@ package backend.services;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import backend.auth.AuthenticateAdmin;
-import backend.dto.mediaProduct.MovieReference;
 import backend.dto.mediaProduct.ProductDto;
 import backend.dto.mediaProduct.ProductReference;
-import backend.entities.CartProduct;
-import backend.entities.Genre;
 import backend.entities.Movie;
 import backend.entities.Product;
-import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
-import backend.repositories.MovieRepository;
 import backend.repositories.ProductRepository;
 
 @Service
@@ -52,6 +40,7 @@ public class ProductService {
     
     //only an admin can add a product to the database
     @AuthenticateAdmin
+    @Transactional
     public Long addProduct(ProductReference productDto) throws EntityNotFoundException {
     	Movie movie = movieService.getMovieByID(productDto.getMovieId());
     	Product product = getProductFromDto(productDto, movie);
@@ -61,6 +50,7 @@ public class ProductService {
     
     //only an admin can update a product to the database
     @AuthenticateAdmin
+    @Transactional
     public void updateProduct(ProductReference productDto) throws EntityNotFoundException {
     	Product product = getProductByID(productDto.getId());
     	updateProductFromReference(product, productDto);
@@ -69,7 +59,7 @@ public class ProductService {
     
     private Product getProductByMovieId(Long movieId) throws EntityNotFoundException {
     	return productRepository.findByMovieId(movieId).
-    			orElseThrow(() -> new EntityNotFoundException("The Movie does not have a product"));
+    			orElseThrow(() -> new EntityNotFoundException("The Movie \"" + movieId + "\" does not have a product"));
     }
     
     public ProductDto getProductOfMovie(Long movieId) throws EntityNotFoundException {
@@ -105,7 +95,7 @@ public class ProductService {
     
     public Product getProductByID(Long id) throws EntityNotFoundException {
     	return productRepository.findById(id).
-    			orElseThrow(() -> new EntityNotFoundException("The Product with id: ("+id+") does not exists"));
+    			orElseThrow(() -> new EntityNotFoundException("The Product with id: \"" + id + "\" does not exists"));
     }
     
     public static ProductDto convertProductToDto(Product product) {

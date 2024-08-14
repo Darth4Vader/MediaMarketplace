@@ -6,6 +6,7 @@ import org.hibernate.exception.JDBCConnectionException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 
+import backend.exceptions.EntityAccessException;
 import backend.exceptions.UserNotLoggedInException;
 import frontend.App;
 import javafx.scene.control.Alert;
@@ -46,6 +47,11 @@ public class CustomExceptionHandler implements UncaughtExceptionHandler {
 		}
 		else if(isCausedBy(throwable, JDBCConnectionException.class)) {
 			AppUtils.alertOfError("Open Server Error", "Unable to connect to server");
+		}
+		else if(isCausedBy(throwable, EntityAccessException.class)) {
+			//here we handle all the access exception that hibernate returns, but we changed it in the controller level to be a custom runtime exception.
+			AppUtils.alertOfError("Accessing data exception", throwable.getMessage());
+			throwable.printStackTrace();
 		}
 		else {
             String name = "";

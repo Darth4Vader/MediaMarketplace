@@ -6,10 +6,8 @@ import org.springframework.stereotype.Component;
 
 import backend.ActivateSpringApplication;
 import backend.controllers.UserAuthenticateController;
-import backend.dto.mediaProduct.MovieDto;
 import backend.dto.mediaProduct.MovieReference;
 import backend.dto.users.UserInformationDto;
-import backend.entities.Movie;
 import backend.exceptions.UserNotLoggedInException;
 import frontend.admin.AddMoviePageController;
 import frontend.admin.AdminProductPageController;

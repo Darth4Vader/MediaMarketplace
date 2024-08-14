@@ -1,11 +1,7 @@
 package backend.services;
 
 import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +17,8 @@ import backend.entities.MoviePurchased;
 import backend.entities.Order;
 import backend.entities.Product;
 import backend.entities.User;
+import backend.exceptions.EntityNotFoundException;
 import backend.exceptions.PurchaseOrderException;
-import backend.repositories.MoviePurchasedRepository;
 import backend.repositories.OrderRepository;
 
 @Service
@@ -50,23 +46,25 @@ public class OrderService {
     }
     
     @Transactional
-    public Order placeOrder(User user) throws PurchaseOrderException {
-    	Cart cart = cartService.getUserCart(user);
+    public Long placeOrder() throws PurchaseOrderException, EntityNotFoundException {
+    	User user = tokenService.getCurretUser();
+    	Cart cart = cartService.getCartByUser(user);
     	List<CartProduct> cartProducts = cart.getCartProducts();
     	double totalPrice = 0;
     	Order order = new Order();
+    	//if the cart is empty, then we can't purchase it
     	if(cartProducts.isEmpty())
-    		throw new PurchaseOrderException("The cart is empty");
+    		throw new PurchaseOrderException("The Cart is empty");
+    	//Now we can create the order, 
+    	//we will convert the CartProducts to MoviePurchased products
     	for(CartProduct cartProduct : cartProducts) {
     		Product product = cartProduct.getProduct();
     		boolean isBuy = cartProduct.isBuying();
-    		System.out.println("Palapatine: " + isBuy);
     		double price = CartService.calculateCartProductPrice(product, isBuy);
     		Movie movie = product.getMovie();
     		MoviePurchased orderItem = new MoviePurchased();
     		orderItem.setMovie(movie);
     		orderItem.setPurchasePrice(price);
-    		System.out.println("Are you buying friend: " + isBuy);
     		orderItem.setRented(!isBuy);
     		if(!isBuy)
     			orderItem.setRentTime(Duration.ofMinutes(3));
@@ -77,52 +75,9 @@ public class OrderService {
     	order.setTotalPrice(totalPrice);
     	order.setUser(user);
     	cartService.removeCartFromUser(cart);
-    	orderRepository.save(order);
-    	return order;
-    	
-    	//System.out.println("Added: " + mediaPurchasedRepository.findByOrder(order));
-    	//orderRepository.delete(order);
-    	//System.out.println("Delete: " + mediaPurchasedRepository.findByOrder(order));
-    	
+    	Order createdOrder = orderRepository.save(order);
+    	return createdOrder.getId();
     }
-	
-    /*
-    @Transactional
-    public Order placeOrder(User user) throws PurchaseOrderException {
-    	Cart cart = cartService.getUserCart(user);
-    	List<CartProduct> cartProducts = cart.getCartProducts();
-    	double totalPrice = 0;
-    	Order order = new Order();
-    	if(cartProducts.isEmpty())
-    		throw new PurchaseOrderException("The cart is empty");
-    	for(CartProduct cartProduct : cartProducts) {
-    		Product product = cartProduct.getProduct();
-    		boolean isBuy = cartProduct.isBuying();
-    		System.out.println("Palapatine: " + isBuy);
-    		double price = product.calculatePrice(isBuy);
-    		Movie movie = product.getMovie();
-    		MoviePurchased orderItem = new MoviePurchased();
-    		orderItem.setMovie(movie);
-    		orderItem.setPurchasePrice(price);
-    		System.out.println("Are you buying friend: " + isBuy);
-    		orderItem.setRented(!isBuy);
-    		if(!isBuy)
-    			orderItem.setRentTime(Duration.ofMinutes(3));
-    			//orderItem.setRentTime(Duration.ofHours(72));
-    		totalPrice += price;
-    		order.addToPurchasedItems(orderItem);
-    	}
-    	order.setTotalPrice(totalPrice);
-    	order.setUser(user);
-    	cartService.removeCartFromUser(cart);
-    	orderRepository.save(order);
-    	return order;
-    	
-    	//System.out.println("Added: " + mediaPurchasedRepository.findByOrder(order));
-    	//orderRepository.delete(order);
-    	//System.out.println("Delete: " + mediaPurchasedRepository.findByOrder(order));
-    	
-    }*/
     
     private OrderDto convertOrderToDto(Order order) {
     	OrderDto orderDto = new OrderDto();

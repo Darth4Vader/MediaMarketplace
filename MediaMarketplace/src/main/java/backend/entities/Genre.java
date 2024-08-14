@@ -1,11 +1,7 @@
 package backend.entities;
 
 import java.util.List;
-import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonSetter;
-
-import backend.DataUtils;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -49,30 +45,4 @@ public class Genre {
 	public void setGenreName(String name) {
 		this.name = name;
 	}
-
-	/*@Override
-	public int hashCode() {
-		return Objects.hash(name);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if(obj instanceof String) {
-			return DataUtils.equalsIgnoreCase(name, (String) obj);
-		}
-		if (getClass() != obj.getClass())
-			return false;
-		Genre other = (Genre) obj;
-		return DataUtils.equalsIgnoreCase(name, other.name);
-	}*/
-
-	/*@Override
-	public String toString() {
-		return "MediaGenre [id=" + id + ", genreName=" + name + ", genreID=" + genreID + "]";
-	}*/
-
 }

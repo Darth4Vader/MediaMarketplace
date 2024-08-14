@@ -1,16 +1,10 @@
 package backend.entities;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Calendar;
 
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -51,7 +45,6 @@ public class MovieReview {
     private Movie movie;
     
     @ManyToOne(fetch = FetchType.EAGER)
-    //@JsonIgnore
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 

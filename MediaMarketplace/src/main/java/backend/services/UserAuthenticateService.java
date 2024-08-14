@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,6 +25,7 @@ import backend.dto.users.UserInformationDto;
 import backend.entities.Role;
 import backend.entities.RoleType;
 import backend.entities.User;
+import backend.exceptions.EntityNotFoundException;
 import backend.exceptions.LogValuesAreIncorrectException;
 import backend.exceptions.UserAlreadyExistsException;
 import backend.exceptions.UserDoesNotExistsException;
@@ -33,7 +33,6 @@ import backend.exceptions.UserNotLoggedInException;
 import backend.exceptions.UserPasswordIsIncorrectException;
 import backend.repositories.RoleRepository;
 import backend.repositories.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class UserAuthenticateService {
@@ -53,6 +52,7 @@ public class UserAuthenticateService {
     @Autowired
     private TokenService tokenService;
 
+    @Transactional
     public String registerUser(UserInformationDto registerDto) throws UserAlreadyExistsException, LogValuesAreIncorrectException, UserPasswordIsIncorrectException {
     	//check that the userName does not exists
     	validateUserDto(registerDto);
@@ -94,11 +94,16 @@ public class UserAuthenticateService {
 	        Authentication auth = authenticationManager.authenticate(
 	            new UsernamePasswordAuthenticationToken(username, password, userOPt.get().getAuthorities()));
 	        SecurityContextHolder.getContext().setAuthentication(auth);
+	        
+	        //remove this
+	        System.out.println("Roles: ");
+	        userOPt.get().getAuthorities().forEach(System.out::println);
+	        System.out.println(userOPt.get().getAuthorities().stream());
+	        userOPt.get().getAuthorities().stream().map(GrantedAuthority::getAuthority).forEachOrdered(System.out::println);
+	        
+	        
 	        String token = tokenService.generateJwt(auth);
-	        //((Set<Role>) userRepository.findByUsername(username).get().getAuthorities()).add(roleRepository.findByAuthority(Role.ADMIN).get());
-	        System.out.println("Token: " + token);
-	        System.out.println("Roles: " + userRepository.findByUsername(username).get().getAuthorities().stream().map(s -> s.getAuthority()).collect(Collectors.toList()));
-	        return new LogInResponseDto(userRepository.findByUsername(username).get(), token);
+	        return new LogInResponseDto(token);
     } catch(AuthenticationException e) {
         SecurityContextHolder.getContext().setAuthentication(null);
         throw new UserPasswordIsIncorrectException();
@@ -122,22 +127,6 @@ public class UserAuthenticateService {
     	}
     	user.setName(userDto.getName());
     	reloadAuthentication(user);
-        
-        //remove all this green
-    	//validateAuthentication(user);
-    	//userRepository.save(user);
-    	/*User g = userRepository.findByUserName(username).get();
-    	System.out.println(g.equals(curUser));
-    	System.out.println("Side d " + userDto.getName());
-    	System.out.println("Cur User: " + curUser.getUsername() + " Password: " + curUser.getPassword() + " Name: " + curUser.getName());
-    	System.out.println("User: " + user.getUsername() + " Password: " + user.getPassword() + " Name: " + user.getName());
-    	System.out.println("Updated User: " + g.getUsername() + " Password: " + g.getPassword() + " Name: " + g.getName());
-    	
-    	/*User user = userRepository.findByUsername(username);
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found");
-        }
-        return user;*/
     }
     
     @AuthenticateAdmin
@@ -145,16 +134,31 @@ public class UserAuthenticateService {
     	
     }
     
-    public boolean isCurrentUserAdmin() {
+    public boolean isCurrentUserAdmin2() {
     	User user = tokenService.getCurretUser();
-    	Role admin = roleRepository.findByRoleType(RoleType.ROLE_ADMIN).orElseThrow(() -> new EntityNotFoundException("The role ADMIN does not exists"));
-    	Collection<? extends GrantedAuthority> roles = user.getAuthorities();
-        /*System.out.println("Les Admins");
-        System.out.println(admin.getAuthority());
-    	System.out.println("Roles: " + user.getAuthorities().stream().map(s -> s.getAuthority()).collect(Collectors.toList()));
-    	for(GrantedAuthority g : roles)
-    		System.out.println(g.getAuthority() + " " + g.equals(admin));*/
-    	return roles != null && roles.contains(admin);
+		try {
+			System.out.println("Sup young fellow");
+			Role admin = roleRepository.findByRoleType(RoleType.ROLE_ADMIN).orElseThrow(() -> new EntityNotFoundException("The role ADMIN does not exists"));
+			Collection<? extends GrantedAuthority> roles = user.getAuthorities();
+	    	if(roles != null) for(GrantedAuthority role : roles)
+	    		if(role.equals(admin))
+	    			return true;
+			System.out.println(admin);
+			System.out.println(roles + " " + roles.contains(admin));
+			return roles != null && roles.contains(admin);
+		} catch (EntityNotFoundException e) {
+		}
+		return false;
+    }
+    
+    public boolean isCurrentUserAdmin() {
+    	try {
+    		checkIfCurrentUserIsAdmin();
+    		return true;
+    	}
+    	catch (Throwable e) {
+			return false;
+		}
     }
     
     public UserInformationDto getCurrentUserDto() throws UserNotLoggedInException {

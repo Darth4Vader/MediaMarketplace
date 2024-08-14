@@ -1,26 +1,13 @@
 package backend.services;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import backend.auth.AuthenticateAdmin;
-import backend.dto.input.RefActorDto;
 import backend.dto.mediaProduct.CreateMovieDto;
 import backend.dto.mediaProduct.MovieDto;
 import backend.dto.mediaProduct.MovieReference;
@@ -43,23 +30,23 @@ public class MovieService {
     //a non log user can get this information
     public List<MovieReference> getAllMovies() {
     	List<Movie> movies = movieRepository.findAll();
-    	List<MovieReference> moviesReference = new ArrayList<>();
+    	List<MovieReference> movieReferencesList = new ArrayList<>();
     	for(Movie movie : movies) {
     		MovieReference movieReference = convertMovieToReference(movie);
-    		moviesReference.add(movieReference);
+    		movieReferencesList.add(movieReference);
     	}
-    	return moviesReference;
+    	return movieReferencesList;
     }
     
     //a non log user can get this information
     public MovieDto getMovie(Long movieId) throws EntityNotFoundException {
     	Movie movie = getMovieByID(movieId);
-    	MovieDto movieDto = convertMovieToDto(movie);
-    	return movieDto;
+    	return convertMovieToDto(movie);
     }
 	
     //only an admin can add a movie to the database
     @AuthenticateAdmin
+    @Transactional
     public void addMovie(CreateMovieDto createMovieDto) throws EntityAlreadyExistsException, EntityNotFoundException {
     	String mediaID = createMovieDto.getMediaID();
     	try {	
@@ -81,7 +68,8 @@ public class MovieService {
     
     //only an admin can update a movie in the database
     @AuthenticateAdmin
-    public void updateMovie(CreateMovieDto createMovieDto) throws EntityNotFoundException {
+    @Transactional
+    public Long updateMovie(CreateMovieDto createMovieDto) throws EntityNotFoundException {
     	String mediaID = createMovieDto.getMediaID();
     	MovieDto movieDto = createMovieDto.getMovieDto();
     	Movie movie = getMovieByNameID(mediaID);
@@ -100,15 +88,26 @@ public class MovieService {
 			//if the movie had before genres, than we try to remove the genres if possible from the database
 			if(currentGenre != null)
 				for(Genre genre : currentGenre) {
+					
+					//check this, there is a problem with rollback hibernate transacional
+					
+					
+					/*
 					try {
-						genreService.removeGenre(genre.getName());
-					} catch (EntityNotFoundException e) {
-					} catch (EntityRemovalException e) {
+						System.out.println("Opps");
+						genreService.removeGenreWithoutTransactional(genre.getName());
+					} catch (Throwable e) {
+						//if there is a problem with removing the genre, like if there is a foreign key that maps to it
+						//then is means that the genre is used by another movie, therefore we will not remove it
 					}
+					System.out.println("Daisy");
+					
+					*/
 				}
 		}
 		updateMovieByDto(movie, movieDto);
-    	movieRepository.save(movie);
+    	Movie updatedMovie = movieRepository.save(movie);
+    	return updatedMovie.getId();
     }
     
     //only an admin can get the movie id from the database (we don't want a non admin to see this value)
@@ -135,29 +134,12 @@ public class MovieService {
         movieDto.setRuntime(movie.getRuntime());
         movieDto.setName(movie.getName());
         List<Genre> genres = movie.getGenres();
-        List<String> genresNameList = new ArrayList<>();
-        for(Genre genre : genres)
-        	genresNameList.add(genre.getName());
+        List<String> genresNameList = GenreService.covertGenresToDto(genres);
         movieDto.setGenres(genresNameList);
         movieDto.setReleaseDate(movie.getReleaseDate());
         movieDto.setYear(movie.getYear());
         return movieDto;
     }
-    
-    /*
-    public static Movie getMovieFromDto(MovieDto movieDto, List<Genre> genres) {
-        Movie movie = new Movie();
-        movie.setMediaID(movieDto.getMediaID());
-        movie.setSynopsis(movieDto.getSynopsis());
-        movie.setPosterPath(movieDto.getPosterPath());
-        movie.setBackdropPath(movieDto.getBackdropPath());
-        movie.setRuntime(movieDto.getRuntime());
-        movie.setName(movieDto.getMediaName());
-        movie.setGenres(genres);
-        movie.setReleaseDate(movieDto.getReleaseDate());
-        movie.setYear(movieDto.getYear());
-        return movie;
-    }*/
     
     private static void updateMovieByDto(Movie movie, MovieDto movieDto) {
     	String synopsis = movieDto.getSynopsis();

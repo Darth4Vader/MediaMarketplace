@@ -8,6 +8,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import backend.dto.mediaProduct.MoviePurchasedDto;
 import javafx.scene.control.Label;
 
 public class DataUtils {
@@ -63,5 +64,15 @@ public class DataUtils {
                 duration.toSecondsPart());
         return time;
 	}
-
+	
+	public static boolean isUseable(MoviePurchasedDto moviePurchased) {
+		return isUseable(moviePurchased.isRented(), moviePurchased.getRentTimeSincePurchase());
+	}
+	
+	public static boolean isUseable(boolean isRented, LocalDateTime timeSince) {
+		if(!isRented)
+			return true;
+		LocalDateTime now = LocalDateTime.now();
+		return now.isBefore(timeSince);
+	}
 }

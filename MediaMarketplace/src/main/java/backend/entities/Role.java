@@ -16,12 +16,9 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name="roles")
 public class Role implements GrantedAuthority {
-	
-	//public static final String ADMIN = "ADMIN", USER = "USER";
 
-    @Id
+	@Id
     @GeneratedValue(strategy=GenerationType.AUTO)
-    //@Column(name="role_id")
     private Long id;
 
     @Enumerated(EnumType.STRING)
@@ -53,19 +50,15 @@ public class Role implements GrantedAuthority {
     }
 
 	@Override
-	public int hashCode() {
-		return Objects.hash(roleType, id);
-	}
-
-	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
 			return false;
-		if (getClass() != obj.getClass())
+		if(!(obj instanceof Role))
 			return false;
 		Role other = (Role) obj;
+		System.out.println(Objects.equals(roleType, other.roleType) + " " + Objects.equals(id, other.id));
 		return Objects.equals(roleType, other.roleType) && Objects.equals(id, other.id);
 	}
 }

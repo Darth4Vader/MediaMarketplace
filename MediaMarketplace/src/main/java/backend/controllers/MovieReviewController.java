@@ -3,32 +3,20 @@ package backend.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import backend.dto.mediaProduct.MovieReviewDto;
 import backend.dto.mediaProduct.MovieReviewReference;
-import backend.dto.mediaProduct.ProductReference;
-import backend.entities.Movie;
-import backend.entities.MovieReview;
-import backend.entities.Product;
-import backend.entities.User;
 import backend.exceptions.DtoValuesAreIncorrectException;
-import backend.exceptions.EntityAlreadyExistsException;
+import backend.exceptions.EntityAdditionException;
 import backend.exceptions.EntityNotFoundException;
 import backend.exceptions.UserNotLoggedInException;
 import backend.services.MovieReviewService;
-import backend.services.MovieService;
-import backend.services.ProductService;
-import backend.services.TokenService;
-import backend.services.UserServiceImpl;
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/movie_reviews")
@@ -37,10 +25,7 @@ public class MovieReviewController {
 	@Autowired
 	private MovieReviewService movieReviewService;
 	
-	@Autowired
-	private TokenService tokenService;
-	
-	@GetMapping("/get_all")
+	@GetMapping("/get_all/{movieId}")
 	@ResponseStatus(code = HttpStatus.OK)
     public List<MovieReviewDto> getAllReviewOfMovie(Long movieId) throws EntityNotFoundException {
 		return movieReviewService.getAllReviewOfMovie(movieId);
@@ -48,22 +33,30 @@ public class MovieReviewController {
 	
 	@GetMapping("/get/{movieId}/{userId}")
 	@ResponseStatus(code = HttpStatus.OK)
-    public MovieReviewReference getMovieReviewOfUser(Long movieId) throws EntityNotFoundException, UserNotLoggedInException  {
+    public MovieReviewReference getMovieReviewOfUser(Long movieId) throws EntityNotFoundException, UserNotLoggedInException {
 		return movieReviewService.getMovieReviewOfUser(movieId);
     }
 	
 	@GetMapping("/add_review/{movieId}/{userId}")
 	@ResponseStatus(code = HttpStatus.OK)
-    public void addMovieReviewOfUser(MovieReviewReference movieReviewDto) throws DtoValuesAreIncorrectException, EntityNotFoundException  {
-		User user = tokenService.getCurretUser();
-		movieReviewService.addMovieReviewOfUser(movieReviewDto, user);
+    public void addMovieReviewOfUser(MovieReviewReference movieReviewDto) throws DtoValuesAreIncorrectException, EntityNotFoundException {
+		try {
+			movieReviewService.addMovieReviewOfUser(movieReviewDto);
+		}
+		catch (DataAccessException e) {//we will catch the Transactional runtime exception, and throw it as a custom exception
+			throw new EntityAdditionException("Unable to add user review to the movie \"" + movieReviewDto.getMovieId() + "\"", e);
+		}
 	}
 	
 	@GetMapping("/add_ratings/{movieId}/{userId}")
 	@ResponseStatus(code = HttpStatus.OK)
-    public void addMovieRatingOfUser(MovieReviewReference movieReviewDto) throws DtoValuesAreIncorrectException, EntityNotFoundException  {
-		User user = tokenService.getCurretUser();
-		movieReviewService.addMovieRatingOfUser(movieReviewDto, user);
+    public void addMovieRatingOfUser(MovieReviewReference movieReviewDto) throws DtoValuesAreIncorrectException, EntityNotFoundException {
+		try {
+			movieReviewService.addMovieRatingOfUser(movieReviewDto);
+		}
+		catch (DataAccessException e) {//we will catch the Transactional runtime exception, and throw it as a custom exception
+			throw new EntityAdditionException("Unable to add user ratings to the movie \"" + movieReviewDto.getMovieId() + "\"", e);
+		}
     }
 	
 	@GetMapping("/get_ratings/{movieId}")
@@ -71,16 +64,4 @@ public class MovieReviewController {
     public Integer getMovieRatings(Long movieId) {
 		return movieReviewService.getMovieRatings(movieId);
     }
-	
-	/*public static double calculateRating(List<MovieReview> reviews) {
-		double size = reviews.size();
-		double sum = 0;
-		for(MovieReview review : reviews) {
-			sum += review.getRating();
-			System.out.println(sum);
-		}
-		System.out.println(size);
-		System.out.println(sum / size);
-		return sum / size;
-	}*/
 }

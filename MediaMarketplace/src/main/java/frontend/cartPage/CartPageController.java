@@ -10,8 +10,6 @@ import backend.controllers.OrderController;
 import backend.dto.cart.CartDto;
 import backend.dto.cart.CartProductDto;
 import backend.dto.cart.CartProductReference;
-import backend.entities.CartProduct;
-import backend.entities.Order;
 import backend.exceptions.EntityNotFoundException;
 import backend.exceptions.PurchaseOrderException;
 import frontend.utils.AppUtils;
@@ -96,45 +94,31 @@ public class CartPageController {
 	
 	private void refreshCart() {
 		cartProducts.clear();
-		CartDto cart = cartController.getCart();
-		List<CartProductDto> resp = cart.getCartProducts();
-		if(resp != null) {
-			cartProducts.setAll(resp);
+		try {
+			CartDto cart = cartController.getCart();
+			List<CartProductDto> resp = cart.getCartProducts();
+			if(resp != null) {
+				cartProducts.setAll(resp);
+			}
+			itemsNumberText.setText(""+cartProducts.size());
+			totalPriceText.setText(""+cart.getTotalPrice());
+		} catch (EntityNotFoundException e) {
+			//if there is no cart for the user, then we will show him an empty cart
 		}
-		double totalPrice = 0;
-		itemsNumberText.setText(""+cartProducts.size());
-		totalPriceText.setText(""+cart.getTotalPrice());
-	}	
-	
-	/*private void refreshCart() {
-		cartProducts.clear();
-		List<CartProduct> resp = cartController.getCartProducts();
-		if(resp != null) {
-			cartProducts.setAll(resp);
-		}
-		refreshTotalPrice();
-	}*/
-	
-	/*public void refreshTotalPrice() {
-		double totalPrice = 0;
-		itemsNumberText.setText(""+cartProducts.size());
-		for(CartProduct cartProduct : cartProducts)
-			totalPrice += cartProduct.getPrice();
-		totalPriceText.setText(""+totalPrice);
-	}*/
+	}
 	
 	@FXML
 	private void purchaseCart() {
-		Order order = null;
+		Long orderId = null;
 		try {
-			order = orderController.placeOrder();
-		} catch (PurchaseOrderException e) {
-			//we will alert the user for the exception reasons.
+			orderId = orderController.placeOrder();
+		} catch (PurchaseOrderException | EntityNotFoundException e) {
+			//we will alert the user of the exception
 			AppUtils.alertOfError("Problem with Purchasing Products", e.getMessage());
 		}
 		refreshCart();
-		if(order != null) {
-			AppUtils.alertOfInformation("Purchase is successfull", "Order number is: " + order.getId());
+		if(orderId != null) {
+			AppUtils.alertOfInformation("Purchase is successfull", "Order number is: " + orderId);
 		}
 	}
 }

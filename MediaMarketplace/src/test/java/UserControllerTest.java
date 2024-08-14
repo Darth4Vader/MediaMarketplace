@@ -18,15 +18,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.HttpClientErrorException;
 
 import backend.ActivateSpringApplication;
-import backend.controllers.UserController;
 import backend.entities.User;
 
 @SpringBootTest(classes = ActivateSpringApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @SpringJUnitConfig(ApplicationTestConfig.class)
 class UserControllerTest {
-
-	@Autowired
-	private UserController userController;
 
 	@Test
 	public void contextLoads() {

@@ -10,9 +10,6 @@ import backend.controllers.OrderController;
 import backend.dto.mediaProduct.MoviePurchasedDto;
 import backend.dto.mediaProduct.MovieReference;
 import backend.dto.mediaProduct.OrderDto;
-import backend.entities.Movie;
-import backend.entities.MoviePurchased;
-import backend.entities.Order;
 import frontend.App;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -146,7 +143,7 @@ public class OrderHistoryController {
 		type.setStyle("-fx-font-weight: bold; -fx-font-size: 19");
 		nameFlow.getChildren().addAll(type, new Text(" ("));
 		Text use = new Text();
-		if(MoviePurchasedDto.isUseable(moviePurchased)) {
+		if(DataUtils.isUseable(moviePurchased)) {
 			use.setText("Useable");
 			use.setStyle("-fx-fill: green");
 		}

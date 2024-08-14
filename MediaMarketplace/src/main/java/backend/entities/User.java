@@ -1,16 +1,12 @@
 package backend.entities;
 
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import jakarta.annotation.Generated;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -24,7 +20,12 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "users")
-public class User implements Serializable, UserDetails {
+public class User implements UserDetails {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -90,5 +91,4 @@ public class User implements Serializable, UserDetails {
 	public void setName(String name) {
 		this.name = name;
 	}
-
 }

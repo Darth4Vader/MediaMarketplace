@@ -3,19 +3,17 @@ package backend.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import backend.entities.Genre;
-import backend.entities.User;
+import backend.exceptions.EntityAdditionException;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.services.GenreService;
-import backend.services.UserServiceImpl;
 import jakarta.validation.Valid;
 
 @RestController
@@ -26,14 +24,19 @@ public class GenreController {
 	private GenreService genreService; 
 	
 	@GetMapping("/")
-    public List<Genre> getAllGenres() {
-        List<Genre> body = genreService.getAllGenres();
+    public List<String> getAllGenres() {
+        List<String> body = genreService.getAllGenres();
         return body;
     }
 	
 	@GetMapping("/create")
     public ResponseEntity<String> createGenre(@Valid @RequestBody String genreName) throws EntityAlreadyExistsException {
-		genreService.createGenre(genreName);
+		try {
+			genreService.createGenre(genreName);
+		}
+		catch (DataAccessException e) {//we will catch the Transactional runtime exception, and throw it as a custom exception
+			throw new EntityAdditionException("Unable to add the genre with the name: " + genreName, e);
+		}
         return new ResponseEntity<>("Created Successfully", HttpStatus.OK);
     }
 }

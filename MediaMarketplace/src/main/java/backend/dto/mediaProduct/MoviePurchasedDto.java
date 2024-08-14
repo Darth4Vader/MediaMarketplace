@@ -82,15 +82,4 @@ public class MoviePurchasedDto {
 	public void setRentTimeSincePurchase(LocalDateTime rentTimeSincePurchase) {
 		this.rentTimeSincePurchase = rentTimeSincePurchase;
 	}
-	
-	public static boolean isUseable(MoviePurchasedDto moviePurchased) {
-		return isUseable(moviePurchased.isRented(), moviePurchased.getRentTimeSincePurchase());
-	}
-	
-	public static boolean isUseable(boolean isRented, LocalDateTime timeSince) {
-		if(!isRented)
-			return true;
-		LocalDateTime now = LocalDateTime.now();
-		return now.isBefore(timeSince);
-	}
 }

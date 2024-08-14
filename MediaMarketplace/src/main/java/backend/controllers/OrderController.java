@@ -1,38 +1,17 @@
 package backend.controllers;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import org.springframework.dao.DataAccessException;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import backend.dto.cart.CartProductReference;
 import backend.dto.mediaProduct.OrderDto;
-import backend.entities.Cart;
-import backend.entities.CartProduct;
-import backend.entities.Genre;
-import backend.entities.Movie;
-import backend.entities.MoviePurchased;
-import backend.entities.Order;
-import backend.entities.User;
-import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
 import backend.exceptions.PurchaseOrderException;
-import backend.repositories.UserRepository;
-import backend.services.CartService;
-import backend.services.GenreService;
 import backend.services.OrderService;
-import backend.services.TokenService;
-import backend.services.UserServiceImpl;
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/orders")
@@ -41,37 +20,18 @@ public class OrderController {
 	@Autowired
 	private OrderService orderService; 
 	
-	@Autowired
-	private TokenService tokenService;
-	
 	@GetMapping("/get/orders")
 	public List<OrderDto> getUserOrders() {
 		return orderService.getUserOrders();
     }
 	
 	@GetMapping("/place_order")
-    public Order placeOrder() throws PurchaseOrderException {
-		User user = tokenService.getCurretUser();
-		return orderService.placeOrder(user);
+    public Long placeOrder() throws PurchaseOrderException, EntityNotFoundException {
+		try {
+			return orderService.placeOrder();
+		}
+		catch (DataAccessException e) {//we will catch the Transactional runtime exception, and throw it as a custom exception
+			throw new PurchaseOrderException("Unable to purchase the movie", e);
+		}
     }
-	
-	/*@GetMapping("/add")
-    public ResponseEntity<String> addProductToCart(AddProductToCartDto dto) throws EntityNotFoundException, EntityAlreadyExistsException  {
-		//String userName = tokenService.getCurrentUserName(token);
-		//User user = userService.getUserByUserName(userName);
-		User user = tokenService.getCurretUser();
-		cartService.addProductToCart(dto, user);
-		//List<MediaGenre> body = cartService.
-        return new ResponseEntity<>("Added Succssesfully", HttpStatus.OK);
-    }*/
-	
-	/*@GetMapping("/remove")
-    public ResponseEntity<String> removeProductFromCart(AddProductToCartDto dto) throws EntityNotFoundException {
-		//String userName = tokenService.getCurrentUserName(token);
-		//User user = userService.getUserByUserName(userName);
-		User user = tokenService.getCurretUser();
-		cartService.removeProductFromCart(dto, user);
-		//List<MediaGenre> body = cartService.
-        return new ResponseEntity<>("Added Succssesfully", HttpStatus.OK);
-    }*/
 }

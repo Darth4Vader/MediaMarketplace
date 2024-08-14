@@ -2,14 +2,10 @@ package backend.entities;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -23,7 +19,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "orders")
@@ -42,7 +37,6 @@ public class Order {
 	private LocalDateTime purchasedDate;
 	
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "order", cascade = CascadeType.ALL)
-	//@JoinColumn(name = "media_purchased_id", insertable = false, updatable = false)
 	private List<MoviePurchased> purchasedItems;
 	
 	@ManyToOne
@@ -95,5 +89,4 @@ public class Order {
 	public void setUser(User user) {
 		this.user = user;
 	}
-
 }

@@ -1,8 +1,6 @@
 package frontend.utils;
 
-import backend.dto.mediaProduct.MovieDto;
 import backend.dto.mediaProduct.MovieReference;
-import backend.entities.Movie;
 import frontend.App;
 import frontend.AppImageUtils;
 import javafx.scene.Cursor;

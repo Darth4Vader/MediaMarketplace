@@ -1,35 +1,22 @@
 package backend.services;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import backend.auth.AuthenticateAdmin;
-import backend.dto.input.RefActorDto;
 import backend.dto.input.RefDirectorDto;
 import backend.dto.mediaProduct.DirectorDto;
 import backend.dto.mediaProduct.MovieDto;
-import backend.entities.Actor;
 import backend.entities.Director;
-import backend.entities.Genre;
 import backend.entities.Movie;
 import backend.entities.Person;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
-import backend.repositories.ActorRepository;
 import backend.repositories.DirectorRepository;
-import backend.repositories.GenreRepository;
 
 @Service
 public class DirectorService {
@@ -42,11 +29,6 @@ public class DirectorService {
     
     @Autowired
     private MovieService movieService;
-    
-    /*//a non log user can get this information
-    public List<Director> getAllDirectors() {
-    	return directorRepository.findAll();
-    }*/
     
     //a non log user can get this information
     public List<DirectorDto> getDirectorsOfMovie(Long movieId) throws EntityNotFoundException {
@@ -70,7 +52,7 @@ public class DirectorService {
     	Movie movie = movieService.getMovieByNameID(directorDto.getMovieMediaId());
     	try {
     		getDirectorByMovie(movie.getId(), person.getId());
-	    	throw new EntityAlreadyExistsException("The person (" + person.getName() + ") is already an actor in the movie");
+	    	throw new EntityAlreadyExistsException("The person \"" + person.getName() + "\" is already a director in the movie");
     	}
     	catch (EntityNotFoundException e) {}
     	Director director = new Director();
@@ -110,8 +92,8 @@ public class DirectorService {
 		directorRepository.delete(director);
     }
     
-    public Director getDirectorByMovie(Long movieId, Long personId) throws EntityNotFoundException {
+    private Director getDirectorByMovie(Long movieId, Long personId) throws EntityNotFoundException {
     	return directorRepository.findByMovieIdAndPersonId(movieId, personId)
-    			.orElseThrow(() -> new EntityNotFoundException("The person (" + personId + ") is not a director in the movie"));
+    			.orElseThrow(() -> new EntityNotFoundException("The person \"" + personId + "\" is not a director in the movie"));
     }
 }

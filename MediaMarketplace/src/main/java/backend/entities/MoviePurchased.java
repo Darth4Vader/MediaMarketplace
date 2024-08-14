@@ -1,17 +1,10 @@
 package backend.entities;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.CascadeType;
@@ -24,9 +17,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "movie_purchased")
@@ -50,22 +41,13 @@ public class MoviePurchased {
 	@Column(name = "rent_time")
 	private Duration rentTime;
 	
-	/*@Column(name = "expiration_date", nullable = false)
-	private Date expirationDate;*/
-	
     @ManyToOne
     @JoinColumn(name = "movie_id", referencedColumnName = "id", nullable = false)
     private Movie movie;
     
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    //@JsonIgnore
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
-
-	public MoviePurchased() {
-		Date date = null;
-		//Calendar c = Calendar.Builder().
-	}
 
 	public Long getId() {
 		return id;
@@ -97,54 +79,15 @@ public class MoviePurchased {
 
 	public void setOrder(Order order) {
 		this.order = order;
-		/*LocalDateTime date = this.order.getPurchasedDate();
-		if(date != null)
-			setPurchaseDate(date);*/
 	}
 
 	public LocalDateTime getPurchaseDate() {
 		return purchaseDate;
 	}
-
-	public Date getExpirationDate() {
-		return null;
-		//return expirationDate;
-	}
-
+	
 	public void setPurchaseDate(@Nonnull LocalDateTime purchaseDate) {
 		this.purchaseDate = purchaseDate;
 	}
-	
-	/*
-	
-	public boolean isUseable() {
-		if(!isRented)
-			return true;
-		LocalDateTime timeSince = getCurrentRentTime();
-		LocalDateTime now = LocalDateTime.now();
-		return isRented == false || now.isBefore(timeSince);
-		//return new Date().before(expirationDate);
-	}
-	
-	public LocalDateTime getCurrentRentTime() {
-		LocalDateTime timeSince = purchaseDate.plusSeconds(rentTime.getSeconds());
-		return timeSince;
-	}
-	
-	public Duration getRemainTime() {
-		LocalDateTime timeSince = getCurrentRentTime();
-		LocalDateTime now = LocalDateTime.now();
-		try {
-			return Duration.between(now, timeSince);
-		}
-		catch (Exception e) {
-			return null;
-		}
-	}
-
-
-	*/
-
 
 	public boolean isRented() {
 		return isRented;
@@ -153,17 +96,6 @@ public class MoviePurchased {
 	public Duration getRentTime() {
 		return rentTime;
 	}
-	
-	/*public Duration getRentTimeRemaining() {
-		LocalDateTime timeSince = getCurrentRentTime();
-		LocalDateTime now = LocalDateTime.now();
-		try {
-			return rentTime.minus(Duration.between(timeSince, now));
-		}
-		catch (ArithmeticException e) {
-			return null;
-		}
-	}*/
 
 	public void setRented(boolean isRented) {
 		this.isRented = isRented;
