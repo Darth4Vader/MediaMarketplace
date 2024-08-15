@@ -44,12 +44,12 @@ public class GenreService {
     @Transactional
     public void removeGenre(String genreName) throws EntityNotFoundException, EntityRemovalException {
     	Genre genre = getGenreByName(genreName);
-    	try {
+    	if(genre.getMovies() == null) try {
     		genreRepository.delete(genre);
+    		return;
     	}
-    	catch (Throwable e) {
-    		throw new EntityRemovalException("Cannot Remove the Genre with id: \""+genreName+"\"");
-		}
+    	catch (Throwable e) {}
+    	throw new EntityRemovalException("Cannot Remove the Genre with id: \""+genreName+"\"");
     }
     
     //only an admin can remove a genre in the database

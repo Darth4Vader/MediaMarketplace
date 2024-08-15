@@ -9,11 +9,15 @@ import backend.dto.cart.CartProductReference;
 import backend.dto.mediaProduct.ProductReference;
 import backend.dto.users.LogInDto;
 import backend.dto.users.LogInResponseDto;
+import backend.entities.Genre;
+import backend.entities.Movie;
 import backend.entities.User;
 import backend.exceptions.EntityNotFoundException;
 import backend.exceptions.EntityRemovalException;
 import backend.exceptions.PurchaseOrderException;
 import backend.services.CartService;
+import backend.services.GenreService;
+import backend.services.MovieService;
 import backend.services.OrderService;
 import backend.services.ProductService;
 import backend.services.TokenService;
@@ -26,8 +30,8 @@ public class WithoutAppLoginAsUser {
 		appContext = ActivateSpringApplication.create(args);
 		UserAuthenticateController userAuth = appContext.getBean(UserAuthenticateController.class);
 		
-		LogInDto dto = new LogInDto("frodo", "bag");
-		//LogInDto dto = new LogInDto("bilbo", "bag");
+		//LogInDto dto = new LogInDto("frodo", "bag");
+		LogInDto dto = new LogInDto("bilbo", "bag");
 		try {
 			LogInResponseDto d = userAuth.loginUser(dto);
 			//userAuth.registerUser(new UserInformationDto("frodo", "", "bag", "bag"));
@@ -40,12 +44,12 @@ public class WithoutAppLoginAsUser {
 		CartProductReference productReference = new CartProductReference();
 		productReference.setBuying(false);
 		productReference.setProductId(32l);
-		try {
+		/*try {
 			cartService.addProductToCart(productReference);
 		} catch (Exception e3) {
 			e3.printStackTrace();
 			// TODO: handle exception
-		}
+		}*/
 		
 		OrderService orderService = appContext.getBean(OrderService.class);
 		TokenService tokenService = appContext.getBean(TokenService.class);
@@ -53,6 +57,29 @@ public class WithoutAppLoginAsUser {
 		OrderController orderController = appContext.getBean(OrderController.class);
 		
 		User user = tokenService.getCurretUser();
+		
+		GenreService genreService = appContext.getBean(GenreService.class);
+		
+		
+		MovieService movieService  =appContext.getBean(MovieService.class);
+		
+		try {
+			Movie movie = movieService.getMovieByID(9l);
+			
+			/*Genre genre1 = genreService.getGenreByName("Action");
+			Genre genre2 = genreService.getGenreByName("Science fiction"); 
+			Genre genre3 = genreService.getGenreByName("Adventure");*/
+			
+			Genre genre1 = genreService.getGenreByName("Comedy");
+			
+			//genreService.removeGenre(genre1.getName());
+			//movieService.updateMovie(movie, genre1);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		/*
 		for(int i = 0; i < 8; i++) {
 			int j = i;
 			new Thread(() -> {
@@ -68,6 +95,7 @@ public class WithoutAppLoginAsUser {
 				}
 			}).start();
 		}
+		*/
 		
 	}
 

@@ -50,26 +50,13 @@ public class SecurityConfig /*extends WebSecurityConfiguration*/ {
         this.rsaKeys = rsaKeys;
     }
 	
-	/*private final UserDetailsService userDetailsService;
-	@Autowired
-	public SecurityConfig(UserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
-    }*/
-	
     @Bean
     public AuthenticationManager authManager(UserDetailsService detailsService){
         DaoAuthenticationProvider daoProvider = new DaoAuthenticationProvider();
-        System.out.println(detailsService.getClass());
         daoProvider.setUserDetailsService(detailsService);
         daoProvider.setPasswordEncoder(passwordEncoder());
         return new ProviderManager(daoProvider);
     }
-	
-	/*@Bean
-    public AuthenticationManager authManager(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
-        return auth.build();
-    }*/
     
     
     /**
@@ -79,8 +66,6 @@ public class SecurityConfig /*extends WebSecurityConfiguration*/ {
     @Bean
     public SimpleMappingExceptionResolver exceptionResolver() {
         SimpleMappingExceptionResolver exceptionResolver = new SimpleMappingExceptionResolver();
-
-        System.out.println("welcooooomm");
         
         Properties exceptionMappings = new Properties();
 

@@ -94,14 +94,6 @@ public class UserAuthenticateService {
 	        Authentication auth = authenticationManager.authenticate(
 	            new UsernamePasswordAuthenticationToken(username, password, userOPt.get().getAuthorities()));
 	        SecurityContextHolder.getContext().setAuthentication(auth);
-	        
-	        //remove this
-	        System.out.println("Roles: ");
-	        userOPt.get().getAuthorities().forEach(System.out::println);
-	        System.out.println(userOPt.get().getAuthorities().stream());
-	        userOPt.get().getAuthorities().stream().map(GrantedAuthority::getAuthority).forEachOrdered(System.out::println);
-	        
-	        
 	        String token = tokenService.generateJwt(auth);
 	        return new LogInResponseDto(token);
     } catch(AuthenticationException e) {
@@ -134,23 +126,18 @@ public class UserAuthenticateService {
     	
     }
     
-    public boolean isCurrentUserAdmin2() {
+    public boolean isCurrentUserAdmin() {
     	User user = tokenService.getCurretUser();
 		try {
-			System.out.println("Sup young fellow");
 			Role admin = roleRepository.findByRoleType(RoleType.ROLE_ADMIN).orElseThrow(() -> new EntityNotFoundException("The role ADMIN does not exists"));
 			Collection<? extends GrantedAuthority> roles = user.getAuthorities();
-	    	if(roles != null) for(GrantedAuthority role : roles)
-	    		if(role.equals(admin))
-	    			return true;
-			System.out.println(admin);
-			System.out.println(roles + " " + roles.contains(admin));
 			return roles != null && roles.contains(admin);
 		} catch (EntityNotFoundException e) {
 		}
 		return false;
     }
     
+    /*
     public boolean isCurrentUserAdmin() {
     	try {
     		checkIfCurrentUserIsAdmin();
@@ -159,7 +146,7 @@ public class UserAuthenticateService {
     	catch (Throwable e) {
 			return false;
 		}
-    }
+    }*/
     
     public UserInformationDto getCurrentUserDto() throws UserNotLoggedInException {
     	return convertUserToDto(tokenService.getCurretUser());

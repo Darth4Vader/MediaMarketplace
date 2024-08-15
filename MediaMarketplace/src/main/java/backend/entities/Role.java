@@ -48,6 +48,11 @@ public class Role implements GrantedAuthority {
     public void setRoleId(Long id){
         this.id = id;
     }
+    
+	@Override
+	public int hashCode() {
+		return Objects.hash(roleType, id);
+	}
 
 	@Override
 	public boolean equals(Object obj) {
@@ -55,10 +60,9 @@ public class Role implements GrantedAuthority {
 			return true;
 		if (obj == null)
 			return false;
-		if(!(obj instanceof Role))
+		if (getClass() != obj.getClass())
 			return false;
 		Role other = (Role) obj;
-		System.out.println(Objects.equals(roleType, other.roleType) + " " + Objects.equals(id, other.id));
 		return Objects.equals(roleType, other.roleType) && Objects.equals(id, other.id);
 	}
 }

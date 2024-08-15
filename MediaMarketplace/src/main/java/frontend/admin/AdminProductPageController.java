@@ -90,7 +90,6 @@ public class AdminProductPageController {
 		if(product != null) {
 			statusLabel.setTextFill(Color.GREEN);
 			statusLabel.setText("The Movie is a Product");
-			System.out.println("Buy: " + product.getBuyPrice() + " Rent: " + product.getRentPrice());
 			setNumberTextField(buyPriceField,  ""+product.getBuyPrice());
 			setNumberTextField(rentPriceField, ""+product.getRentPrice());
 			setNumberTextField(buyDiscountField, product.getBuyDiscount());

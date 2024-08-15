@@ -15,7 +15,6 @@ import backend.entities.Genre;
 import backend.entities.Movie;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
-import backend.exceptions.EntityRemovalException;
 import backend.repositories.MovieRepository;
 
 @Service
@@ -77,7 +76,6 @@ public class MovieService {
     	//we will replace the movie genre only if there is a new value to update them with
     	List<String> genresNames = movieDto.getGenres();
 		if(genresNames != null) {
-			List<Genre> currentGenre = movie.getGenres();
 			//we removed the current genres of the movie
 			movie.setGenres(null);
 			//we add the new genres to the movie
@@ -85,25 +83,6 @@ public class MovieService {
 			for(String genreName : genresNames)
 				newGenres.add(genreService.getGenreByName(genreName));
 			movie.setGenres(newGenres);
-			//if the movie had before genres, than we try to remove the genres if possible from the database
-			if(currentGenre != null)
-				for(Genre genre : currentGenre) {
-					
-					//check this, there is a problem with rollback hibernate transacional
-					
-					
-					/*
-					try {
-						System.out.println("Opps");
-						genreService.removeGenreWithoutTransactional(genre.getName());
-					} catch (Throwable e) {
-						//if there is a problem with removing the genre, like if there is a foreign key that maps to it
-						//then is means that the genre is used by another movie, therefore we will not remove it
-					}
-					System.out.println("Daisy");
-					
-					*/
-				}
 		}
 		updateMovieByDto(movie, movieDto);
     	Movie updatedMovie = movieRepository.save(movie);

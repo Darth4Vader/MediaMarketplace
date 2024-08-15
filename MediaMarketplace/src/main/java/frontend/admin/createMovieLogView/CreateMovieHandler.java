@@ -69,9 +69,11 @@ public class CreateMovieHandler extends Handler {
         records.forEach(this::appendRecord);
     }
 
-    private void appendRecord(LogRecord record) {
+    private synchronized void appendRecord(LogRecord record) {
         try {
-        	createMovieLoggerList.add(new LoggerRecord(record));
+        	Platform.runLater(() -> {
+        		createMovieLoggerList.add(new LoggerRecord(record));
+        	});
         } catch (Exception ex) {
             reportError(null, ex, ErrorManager.GENERIC_FAILURE);
         }

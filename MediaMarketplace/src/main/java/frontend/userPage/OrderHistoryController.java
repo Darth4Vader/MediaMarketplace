@@ -90,7 +90,6 @@ public class OrderHistoryController {
 			orderPanel.getChildren().clear();
 			List<MoviePurchasedDto> orderItems = order.getPurchasedItems();
 			for(MoviePurchasedDto orderItem : orderItems) {
-				System.out.println(order.getId() + " " + orderItem.getMovie().getName());
 				BorderPane itemPane = getMoviePurchasedPane(orderItem);
 				orderPanel.getChildren().add(itemPane);
 			}

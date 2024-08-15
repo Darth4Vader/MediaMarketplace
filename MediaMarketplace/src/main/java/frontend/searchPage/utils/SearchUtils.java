@@ -219,7 +219,6 @@ public class SearchUtils {
 			if(c != ' ' && i == str2.length()-1)
 				list2.add(str);
 		}
-		System.out.println(list1 + " " + list2);
 		int mainCount = 0;
 		String st = "";
 		for(int i = 0;i < list1.size(); i++)

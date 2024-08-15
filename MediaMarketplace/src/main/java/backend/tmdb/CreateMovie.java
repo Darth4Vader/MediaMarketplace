@@ -373,7 +373,6 @@ public class CreateMovie {
 	
 	public static File saveImageFromURL(String inputURL, String destPath) throws IOException {
 		File file = new File(destPath);
-		System.out.println("File: " + file);
 		if(!file.exists()) {
 			check(PEOPLE_PATH);check(POSTERS_PATH);check(BACKDROP_PATH);
 			URL url;

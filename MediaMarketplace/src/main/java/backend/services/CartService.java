@@ -76,7 +76,7 @@ public class CartService {
     	CartProduct productInCart = getProductInCart(cart, product);
     	if(productInCart != null) {
 	    	if(dto.isBuying() == productInCart.isBuying())
-				throw new EntityAlreadyExistsException("The product \"" + product.getId() + "\" is already in the cart as: \"" + productInCart.getId() + "\"");
+				throw new EntityAlreadyExistsException("The Product is already in the Cart ");
 	    	//if wan to buy instead of rent, then it will be ignored, or the opposite, then we will remove the current product in cart, and then add it as new with the purchase type
 	    	removeProductFromCart(cart, product);
     	}
