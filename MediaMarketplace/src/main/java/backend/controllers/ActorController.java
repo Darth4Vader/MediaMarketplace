@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import backend.dto.input.RefActorDto;
+import backend.dto.input.ActorReference;
 import backend.dto.mediaProduct.ActorDto;
 import backend.dto.mediaProduct.MovieDto;
 import backend.exceptions.EntityAdditionException;
@@ -35,7 +35,7 @@ public class ActorController {
     }
 	
 	@GetMapping("/add ")
-    public ResponseEntity<String> addActor(@Valid @RequestBody RefActorDto actorDto) throws EntityNotFoundException, EntityAlreadyExistsException {
+    public ResponseEntity<String> addActor(@Valid @RequestBody ActorReference actorDto) throws EntityNotFoundException, EntityAlreadyExistsException {
 		try {
 			actorService.addActorRole(actorDto);
 		}
@@ -46,7 +46,7 @@ public class ActorController {
 	}
 	
 	@GetMapping("/remove")
-    public ResponseEntity<String> removeActor(@Valid @RequestBody RefActorDto actorDto) throws EntityNotFoundException {
+    public ResponseEntity<String> removeActor(@Valid @RequestBody ActorReference actorDto) throws EntityNotFoundException {
 		try {
 			actorService.removeActor(actorDto);
 		}
@@ -57,9 +57,9 @@ public class ActorController {
 	}
 	
 	@GetMapping("/remove_all")
-    public ResponseEntity<String> removeAllActorsFromMovie(MovieDto movieDto) throws EntityNotFoundException {
+    public ResponseEntity<String> removeAllActorsFromMovie(Long movieId) throws EntityNotFoundException {
 		try {
-			actorService.removeAllActorsFromMovie(movieDto);
+			actorService.removeAllActorsFromMovie(movieId);
 		}
 		catch (DataAccessException e) {//we will catch the Transactional runtime exception, and throw it as a custom exception
 			throw new EntityRemovalException("Unable to remove all the actors", e);

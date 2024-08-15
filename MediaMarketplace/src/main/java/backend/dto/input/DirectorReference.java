@@ -3,7 +3,7 @@ package backend.dto.input;
 import jakarta.annotation.Nonnull;
 import jakarta.validation.constraints.NotBlank;
 
-public class RefDirectorDto {
+public class DirectorReference {
 	
 	@NotBlank
 	private String personMediaID;

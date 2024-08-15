@@ -18,13 +18,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
-public class MovieReviewReference {
-	
-    private Long movieId;
-    
-    private Long userId;
-    
-	private Integer rating;
+public class MovieReviewReference extends MovieRatingReference {
 	
 	private String reviewTitle;
 	
@@ -32,22 +26,7 @@ public class MovieReviewReference {
 	
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
 	private LocalDateTime createdDate;
-
-	public MovieReviewReference() {
-	}
-
-	public Long getMovieId() {
-		return movieId;
-	}
-
-	public Long getUserId() {
-		return userId;
-	}
-
-	public Integer getRating() {
-		return rating;
-	}
-
+	
 	public String getReviewTitle() {
 		return reviewTitle;
 	}
@@ -58,18 +37,6 @@ public class MovieReviewReference {
 
 	public LocalDateTime getCreatedDate() {
 		return createdDate;
-	}
-
-	public void setMovieId(Long movieId) {
-		this.movieId = movieId;
-	}
-
-	public void setUserId(Long userId) {
-		this.userId = userId;
-	}
-
-	public void setRating(Integer rating) {
-		this.rating = rating;
 	}
 
 	public void setReviewTitle(String reviewTitle) {

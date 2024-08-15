@@ -31,7 +31,7 @@ import backend.controllers.MovieController;
 import backend.controllers.PersonController;
 import backend.controllers.ProductController;
 import backend.controllers.UserAuthenticateController;
-import backend.dto.input.RefActorDto;
+import backend.dto.input.ActorReference;
 import backend.dto.mediaProduct.MovieDto;
 import backend.dto.mediaProduct.PersonDto;
 import backend.dto.mediaProduct.ProductReference;

@@ -12,9 +12,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import backend.dto.input.RefDirectorDto;
+import backend.dto.input.DirectorReference;
 import backend.dto.mediaProduct.DirectorDto;
 import backend.dto.mediaProduct.MovieDto;
+import backend.dto.mediaProduct.MovieReference;
 import backend.exceptions.EntityAdditionException;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
@@ -35,7 +36,7 @@ public class DirectorController {
     }
 	
 	@GetMapping("/add")
-    public ResponseEntity<String> addDirector(@Valid @RequestBody RefDirectorDto directorDto) throws EntityNotFoundException, EntityAlreadyExistsException {
+    public ResponseEntity<String> addDirector(@Valid @RequestBody DirectorReference directorDto) throws EntityNotFoundException, EntityAlreadyExistsException {
 		try {
 			directorService.addDirector(directorDto);
 		}
@@ -46,7 +47,7 @@ public class DirectorController {
 	}
 	
 	@GetMapping("/remove")
-    public ResponseEntity<String> removeDirector(@Valid @RequestBody RefDirectorDto directorDto) throws EntityNotFoundException {
+    public ResponseEntity<String> removeDirector(@Valid @RequestBody DirectorReference directorDto) throws EntityNotFoundException {
 		try {
 			directorService.removeDirector(directorDto);
 		}
@@ -57,9 +58,9 @@ public class DirectorController {
 	}
 	
 	@GetMapping("/remove_all")
-    public ResponseEntity<String> removeAllDirectorsFromMovie(MovieDto movieDto) throws EntityNotFoundException {
+    public ResponseEntity<String> removeAllDirectorsFromMovie(Long movieId) throws EntityNotFoundException {
 		try {
-			directorService.removeAllDirectorsFromMovie(movieDto);
+			directorService.removeAllDirectorsFromMovie(movieId);
 		}
 		catch (DataAccessException e) {//we will catch the Transactional runtime exception, and throw it as a custom exception
 			throw new EntityRemovalException("Unable to remove the director from the movie", e);

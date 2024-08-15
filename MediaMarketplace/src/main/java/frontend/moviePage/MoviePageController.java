@@ -23,6 +23,7 @@ import backend.dto.mediaProduct.ActorDto;
 import backend.dto.mediaProduct.DirectorDto;
 import backend.dto.mediaProduct.MovieDto;
 import backend.dto.mediaProduct.MoviePurchasedDto;
+import backend.dto.mediaProduct.MovieRatingReference;
 import backend.dto.mediaProduct.MovieReference;
 import backend.dto.mediaProduct.MovieReviewDto;
 import backend.dto.mediaProduct.MovieReviewReference;
@@ -476,17 +477,24 @@ public class MoviePageController {
 			box.getChildren().addAll(addBtn);
 			Scene scene = new Scene(box);
 			addBtn.setOnAction(e -> {
-				MovieReviewReference movieReviewDto = new MovieReviewReference();
-				movieReviewDto.setMovieId(movie.getId());
-				movieReviewDto.setRating(DataUtils.getIntegerNumber(ratingsField.getText()));
+				MovieRatingReference movieRatingReference;
+				if(isReview)
+					movieRatingReference = new MovieReviewReference();
+				else
+					movieRatingReference = new MovieRatingReference();
+				movieRatingReference.setMovieId(movie.getId());
+				movieRatingReference.setRating(DataUtils.getIntegerNumber(ratingsField.getText()));
 				try {
 					if(isReview) {
-						movieReviewDto.setReviewTitle(titleField.getText());
-						movieReviewDto.setReview(contentArea.getText());
-						movieReviewController.addMovieReviewOfUser(movieReviewDto);
+						if(movieRatingReference instanceof MovieReviewReference) {
+							MovieReviewReference movieReviewReference = (MovieReviewReference) movieRatingReference;
+							movieReviewReference.setReviewTitle(titleField.getText());
+							movieReviewReference.setReview(contentArea.getText());
+							movieReviewController.addMovieReviewOfUser(movieReviewReference);
+						}
 					}
 					else {
-						movieReviewController.addMovieRatingOfUser(movieReviewDto);
+						movieReviewController.addMovieRatingOfUser(movieRatingReference);
 					}
 					initializeMovie(movie);
 					this.close();

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import backend.dto.mediaProduct.MovieRatingReference;
 import backend.dto.mediaProduct.MovieReviewDto;
 import backend.dto.mediaProduct.MovieReviewReference;
 import backend.exceptions.DtoValuesAreIncorrectException;
@@ -50,7 +51,7 @@ public class MovieReviewController {
 	
 	@GetMapping("/add_ratings/{movieId}/{userId}")
 	@ResponseStatus(code = HttpStatus.OK)
-    public void addMovieRatingOfUser(MovieReviewReference movieReviewDto) throws DtoValuesAreIncorrectException, EntityNotFoundException {
+    public void addMovieRatingOfUser(MovieRatingReference movieReviewDto) throws DtoValuesAreIncorrectException, EntityNotFoundException {
 		try {
 			movieReviewService.addMovieRatingOfUser(movieReviewDto);
 		}

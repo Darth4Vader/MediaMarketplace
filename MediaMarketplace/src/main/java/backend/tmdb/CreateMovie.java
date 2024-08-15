@@ -23,8 +23,8 @@ import backend.controllers.DirectorController;
 import backend.controllers.GenreController;
 import backend.controllers.MovieController;
 import backend.controllers.PersonController;
-import backend.dto.input.RefActorDto;
-import backend.dto.input.RefDirectorDto;
+import backend.dto.input.ActorReference;
+import backend.dto.input.DirectorReference;
 import backend.dto.mediaProduct.CreateMovieDto;
 import backend.dto.mediaProduct.MovieDto;
 import backend.dto.mediaProduct.MovieReference;
@@ -183,14 +183,14 @@ public class CreateMovie {
 		createGenres(movieDto);
 		String movieMediaID = createMovieDto.getMediaID();
 		LOGGER.info("Starting to update the movie information");
-		movieDto.setId(movieController.updateMovie(createMovieDto));
-		
+		final Long movieId = movieController.updateMovie(createMovieDto);
+		movieDto.setId(movieId);
 		addMovieImages(movieDb, movieDto, exceptionList);
 		List<PersonCrew> crew = movieDb.getCrew();
 		if(crew != null) {
 			LOGGER.info("Removing all of the movie directors");
 			try {
-				directorController.removeAllDirectorsFromMovie(movieDto);
+				directorController.removeAllDirectorsFromMovie(movieId);
 			}
 			catch (EntityNotFoundException e) {
 				//this will not happen, because we checked that the movie is created.
@@ -202,7 +202,7 @@ public class CreateMovie {
 		if(cast != null) {
 			LOGGER.info("Removing all of the movie actors");
 			try {
-				actorController.removeAllActorsFromMovie(movieDto);
+				actorController.removeAllActorsFromMovie(movieId);
 			}
 			catch (EntityNotFoundException e) {
 				//this will not happen, because we checked that the movie is created.
@@ -270,7 +270,7 @@ public class CreateMovie {
 			String job = personCrew.getJob();
 			if(DataUtils.equalsIgnoreCase(job, DIRECTOR)) {
 				PersonDto personDto = getPersonDto(personCrew, exceptionList);
-				RefDirectorDto directorDto = new RefDirectorDto();
+				DirectorReference directorDto = new DirectorReference();
 				directorDto.setMovieMediaId(movieMediaID);
 				directorDto.setPersonMediaID(personDto.getPersonMediaID());
 				try {
@@ -292,7 +292,7 @@ public class CreateMovie {
 		int count = 0;
 		if(cast != null) for(PersonCast personCast : cast) {
 			PersonDto personDto = getPersonDto(personCast, exceptionList);
-			RefActorDto actorDto = new RefActorDto();
+			ActorReference actorDto = new ActorReference();
 			actorDto.setRoleName(personCast.getCharacter());
 			actorDto.setMovieMediaId(movieMediaID);
 			actorDto.setPersonMediaID(personDto.getPersonMediaID());

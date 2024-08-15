@@ -13,7 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotBlank;
 
-public class RefActorDto {
+public class ActorReference {
 	
 	@NotBlank
 	private String personMediaID;
