@@ -77,7 +77,7 @@ public class MovieController {
      * @return The media ID of the movie as a {@link String}.
      * @throws EntityNotFoundException If the movie with the specified ID does not exist.
      */
-    @GetMapping("/get/{movieId}")
+    @GetMapping("/get_mediaID/{movieId}")
     public String getMovieMediaID(@PathVariable Long movieId) throws EntityNotFoundException {
         return movieService.getMovieMediaID(movieId);
     }
