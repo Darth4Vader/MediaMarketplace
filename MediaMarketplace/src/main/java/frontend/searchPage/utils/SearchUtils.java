@@ -11,10 +11,10 @@ import backend.controllers.ActorController;
 import backend.controllers.DirectorController;
 import backend.controllers.MovieController;
 import backend.controllers.MovieReviewController;
-import backend.dto.mediaProduct.ActorDto;
-import backend.dto.mediaProduct.DirectorDto;
-import backend.dto.mediaProduct.MovieDto;
-import backend.dto.mediaProduct.MovieReference;
+import backend.dtos.ActorDto;
+import backend.dtos.DirectorDto;
+import backend.dtos.MovieDto;
+import backend.dtos.references.MovieReference;
 import backend.exceptions.EntityNotFoundException;
 
 @Component

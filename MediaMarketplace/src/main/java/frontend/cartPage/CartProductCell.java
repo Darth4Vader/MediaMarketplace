@@ -1,8 +1,8 @@
 package frontend.cartPage;
 
-import backend.dto.cart.CartProductDto;
-import backend.dto.mediaProduct.MovieReference;
-import backend.dto.mediaProduct.ProductDto;
+import backend.dtos.CartProductDto;
+import backend.dtos.ProductDto;
+import backend.dtos.references.MovieReference;
 import frontend.utils.MovieImageView;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;

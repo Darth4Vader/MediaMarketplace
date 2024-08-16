@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component;
 
 import backend.controllers.CartController;
 import backend.controllers.OrderController;
-import backend.dto.cart.CartDto;
-import backend.dto.cart.CartProductDto;
-import backend.dto.cart.CartProductReference;
+import backend.dtos.CartDto;
+import backend.dtos.CartProductDto;
+import backend.dtos.references.CartProductReference;
 import backend.exceptions.EntityNotFoundException;
 import backend.exceptions.PurchaseOrderException;
 import frontend.utils.AppUtils;

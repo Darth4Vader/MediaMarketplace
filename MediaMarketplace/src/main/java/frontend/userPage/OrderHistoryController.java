@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component;
 
 import backend.DataUtils;
 import backend.controllers.OrderController;
-import backend.dto.mediaProduct.MoviePurchasedDto;
-import backend.dto.mediaProduct.MovieReference;
-import backend.dto.mediaProduct.OrderDto;
+import backend.dtos.MoviePurchasedDto;
+import backend.dtos.OrderDto;
+import backend.dtos.references.MovieReference;
 import frontend.App;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;

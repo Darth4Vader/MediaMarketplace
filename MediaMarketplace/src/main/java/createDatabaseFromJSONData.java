@@ -31,18 +31,17 @@ import backend.controllers.MovieController;
 import backend.controllers.PersonController;
 import backend.controllers.ProductController;
 import backend.controllers.UserAuthenticateController;
-import backend.dto.input.ActorReference;
-import backend.dto.mediaProduct.MovieDto;
-import backend.dto.mediaProduct.PersonDto;
-import backend.dto.mediaProduct.ProductReference;
-import backend.dto.users.LogInDto;
-import backend.dto.users.LogInResponseDto;
+import backend.dtos.MovieDto;
+import backend.dtos.PersonDto;
+import backend.dtos.references.ActorReference;
+import backend.dtos.references.ProductReference;
+import backend.dtos.users.LogInDto;
 import backend.entities.Director;
 import backend.entities.Genre;
 import backend.entities.Person;
 import backend.entities.Role;
-import backend.entities.RoleType;
 import backend.entities.User;
+import backend.entities.enums.RoleType;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
 import backend.repositories.ActorRepository;
@@ -118,7 +117,7 @@ public class createDatabaseFromJSONData {
 		LogInDto dto = new LogInDto("frodo", "bag");
 		//LogInDto dto = new LogInDto("bilbo", "bag");
 		try {
-			LogInResponseDto d = userAuth.loginUser(dto);
+			userAuth.loginUser(dto);
 			//userAuth.registerUser(new UserInformationDto("frodo", "", "bag", "bag"));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

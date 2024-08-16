@@ -1,9 +1,9 @@
 package frontend.moviePage;
 
 import backend.DataUtils;
-import backend.dto.mediaProduct.ActorDto;
-import backend.dto.mediaProduct.DirectorDto;
-import backend.dto.mediaProduct.PersonDto;
+import backend.dtos.ActorDto;
+import backend.dtos.DirectorDto;
+import backend.dtos.PersonDto;
 import frontend.AppImageUtils;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;

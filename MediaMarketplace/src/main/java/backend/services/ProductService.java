@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import backend.auth.AuthenticateAdmin;
-import backend.dto.mediaProduct.ProductDto;
-import backend.dto.mediaProduct.ProductReference;
+import backend.dtos.ProductDto;
+import backend.dtos.references.ProductReference;
 import backend.entities.Movie;
 import backend.entities.Product;
 import backend.exceptions.EntityNotFoundException;
@@ -23,6 +23,10 @@ import backend.repositories.ProductRepository;
  * <p>
  * This class handles the business logic for products, including operations to retrieve, add, and update
  * product records. It also provides methods to convert between Product entities and ProductDto/Reference objects.
+ * </p>
+ *  <p>
+ * It acts as an intermediary between the data access layer (repositories) and
+ * the presentation layer (controllers), handling business logic operations related to products.
  * </p>
  */
 @Service
@@ -37,16 +41,15 @@ public class ProductService {
     /**
      * Retrieves a list of all products in the database.
      * <p>
-     * This method returns a list of ProductDto objects representing
-     * all products.
+     * This method returns a list of ProductDto objects representing all products.
      * </p>
      * 
-     * @return A list of ProductDto objects representing all products in the database.
+     * @return A list of {@link ProductDto} objects representing all products in the database.
      */
     public List<ProductDto> getAllProducts() {
-        //load the products
-    	List<Product> products = productRepository.findAll();
-    	//then convert them to dtos
+        // Load the products
+        List<Product> products = productRepository.findAll();
+        // Convert them to DTOs
         List<ProductDto> productDtos = new ArrayList<>();
         for (Product product : products) {
             ProductDto productDto = convertProductToDto(product);
@@ -59,10 +62,10 @@ public class ProductService {
      * Adds a new product to the database.
      * <p>
      * This method is restricted to admin users and adds a new Product entity based on the provided ProductReference.
-     * If the movie associated with the product does not exist, an EntityNotFoundException is thrown.
+     * If the movie associated with the product does not exist, an {@link EntityNotFoundException} is thrown.
      * </p>
      * 
-     * @param productDto The ProductReference containing information about the product to be added.
+     * @param productDto The {@link ProductReference} containing information about the product to be added.
      * @return The ID of the newly created product.
      * @throws EntityNotFoundException if the movie associated with the product does not exist.
      */
@@ -79,10 +82,10 @@ public class ProductService {
      * Updates an existing product in the database.
      * <p>
      * This method is restricted to admin users and updates the Product entity with the information provided in
-     * the ProductReference. If the product does not exist, an EntityNotFoundException is thrown.
+     * the ProductReference. If the product does not exist, an {@link EntityNotFoundException} is thrown.
      * </p>
      * 
-     * @param productDto The ProductReference containing updated information about the product.
+     * @param productDto The {@link ProductReference} containing updated information about the product.
      * @throws EntityNotFoundException if the product to be updated does not exist.
      */
     @AuthenticateAdmin
@@ -94,10 +97,29 @@ public class ProductService {
     }
     
     /**
+     * Removes an existing product from the database.
+     * <p>
+     * This method is restricted to admin users and deletes the Product entity identified by the provided product ID.
+     * If the product does not exist, an {@link EntityNotFoundException} is thrown.
+     * </p>
+     * 
+     * @param productId The ID of the product to be removed.
+     * @throws EntityNotFoundException if the product to be removed does not exist.
+     */
+    @AuthenticateAdmin
+    @Transactional
+    public void removeProduct(Long productId) throws EntityNotFoundException {
+        // Retrieve the product entity from the database using the provided product ID.
+        Product product = getProductByID(productId);
+        // Delete the product entity from the database.
+        productRepository.delete(product);
+    }
+    
+    /**
      * Retrieves a product associated with a specific movie.
      * 
      * @param movieId The ID of the movie for which the product is to be retrieved.
-     * @return The ProductDto representing the product associated with the specified movie.
+     * @return The {@link ProductDto} representing the product associated with the specified movie.
      * @throws EntityNotFoundException if no product exists for the specified movie.
      */
     public ProductDto getProductOfMovie(Long movieId) throws EntityNotFoundException {
@@ -108,7 +130,7 @@ public class ProductService {
      * Retrieves a product reference associated with a specific movie.
      * 
      * @param movieId The ID of the movie for which the product reference is to be retrieved.
-     * @return The ProductReference representing the product associated with the specified movie.
+     * @return The {@link ProductReference} representing the product associated with the specified movie.
      * @throws EntityNotFoundException if no product exists for the specified movie.
      */
     public ProductReference getProductReferenceOfMovie(Long movieId) throws EntityNotFoundException {
@@ -119,7 +141,7 @@ public class ProductService {
      * Retrieves a product by its ID.
      * 
      * @param id The ID of the product to retrieve.
-     * @return The Product entity with the specified ID.
+     * @return The {@link Product} entity with the specified ID.
      * @throws EntityNotFoundException if the product with the specified ID does not exist.
      */
     public Product getProductByID(Long id) throws EntityNotFoundException {
@@ -131,7 +153,7 @@ public class ProductService {
      * Retrieves a product associated with a specific movie by its movie ID.
      * 
      * @param movieId The ID of the movie for which the product is to be retrieved.
-     * @return The Product entity associated with the specified movie.
+     * @return The {@link Product} entity associated with the specified movie.
      * @throws EntityNotFoundException if no product exists for the specified movie.
      */
     private Product getProductByMovieId(Long movieId) throws EntityNotFoundException {
@@ -142,12 +164,13 @@ public class ProductService {
     /**
      * Creates a Product entity from the provided ProductReference and associated Movie.
      * 
-     * @param productDto The ProductReference containing product details.
-     * @param movie The Movie associated with the product.
-     * @return A Product entity populated with the provided details.
+     * @param productDto The {@link ProductReference} containing product details.
+     * @param movie The {@link Movie} associated with the product.
+     * @return A {@link Product} entity populated with the provided details.
      */
     public static Product getProductFromDto(ProductReference productDto, Movie movie) {
         Product product = new Product();
+        product.setMovie(movie);
         updateProductFromReference(product, productDto);
         return product;
     }
@@ -155,8 +178,8 @@ public class ProductService {
     /**
      * Updates a Product entity with details from a ProductReference.
      * 
-     * @param product The Product entity to update.
-     * @param productDto The ProductReference containing updated details.
+     * @param product The {@link Product} entity to update.
+     * @param productDto The {@link ProductReference} containing updated details.
      */
     public static void updateProductFromReference(Product product, ProductReference productDto) {
         product.setBuyPrice(productDto.getBuyPrice());
@@ -168,8 +191,8 @@ public class ProductService {
     /**
      * Converts a Product entity to a ProductReference.
      * 
-     * @param product The Product entity to convert.
-     * @return A ProductReference containing the details of the product.
+     * @param product The {@link Product} entity to convert.
+     * @return A {@link ProductReference} containing the details of the product.
      */
     public static ProductReference convertProductToReference(Product product) {
         ProductReference productReference = new ProductReference();
@@ -184,8 +207,8 @@ public class ProductService {
     /**
      * Converts a Product entity to a ProductDto.
      * 
-     * @param product The Product entity to convert.
-     * @return A ProductDto containing the details of the product.
+     * @param product The {@link Product} entity to convert.
+     * @return A {@link ProductDto} containing the details of the product.
      */
     public static ProductDto convertProductToDto(Product product) {
         ProductDto productDto = new ProductDto();
@@ -199,7 +222,7 @@ public class ProductService {
     /**
      * Calculates the final buy price of a product after applying the discount.
      * 
-     * @param product The Product entity for which the buy price is calculated.
+     * @param product The {@link Product} entity for which the buy price is calculated.
      * @return The final buy price of the product.
      */
     public static double calculateBuyPrice(Product product) {
@@ -209,7 +232,7 @@ public class ProductService {
     /**
      * Calculates the final rent price of a product after applying the discount.
      * 
-     * @param product The Product entity for which the rent price is calculated.
+     * @param product The {@link Product} entity for which the rent price is calculated.
      * @return The final rent price of the product.
      */
     public static double calculateRentPrice(Product product) {
@@ -226,8 +249,9 @@ public class ProductService {
      * @return The final price after applying the discount.
      */
     private static double calculatePrice(double price, BigDecimal discount) {
-        if (discount == null || discount.compareTo(BigDecimal.ZERO) == 0)
+        if (discount == null || discount.compareTo(BigDecimal.ZERO) == 0) {
             return price;
+        }
         return ONE_HUNDRED.subtract(discount)
                 .divide(ONE_HUNDRED)
                 .multiply(new BigDecimal(price, new MathContext(2, RoundingMode.HALF_EVEN)))

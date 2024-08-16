@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import backend.auth.AuthenticateAdmin;
-import backend.dto.mediaProduct.PersonDto;
+import backend.dtos.PersonDto;
 import backend.entities.Person;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
@@ -19,6 +19,10 @@ import backend.repositories.PersonRepository;
  * This class handles business logic related to persons, including adding, removing, and retrieving
  * person records. It ensures that administrative actions are performed correctly and provides
  * methods to convert between Person entities and PersonDto objects.
+ * </p>
+ * <p>
+ * It acts as an intermediary  between the data access layer (repositories) 
+ * and the presentation layer (controllers).
  * </p>
  */
 @Service
@@ -37,24 +41,24 @@ public class PersonService {
      * Adds a new person to the database.
      * <p>
      * This method is restricted to admin users and adds a new Person entity based on the provided
-     * PersonDto. If a person with the same ID already exists, an EntityAlreadyExistsException is thrown.
+     * PersonDto. If a person with the same ID already exists, an {@link EntityAlreadyExistsException} is thrown.
      * </p>
      * 
-     * @param personDto The PersonDto containing information about the person to be added.
+     * @param personDto The {@link PersonDto} containing information about the person to be added.
      * @throws EntityAlreadyExistsException if a person with the same ID already exists in the database.
      */
     @AuthenticateAdmin
     @Transactional
     public void addPerson(PersonDto personDto) throws EntityAlreadyExistsException {
         try {
-        	//load the person
+            // Load the person by media ID.
             Person person = getPersonByNameID(personDto.getPersonMediaID());
-            //if found, then we can't add him to database, because he is already there, then we notify the user.
+            // If found, the person already exists in the database, so we notify the user.
             throw new EntityAlreadyExistsException("The Person \"" + person.getPersonImdbId() + "\" already exists");
         } catch (EntityNotFoundException e) {
             // Expected exception if the person does not already exist
         }
-        //save the person
+        // Convert the DTO to a Person entity and save it to the database.
         Person person = getPersonFromDto(personDto);
         personRepository.save(person);
     }
@@ -64,7 +68,7 @@ public class PersonService {
      * <p>
      * This method is restricted to admin users and deletes the Person entity with the specified ID.
      * It also removes all associated actor roles and directed media. If the person is not found,
-     * an EntityNotFoundException is thrown.
+     * an {@link EntityNotFoundException} is thrown.
      * </p>
      * 
      * @param id The ID of the person to be removed.
@@ -73,11 +77,12 @@ public class PersonService {
     @AuthenticateAdmin
     @Transactional
     public void removePerson(Long id) throws EntityNotFoundException {
+        // Retrieve the person by ID.
         Person person = getPersonByID(id);
-        //first delete all connections
+        // First, delete all associated actor roles and directed media.
         actorRepository.deleteAllInBatch(person.getActorRoles());
         directorRepository.deleteAllInBatch(person.getDirectedMedia());
-        //then delete the person.
+        // Then, delete the person from the database.
         personRepository.delete(person);
     }
     
@@ -85,7 +90,7 @@ public class PersonService {
      * Retrieves a person by their media ID.
      * 
      * @param personID The media ID of the person to retrieve.
-     * @return The Person entity with the specified media ID.
+     * @return The {@link Person} entity with the specified media ID.
      * @throws EntityNotFoundException if no person with the specified media ID exists.
      */
     public Person getPersonByNameID(String personID) throws EntityNotFoundException {
@@ -97,7 +102,7 @@ public class PersonService {
      * Retrieves a person by their database ID.
      * 
      * @param id The ID of the person to retrieve.
-     * @return The Person entity with the specified ID.
+     * @return The {@link Person} entity with the specified ID.
      * @throws EntityNotFoundException if no person with the specified ID exists.
      */
     public Person getPersonByID(Long id) throws EntityNotFoundException {
@@ -106,10 +111,10 @@ public class PersonService {
     }
 
     /**
-     * Converts a PersonDto to a Person entity.
+     * Converts a {@link PersonDto} to a {@link Person} entity.
      * 
-     * @param personDto The PersonDto to convert.
-     * @return A Person entity populated with the details from the PersonDto.
+     * @param personDto The {@link PersonDto} to convert.
+     * @return A {@link Person} entity populated with the details from the {@link PersonDto}.
      */
     public static Person getPersonFromDto(PersonDto personDto) {
         Person person = new Person();
@@ -121,10 +126,10 @@ public class PersonService {
     }
     
     /**
-     * Converts a Person entity to a PersonDto.
+     * Converts a {@link Person} entity to a {@link PersonDto}.
      * 
-     * @param person The Person entity to convert.
-     * @return A PersonDto containing the details of the person.
+     * @param person The {@link Person} entity to convert.
+     * @return A {@link PersonDto} containing the details of the person.
      */
     public static PersonDto convertPersonToDto(Person person) {
         PersonDto personDto = new PersonDto();

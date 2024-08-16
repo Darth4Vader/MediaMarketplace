@@ -7,10 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import backend.dto.cart.CartDto;
-import backend.dto.cart.CartProductDto;
-import backend.dto.cart.CartProductReference;
-import backend.dto.mediaProduct.ProductDto;
+import backend.dtos.CartDto;
+import backend.dtos.CartProductDto;
+import backend.dtos.ProductDto;
+import backend.dtos.references.CartProductReference;
 import backend.entities.Cart;
 import backend.entities.CartProduct;
 import backend.entities.Product;
@@ -22,10 +22,15 @@ import backend.repositories.CartRepository;
 
 /**
  * Service class for managing user shopping carts.
- * This class provides methods to manage products within a user's cart,
- * including retrieving, adding, and removing products.
- * This is the business layer of the Spring application, handling all 
- * logic operations related to shopping cart functionality.
+ * <p>
+ * This class provides methods to manage products within a user's cart, including retrieving,
+ * adding, and removing products. It serves as the business layer of the Spring application,
+ * handling all logic operations related to shopping cart functionality.
+ * </p>
+ * <p>
+ * It acts as an intermediary between the data access layer (repositories) and
+ * the presentation layer (controllers), managing the business logic for cart operations.
+ * </p>
  */
 @Service
 public class CartService {
@@ -39,112 +44,126 @@ public class CartService {
     @Autowired
     private ProductService productService;
     
-	@Autowired
-	private TokenService tokenService;
+    @Autowired
+    private TokenService tokenService;
     
     /**
-     * Retrieves the current user's shopping cart as a dto.
+     * Retrieves the current user's shopping cart as a DTO.
+     * <p>
+     * This method fetches the cart associated with the currently authenticated user and converts
+     * it into a {@link CartDto} object, including details of all products in the cart and the
+     * total price.
+     * </p>
      *
      * @return A {@link CartDto} representing the user's cart.
-     * @throws EntityNotFoundException if the user does not have a cart
+     * @throws EntityNotFoundException if the user does not have a cart.
      */
     public CartDto getCart() throws EntityNotFoundException {
-    	//first we load the current user cart
+    	// First we load the current user's cart
     	User user = tokenService.getCurretUser();
-    	Cart cart = getCartByUser(user);
-    	//and then we convert it to a cart dto
-    	CartDto cartDto = new CartDto();
-    	List<CartProduct> cartProducts = cart.getCartProducts();
-    	List<CartProductDto> cartProductsDtos = new ArrayList<>();
-		double totalPrice = 0;
-    	if(cartProducts != null) 
-    		for(CartProduct cartProduct : cartProducts) if(cartProduct != null) {
-    			CartProductDto cartProductDto = new CartProductDto();
-    			Product product = cartProduct.getProduct();
-    			ProductDto productDto = ProductService.convertProductToDto(product);
-    			cartProductDto.setProduct(productDto);
-    			boolean isBuy = cartProduct.isBuying();
-    			cartProductDto.setBuying(isBuy);
-    			double price = calculateCartProductPrice(product, isBuy);
-    			cartProductDto.setPrice(price);
-    			totalPrice += price;
-    			cartProductsDtos.add(cartProductDto);
-    		}
-    	cartDto.setCartProducts(cartProductsDtos);
-    	cartDto.setTotalPrice(totalPrice);
-    	return cartDto;
+        Cart cart = getCartByUser(user);
+        // And then we convert it to a cart DTO
+        CartDto cartDto = new CartDto();
+        List<CartProduct> cartProducts = cart.getCartProducts();
+        List<CartProductDto> cartProductsDtos = new ArrayList<>();
+        double totalPrice = 0;
+        if (cartProducts != null) {
+            for (CartProduct cartProduct : cartProducts) {
+                if (cartProduct != null) {
+                    CartProductDto cartProductDto = new CartProductDto();
+                    Product product = cartProduct.getProduct();
+                    ProductDto productDto = ProductService.convertProductToDto(product);
+                    cartProductDto.setProduct(productDto);
+                    boolean isBuy = cartProduct.isBuying();
+                    cartProductDto.setBuying(isBuy);
+                    double price = calculateCartProductPrice(product, isBuy);
+                    cartProductDto.setPrice(price);
+                    totalPrice += price;
+                    cartProductsDtos.add(cartProductDto);
+                }
+            }
+        }
+        cartDto.setCartProducts(cartProductsDtos);
+        cartDto.setTotalPrice(totalPrice);
+        return cartDto;
     }
     
     /**
      * Adds a product to the user's shopping cart.
-     * This method allows a user to add a product with a specified purchase type
-     * (buying or renting) to their cart.
+     * <p>
+     * This method allows a user to add a product with a specified purchase type (buying or renting)
+     * to their cart. If the product is already in the cart with the same purchase type, an exception
+     * is thrown. If the product is in the cart with a different purchase type, it is updated.
+     * </p>
      *
      * @param cartProductReference A {@link CartProductReference} containing product ID and
-     *            buying type.
+     *                             buying type.
      * @throws EntityNotFoundException if the product is not found.
-     * @throws EntityAlreadyExistsException if the product is already in the 
-     *                                       cart with the same purchase type.
+     * @throws EntityAlreadyExistsException if the product is already in the cart with the same purchase type.
      */
     @Transactional
     public void addProductToCart(CartProductReference cartProductReference) throws EntityNotFoundException, EntityAlreadyExistsException {
-    	//first load or create the user's cart.
+    	// First load or create the user's cart.
     	User user = tokenService.getCurretUser();
-    	Product product = productService.getProductByID(cartProductReference.getProductId());
-    	Cart cart;
-    	try {
-    		//load the cart
-    		cart = getCartByUser(user);
-    	}
-    	catch (EntityNotFoundException e) {
-    		//this happens when the user does not have a cart, so we will create one for him
-    		cart = createCart(user);
-		}
-    	//first check if the product is already inside the cart with the same purchase type
-    	CartProduct productInCart = getProductInCart(cart, product);
-    	if(productInCart != null) {
-	    	if(cartProductReference.isBuying() == productInCart.isBuying())
-				throw new EntityAlreadyExistsException("The Product is already in the Cart ");
-	    	//if wan to buy instead of rent, then it will be ignored, or the opposite, then we will remove the current product in cart, and then add it as new with the purchase type
-	    	removeProductFromCart(cart, productInCart);
-    	}
-    	//add product with the purchasing type to cart
-    	CartProduct cartProduct = new CartProduct();
-    	cartProduct.setProduct(product);
-    	cartProduct.setCart(cart);
-    	cartProduct.setBuying(cartProductReference.isBuying());
-    	addProductToCart(cart, cartProduct);
+        Product product = productService.getProductByID(cartProductReference.getProductId());
+        Cart cart;
+        try {
+        	// Load the cart
+        	cart = getCartByUser(user);
+        } catch (EntityNotFoundException e) {
+        	// This happens when the user does not have a cart, so we will create one for him
+        	cart = createCart(user);
+        }
+        // First check if the product is already inside the cart with the same purchase type
+        CartProduct productInCart = getProductInCart(cart, product);
+        if (productInCart != null) {
+            if (cartProductReference.isBuying() == productInCart.isBuying()) {
+                throw new EntityAlreadyExistsException("The Product is already in the Cart");
+            }
+            // If we want to buy instead of rent, or vice versa, then we will remove the current product in cart, and then add it as new with the purchase type
+            removeProductFromCart(cart, productInCart);
+        }
+        // Add product with the purchasing type to cart
+        CartProduct cartProduct = new CartProduct();
+        cartProduct.setProduct(product);
+        cartProduct.setCart(cart);
+        cartProduct.setBuying(cartProductReference.isBuying());
+        addProductToCart(cart, cartProduct);
     }
     
     /**
      * Removes a product from the user's shopping cart.
+     * <p>
      * This method allows a user to remove a specified product from their cart.
+     * </p>
      *
      * @param cartProductReference A {@link CartProductReference} containing product ID to 
-     *            be removed.
+     *                             be removed.
      * @throws EntityNotFoundException if the product is not found or the user does not have a cart.
      */
     @Transactional
     public void removeProductFromCart(CartProductReference cartProductReference) throws EntityNotFoundException {
-    	//load the cart and the product
+    	// Load the cart and the product
     	User user = tokenService.getCurretUser();
-    	Cart cart = getCartByUser(user);
-    	Product product = productService.getProductByID(cartProductReference.getProductId());
-    	//now remove the product from the cart.
-    	removeProductFromCart(cart, product);
+        Cart cart = getCartByUser(user);
+        Product product = productService.getProductByID(cartProductReference.getProductId());
+        // Now remove the product from the cart.
+        removeProductFromCart(cart, product);
     }
     
     /**
      * Creates a new cart for the specified user.
+     * <p>
      * This method initializes a new cart for a user who does not yet have one.
+     * </p>
      *
      * @param user The user for whom the cart will be created.
      * @return The created {@link Cart}.
      */
     @Transactional
     public Cart createCart(User user) {
-    	Cart cart = new Cart(user);
-    	return cartRepository.save(cart);
+        Cart cart = new Cart(user);
+        return cartRepository.save(cart);
     }
     
     /**
@@ -155,8 +174,8 @@ public class CartService {
      * @throws EntityNotFoundException if the user does not have a cart.
      */
     public Cart getCartByUser(User user) throws EntityNotFoundException {
-    	return cartRepository.findByUser(user)
-    			.orElseThrow(() -> new EntityNotFoundException("The user does not have a cart"));
+        return cartRepository.findByUser(user)
+                .orElseThrow(() -> new EntityNotFoundException("The user does not have a cart"));
     }
     
     /**
@@ -167,8 +186,8 @@ public class CartService {
      * @return The {@link CartProduct} if found, null otherwise.
      */
     private CartProduct getProductInCart(Cart cart, Product product) {
-    	List<CartProduct> cartProducts = cart.getCartProducts();
-    	return getProductInCart(cartProducts, product);
+        List<CartProduct> cartProducts = cart.getCartProducts();
+        return getProductInCart(cartProducts, product);
     }
     
     /**
@@ -179,12 +198,12 @@ public class CartService {
      * @return The {@link CartProduct} if found, null otherwise.
      */
     private CartProduct getProductInCart(List<CartProduct> cartProducts, Product product) {
-    	for(CartProduct cartProduct : cartProducts) {
-    		if(cartProduct.getProduct().equals(product)) {
-    			return cartProduct;
-    		}
-    	}
-    	return null;
+        for (CartProduct cartProduct : cartProducts) {
+            if (cartProduct.getProduct().equals(product)) {
+                return cartProduct;
+            }
+        }
+        return null;
     }
     
     /**
@@ -195,11 +214,11 @@ public class CartService {
      */
     @Transactional
     private void addProductToCart(Cart cart, CartProduct cartProduct) {
-    	//first we save the cart product in to the database
+    	// First we save the cart product into the database
     	cartProductRepository.save(cartProduct);
-    	//then we add the CartProduct into the Cart
+    	// Then we add the CartProduct into the Cart
     	List<CartProduct> cartProducts = cart.getCartProducts();
-    	cartProducts.add(cartProduct);
+        cartProducts.add(cartProduct);
     }
     
     /**
@@ -211,15 +230,16 @@ public class CartService {
      */
     @Transactional
     private void removeProductFromCart(Cart cart, Product product) throws EntityNotFoundException {
-    	List<CartProduct> cartProducts = cart.getCartProducts();
-    	//search if the product is in the cart, have a CartProduct
-    	CartProduct productInCart = getProductInCart(cartProducts, product);
-    	if(productInCart != null) {//if the product is in the cart then remove is
-    		removeProductFromCart(cartProducts, productInCart);
-	    	return;
-		}
-    	else//if we didn't remove the product, then it is not in the cart
-    		throw new EntityNotFoundException("The product \"" + product.getId() +"\" is not in the cart");
+        List<CartProduct> cartProducts = cart.getCartProducts();
+        // Search if the product is in the cart, have a CartProduct
+        CartProduct productInCart = getProductInCart(cartProducts, product);
+        if (productInCart != null) {
+            // If the product is in the cart then remove it
+            removeProductFromCart(cartProducts, productInCart);
+        } else {
+            // If the product is not in the cart
+            throw new EntityNotFoundException("Product is not in the Cart");
+        }
     }
     
     /**
@@ -234,17 +254,17 @@ public class CartService {
     }
     
     /**
-     * Removes a product from the specified list of cart products.
+     * Removes a specific CartProduct from the list and database.
      *
-     * @param cartProducts The list of cart products.
-     * @param cartProduct The product to be removed.
+     * @param cartProducts The list of CartProducts in the cart.
+     * @param cartProduct The CartProduct to remove.
      */
     @Transactional
     private void removeProductFromCart(List<CartProduct> cartProducts, CartProduct cartProduct) {
-    	//first remove the CartProduct from the cart's list
-    	cartProducts.remove(cartProduct);
-    	//then remove the CartProduct from the database.
-    	cartProductRepository.delete(cartProduct);
+        // Remove the CartProduct from the list
+        cartProducts.remove(cartProduct);
+        // Then remove it from the database
+        cartProductRepository.delete(cartProduct);
     }
     
     /**
@@ -259,15 +279,19 @@ public class CartService {
     }
     
     /**
-     * Calculates the price of a product based on the buying type.
+     * Calculates the price of a CartProduct.
      *
-     * @param product The product for which to calculate the price.
-     * @param isBuy True if the product is being purchased, false if rented.
-     * @return The calculated price of the product.
+     * @param product The product.
+     * @param isBuying Whether the product is being bought or rented.
+     * @return The price of the product based on the buying status.
      */
-	public static double calculateCartProductPrice(Product product, boolean isBuy) {
-		if(isBuy)
-			return ProductService.calculateBuyPrice(product);
-		return ProductService.calculateRentPrice(product);
-	}   
+    public static double calculateCartProductPrice(Product product, boolean isBuying) {
+        double price;
+        if (isBuying) {
+            price = product.getBuyPrice();
+        } else {
+            price = product.getRentPrice();
+        }
+        return price;
+    }
 }

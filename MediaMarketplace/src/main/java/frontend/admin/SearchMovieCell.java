@@ -4,8 +4,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 
-import backend.dto.mediaProduct.CreateMovieDto;
-import backend.dto.mediaProduct.MovieDto;
+import backend.dtos.CreateMovieDto;
+import backend.dtos.MovieDto;
 import frontend.AppImageUtils;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;

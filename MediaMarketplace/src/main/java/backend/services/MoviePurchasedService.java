@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import backend.DataUtils;
-import backend.dto.mediaProduct.MoviePurchasedDto;
-import backend.dto.mediaProduct.MovieReference;
+import backend.dtos.MoviePurchasedDto;
+import backend.dtos.references.MovieReference;
 import backend.entities.Movie;
 import backend.entities.MoviePurchased;
 import backend.entities.User;
@@ -19,9 +19,14 @@ import backend.repositories.MoviePurchasedRepository;
 
 /**
  * Service class for managing purchased movies.
+ * <p>
  * This class provides methods to retrieve information about movies purchased by users,
  * including checking the status of rentals and converting entities to DTOs.
- * this is the business side of the spring application, where we do all of the logic operation for the movies purchased.
+ * </p>
+ * <p>
+ * It handles the business logic operations related to purchased movies and acts as an intermediary 
+ * between the data access layer (repositories) and the presentation layer (controllers).
+ * </p>
  */
 @Service
 public class MoviePurchasedService {
@@ -37,22 +42,24 @@ public class MoviePurchasedService {
 
     /**
      * Retrieves a list of all active movies purchased by the current user.
+     * <p>
      * A movie is considered active if it is rented and the rental period has not expired, 
      * or if it is bought (owned by the user).
+     * </p>
      *
      * @return A list of MovieReference objects representing active movies.
      */
     public List<MovieReference> getAllActiveMoviesOfUser() {
-        //first load all the movies purchased by the user
-    	User user = tokenService.getCurretUser();
+        // First load all the movies purchased by the user
+        User user = tokenService.getCurretUser();
         List<MoviePurchased> purchasedList = moviePurchasedRepository.findByOrderUser(user);
-        //then convert the activate ones to movie references.
+        // Then convert the active ones to movie references.
         List<MovieReference> movieReferences = new ArrayList<>();
         for (MoviePurchased purchased : purchasedList) {
-        	//checks if rent is still active or if it is bought.
+            // Checks if rent is still active or if it is bought.
             if (DataUtils.isUseable(purchased.isRented(), getCurrentRentTime(purchased))) {
-                //adds the movie if it does not already contained in the list.
-            	Movie movie = purchased.getMovie();
+                // Adds the movie if it is not already contained in the list.
+                Movie movie = purchased.getMovie();
                 MovieReference movieReference = MovieService.convertMovieToReference(movie);
                 if (!movieReferences.contains(movieReference)) {
                     movieReferences.add(movieReference);
@@ -64,19 +71,21 @@ public class MoviePurchasedService {
 
     /**
      * Retrieves a list of active purchases for a specific movie by the current user.
+     * <p>
      * A purchase is considered active if it is rented and the rental period has not expired, 
      * or if it is bought (owned by the user).
+     * </p>
      *
      * @param movieId The ID of the movie for which active purchases are to be retrieved.
      * @return A list of MoviePurchasedDto objects representing active purchases of the specified movie.
      * @throws EntityNotFoundException if the movie with the given ID does not exist or if the user has never purchased the movie.
      */
     public List<MoviePurchasedDto> getActiveListUserMovie(Long movieId) throws EntityNotFoundException {
-    	//first load all times the user purchased the given movie
-    	User user = tokenService.getCurretUser();
+        // First load all times the user purchased the given movie
+        User user = tokenService.getCurretUser();
         Movie movie = movieService.getMovieByID(movieId);
         List<MoviePurchased> purchasedList = getUserPurchaseListOfMovie(user, movie);
-        //then convert the activate purchases to MoviePurchasedDto., and return them.
+        // Then convert the active purchases to MoviePurchasedDto., and return them.
         List<MoviePurchasedDto> moviePurchasedDtos = new ArrayList<>();
         for (MoviePurchased purchased : purchasedList) {
             if (DataUtils.isUseable(purchased.isRented(), getCurrentRentTime(purchased))) {

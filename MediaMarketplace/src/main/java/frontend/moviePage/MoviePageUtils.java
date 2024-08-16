@@ -3,7 +3,7 @@ package frontend.moviePage;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-import backend.dto.mediaProduct.MovieReviewReference;
+import backend.dtos.references.MovieReviewReference;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;

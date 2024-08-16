@@ -1,54 +1,45 @@
 package backend.exceptions;
 
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
-
-import backend.DataUtils;
-import backend.dto.mediaProduct.MovieReviewReference;
-import backend.dto.users.UserInformationDto;
 import backend.exceptions.enums.UserLogInfo;
-import net.bytebuddy.asm.Advice.Local;
 
+/**
+ * Exception thrown when one or more of the login values provided by a user are incorrect or missing.
+ * <p>
+ * This exception includes a set of {@link UserLogInfo} enums which indicate which specific login values are incorrect
+ * or missing. It also includes a message that describes the nature of the error.
+ * </p>
+ */
 public class LogValuesAreIncorrectException extends Exception {
 
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+    /**
+     * A set of {@link UserLogInfo} enums representing which login values are incorrect or missing.
+     */
 	private Set<UserLogInfo> logInfoSet;
 
-	public LogValuesAreIncorrectException(Set<UserLogInfo> logInfoSet, String message) {
-		super(message);
-		this.logInfoSet = logInfoSet;
-	}
-	
-	public Set<UserLogInfo> getUserLogInfo() {
-		return this.logInfoSet;
-	}
-	
-	public static void checkForException(String username, String password) throws LogValuesAreIncorrectException {
-		Set<UserLogInfo> logInfoSet = new HashSet<>();
-		if(username == null || username.isEmpty()) {
-			logInfoSet.add(UserLogInfo.NAME);
-		}
-		if(password == null || password.isEmpty())
-			logInfoSet.add(UserLogInfo.PASWORD);
-		if(!logInfoSet.isEmpty())
-			throw new LogValuesAreIncorrectException(logInfoSet, "one or more values are missing");
-	}
-	
-	public static void checkForException(UserInformationDto userInformationDto) throws LogValuesAreIncorrectException {
-		Set<UserLogInfo> logInfoSet = new HashSet<>();
-		String username = userInformationDto.getUsername();
-		String password = userInformationDto.getPassword();
-		String passwordConfirm = userInformationDto.getPasswordConfirm();
-		if(username == null || username.isEmpty()) {
-			logInfoSet.add(UserLogInfo.NAME);
-		}
-		if(password == null || password.isEmpty())
-			logInfoSet.add(UserLogInfo.PASWORD);
-		if(passwordConfirm == null || passwordConfirm.isEmpty())
-			logInfoSet.add(UserLogInfo.PASSWORD_CONFIRM);
-		if(!logInfoSet.isEmpty())
-			throw new LogValuesAreIncorrectException(logInfoSet, "one or more values are missing");
-	}
+    /**
+     * Constructs a new {@code LogValuesAreIncorrectException} with the specified detail message and a set of
+     * {@link UserLogInfo} enums indicating the incorrect or missing values.
+     * 
+     * @param logInfoSet A set of {@link UserLogInfo} enums representing which login values are incorrect or missing.
+     * @param message A detail message explaining the exception.
+     */
+    public LogValuesAreIncorrectException(Set<UserLogInfo> logInfoSet, String message) {
+        super(message);
+        this.logInfoSet = logInfoSet;
+    }
 
+    /**
+     * Retrieves the set of {@link UserLogInfo} enums that specify which login values are incorrect or missing.
+     * 
+     * @return A set of {@link UserLogInfo} enums.
+     */
+    public Set<UserLogInfo> getUserLogInfo() {
+        return this.logInfoSet;
+    }
 }

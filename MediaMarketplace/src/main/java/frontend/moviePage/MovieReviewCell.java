@@ -3,8 +3,8 @@ package frontend.moviePage;
 import java.time.LocalDateTime;
 
 import backend.DataUtils;
-import backend.dto.mediaProduct.MovieReviewDto;
-import backend.dto.mediaProduct.MovieReviewReference;
+import backend.dtos.MovieReviewDto;
+import backend.dtos.references.MovieReviewReference;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;

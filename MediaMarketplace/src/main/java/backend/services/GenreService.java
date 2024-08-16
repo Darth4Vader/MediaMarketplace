@@ -16,10 +16,16 @@ import backend.repositories.GenreRepository;
 
 /**
  * Service class for managing genres.
+ * <p>
  * This class provides methods for retrieving, creating, and removing genres
  * in the context of a movie database. Access to certain methods is restricted
  * to admin users.
- * this is the business side of the spring application, where we do all of the logic operation for the genres.
+ * </p>
+ * <p>
+ * It handles the business logic related to genres and acts as an intermediary 
+ * between the data access layer (repositories) and the presentation layer 
+ * (controllers).
+ * </p>
  */
 @Service
 public class GenreService {
@@ -29,7 +35,9 @@ public class GenreService {
 
     /**
      * Retrieves a list of all genres.
+     * <p>
      * This method is accessible to all users, including non-logged-in users.
+     * </p>
      *
      * @return A list of genre names as strings.
      */
@@ -40,8 +48,10 @@ public class GenreService {
 
     /**
      * Creates a new genre in the database.
+     * <p>
      * This method is restricted to admin users and checks if the genre
      * already exists before creating a new one.
+     * </p>
      *
      * @param genreName The name of the genre to be created.
      * @throws EntityAlreadyExistsException if the genre with the specified name already exists.
@@ -55,15 +65,17 @@ public class GenreService {
         } catch (EntityNotFoundException e) {
             // Genre does not exist; proceed to create it.
         }
-        //if the genre does not exists, then save it to the database.
+        // If the genre does not exist, then save it to the database.
         Genre genre = new Genre(genreName);
         genreRepository.save(genre);
     }
 
     /**
      * Removes a genre from the database.
+     * <p>
      * This method is restricted to admin users and checks if the genre
      * is associated with any movies before attempting to delete it.
+     * </p>
      *
      * @param genreName The name of the genre to be removed.
      * @throws EntityNotFoundException if the genre with the specified name does not exist.
@@ -82,24 +94,6 @@ public class GenreService {
             }
         }
         throw new EntityRemovalException("Cannot remove the Genre with name: \"" + genreName + "\" because it is associated with movies.");
-    }
-
-    /**
-     * Removes a genre from the database without a transactional context.
-     * This method is restricted to admin users.
-     *
-     * @param genreName The name of the genre to be removed.
-     * @throws EntityNotFoundException if the genre with the specified name does not exist.
-     * @throws EntityRemovalException if the genre cannot be removed due to associations with movies.
-     */
-    @AuthenticateAdmin
-    public void removeGenreWithoutTransactional(String genreName) throws EntityNotFoundException, EntityRemovalException {
-        Genre genre = getGenreByName(genreName);
-        try {
-            genreRepository.delete(genre);
-        } catch (Throwable e) {
-            throw new EntityRemovalException("Cannot remove the Genre with name: \"" + genreName + "\".");
-        }
     }
 
     /**

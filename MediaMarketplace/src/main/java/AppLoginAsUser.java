@@ -1,8 +1,7 @@
 import org.springframework.context.ConfigurableApplicationContext;
 
 import backend.controllers.UserAuthenticateController;
-import backend.dto.users.LogInDto;
-import backend.dto.users.LogInResponseDto;
+import backend.dtos.users.LogInDto;
 import backend.entities.User;
 import backend.exceptions.PurchaseOrderException;
 import backend.services.OrderService;
@@ -29,7 +28,7 @@ public class AppLoginAsUser extends App {
 			//LogInDto dto = new LogInDto("frodo", "bag");
 			LogInDto dto = new LogInDto("bilbo", "bag");
 			try {
-				LogInResponseDto d = userAuth.loginUser(dto);
+				userAuth.loginUser(dto);
 				//userAuth.registerUser(new UserInformationDto("frodo", "", "bag", "bag"));
 			} catch (Exception e) {
 				// TODO Auto-generated catch block

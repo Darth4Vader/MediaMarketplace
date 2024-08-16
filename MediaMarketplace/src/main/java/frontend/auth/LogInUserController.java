@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import backend.controllers.UserAuthenticateController;
-import backend.dto.users.LogInDto;
+import backend.dtos.users.LogInDto;
 import backend.exceptions.LogValuesAreIncorrectException;
 import backend.exceptions.UserDoesNotExistsException;
 import backend.exceptions.UserPasswordIsIncorrectException;
@@ -89,7 +89,7 @@ public class LogInUserController {
 			if(userLogInfo != null) {
 				if(userLogInfo.contains(UserLogInfo.NAME))
 					nameField.setStyle("-fx-border-color: red");
-				if(userLogInfo.contains(UserLogInfo.PASWORD))
+				if(userLogInfo.contains(UserLogInfo.PASSWORD))
 					passwordField.getParent().setStyle("-fx-border-color: red");
 			}
 			errorLabel.setText(e.getMessage());

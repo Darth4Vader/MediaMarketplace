@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import backend.controllers.UserAuthenticateController;
-import backend.dto.users.UserInformationDto;
+import backend.dtos.users.UserInformationDto;
 import backend.exceptions.LogValuesAreIncorrectException;
 import backend.exceptions.UserPasswordIsIncorrectException;
 import backend.exceptions.enums.UserLogInfo;
@@ -62,7 +62,7 @@ public class UserInfoPageController {
 			if(userLogInfo != null) {
 				if(userLogInfo.contains(UserLogInfo.NAME))
 					usernameField.setStyle("-fx-border-color: red");
-				if(userLogInfo.contains(UserLogInfo.PASWORD))
+				if(userLogInfo.contains(UserLogInfo.PASSWORD))
 					passwordField.setStyle("-fx-border-color: red");
 				if(userLogInfo.contains(UserLogInfo.PASSWORD_CONFIRM))
 					passwordConfirmField.setStyle("-fx-border-color: red");

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import backend.DataUtils;
 import backend.controllers.GenreController;
-import backend.dto.mediaProduct.MovieReference;
+import backend.dtos.references.MovieReference;
 import frontend.searchPage.utils.SearchUtils;
 import frontend.searchPage.utils.SortDto;
 import frontend.utils.AppUtils;

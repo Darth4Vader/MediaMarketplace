@@ -18,17 +18,17 @@ import backend.controllers.MovieController;
 import backend.controllers.MoviePurchasedController;
 import backend.controllers.MovieReviewController;
 import backend.controllers.ProductController;
-import backend.dto.cart.CartProductReference;
-import backend.dto.mediaProduct.ActorDto;
-import backend.dto.mediaProduct.DirectorDto;
-import backend.dto.mediaProduct.MovieDto;
-import backend.dto.mediaProduct.MoviePurchasedDto;
-import backend.dto.mediaProduct.MovieRatingReference;
-import backend.dto.mediaProduct.MovieReference;
-import backend.dto.mediaProduct.MovieReviewDto;
-import backend.dto.mediaProduct.MovieReviewReference;
-import backend.dto.mediaProduct.ProductDto;
-import backend.exceptions.DtoValuesAreIncorrectException;
+import backend.dtos.ActorDto;
+import backend.dtos.DirectorDto;
+import backend.dtos.MovieDto;
+import backend.dtos.MoviePurchasedDto;
+import backend.dtos.MovieReviewDto;
+import backend.dtos.ProductDto;
+import backend.dtos.references.CartProductReference;
+import backend.dtos.references.MovieRatingReference;
+import backend.dtos.references.MovieReference;
+import backend.dtos.references.MovieReviewReference;
+import backend.exceptions.MovieReviewValuesAreIncorrectException;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
 import backend.exceptions.UserNotLoggedInException;
@@ -498,12 +498,12 @@ public class MoviePageController {
 					}
 					initializeMovie(movie);
 					this.close();
-				} catch (DtoValuesAreIncorrectException e1) {
+				} catch (MovieReviewValuesAreIncorrectException e1) {
 					//if there is a problem with adding the review, then we will display the user with the reasons
-					Map<String, String> map = e1.getMap();
-					for(Entry<String, String> entry : map.entrySet()) {
+					Map<MovieReviewTypes, String> map = e1.getMap();
+					for(Entry<MovieReviewTypes, String> entry : map.entrySet()) {
 						String val = entry.getValue();
-						switch (MovieReviewTypes.valueOf(entry.getKey())) {
+						switch (entry.getKey()) {
 						case CREATED_DATE:
 							break;
 						case RATING:

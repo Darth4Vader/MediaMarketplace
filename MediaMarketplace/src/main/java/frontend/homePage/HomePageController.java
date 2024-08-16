@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import backend.controllers.ProductController;
-import backend.dto.mediaProduct.ProductDto;
+import backend.dtos.ProductDto;
 import frontend.utils.AppUtils;
 import frontend.utils.MovieRow;
 import javafx.fxml.FXML;

@@ -3,7 +3,7 @@ package frontend.utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import backend.dto.mediaProduct.MovieReference;
+import backend.dtos.references.MovieReference;
 
 public class MovieRow {
 	

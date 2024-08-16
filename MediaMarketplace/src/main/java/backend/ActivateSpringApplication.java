@@ -1,4 +1,5 @@
 package backend;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -10,11 +11,16 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import backend.entities.Role;
-import backend.entities.RoleType;
-import backend.repositories.RoleRepository;
+import backend.entities.enums.RoleType;
+import backend.services.UserAuthenticateService;
 
-//@Configuration
+/**
+ * The main entry point of the Spring Boot application.
+ * <p>
+ * This class is responsible for setting up the application context and performing initialization tasks at startup.
+ * It also ensures that necessary configurations and services are loaded.
+ * </p>
+ */
 @PropertySource(value = "application.properties")
 @ComponentScan({"backend", "frontend"})
 @EntityScan("backend.entities") 
@@ -22,21 +28,38 @@ import backend.repositories.RoleRepository;
 @EnableJpaAuditing
 @SpringBootApplication
 public class ActivateSpringApplication implements CommandLineRunner {
-	@Autowired
-	private RoleRepository roleRepository;
-	
-	
-	public static ConfigurableApplicationContext create(String... args) {
-		return SpringApplication.run(ActivateSpringApplication.class, args);
-	}
 
-	@Override
-	public void run(String... args) throws Exception {
-		RoleType[] roleTypes = RoleType.values();
-		for(RoleType roleType : roleTypes) {
-			if(!roleRepository.findByRoleType(roleType).isPresent())
-				roleRepository.save(new Role(roleType));
-		}
-	}
+    @Autowired
+    private UserAuthenticateService userAuthenticateService;
 
+    /**
+     * Creates and runs the Spring application context.
+     * <p>
+     * This method is called to bootstrap the application. It initializes the Spring context and starts the application.
+     * </p>
+     * 
+     * @param args command line arguments
+     * @return the application context
+     */
+    public static ConfigurableApplicationContext create(String... args) {
+        return SpringApplication.run(ActivateSpringApplication.class, args);
+    }
+
+    /**
+     * Initializes the application by loading roles into the system.
+     * <p>
+     * This method is executed after the application context is fully initialized.
+     * It retrieves and ensures that all role types are present in the system.
+     * </p>
+     * 
+     * @param args command line arguments
+     * @throws Exception if any error occurs during initialization
+     */
+    @Override
+    public void run(String... args) throws Exception {
+        RoleType[] roleTypes = RoleType.values();
+        for (RoleType roleType : roleTypes) {
+            userAuthenticateService.getRoleByType(roleType);
+        }
+    }
 }

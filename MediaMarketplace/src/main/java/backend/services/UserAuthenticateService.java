@@ -19,18 +19,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import backend.DataUtils;
 import backend.auth.AuthenticateAdmin;
-import backend.dto.users.LogInDto;
-import backend.dto.users.LogInResponseDto;
-import backend.dto.users.UserInformationDto;
+import backend.dtos.users.LogInDto;
+import backend.dtos.users.UserInformationDto;
 import backend.entities.Role;
-import backend.entities.RoleType;
 import backend.entities.User;
-import backend.exceptions.EntityNotFoundException;
+import backend.entities.enums.RoleType;
 import backend.exceptions.LogValuesAreIncorrectException;
 import backend.exceptions.UserAlreadyExistsException;
 import backend.exceptions.UserDoesNotExistsException;
 import backend.exceptions.UserNotLoggedInException;
 import backend.exceptions.UserPasswordIsIncorrectException;
+import backend.exceptions.enums.UserLogInfo;
 import backend.repositories.RoleRepository;
 import backend.repositories.UserRepository;
 
@@ -44,7 +43,7 @@ import backend.repositories.UserRepository;
  */
 @Service
 public class UserAuthenticateService {
-	
+
     @Autowired
     private UserRepository userRepository;
 
@@ -75,31 +74,38 @@ public class UserAuthenticateService {
      */
     @Transactional
     public String registerUser(UserInformationDto registerDto) throws UserAlreadyExistsException, LogValuesAreIncorrectException, UserPasswordIsIncorrectException {
-    	//check that the userName does not exists
-    	validateUserDto(registerDto);
-    	String username = registerDto.getUsername();
-    	if(userRepository.findByUsername(username).isPresent())
-    		throw new UserAlreadyExistsException();
-    	//encode the password
-    	String password = registerDto.getPassword();
-    	String encodedPassword = encodePassword(password);
-        //create the authorities for the new user
-    	Role userRole = roleRepository.findByRoleType(RoleType.ROLE_USER).get();
+        // Check that the username does not exist
+        validateUserDto(registerDto);
+        String username = registerDto.getUsername();
+        if (userRepository.findByUsername(username).isPresent()) {
+            throw new UserAlreadyExistsException();
+        }
+
+        // Encode the password
+        String password = registerDto.getPassword();
+        String encodedPassword = encodePassword(password);
+
+        // Create the authorities for the new user
+        Role userRole = getRoleByType(RoleType.ROLE_USER);
         Set<Role> authorities = new HashSet<>();
         authorities.add(userRole);
+
+        // Create and save the new user
         User newUser = new User(username, encodedPassword, authorities);
         userRepository.save(newUser);
-        //login user after registering finished
+
+        // Log in the user after registration
         try {
-			loginUser(username, password);
-		} catch (UserDoesNotExistsException | UserPasswordIsIncorrectException | LogValuesAreIncorrectException e) {
-			//we just created so no exception can be made
-			//but in case of a glitch, we will throw a runtime exception
-			throw new RuntimeException(e);
-		}
-        return "succsses";
+            loginUser(username, password);
+        } catch (UserDoesNotExistsException | UserPasswordIsIncorrectException | LogValuesAreIncorrectException e) {
+        	// We just created so no exception can be made
+        	// Handle unexpected exceptions that shouldn't occur after successful registration
+            throw new RuntimeException("Error during login after registration", e);
+        }
+
+        return "success";
     }
-    
+
     /**
      * Logs in a user using the provided login information.
      * <p>
@@ -107,17 +113,17 @@ public class UserAuthenticateService {
      * </p>
      * 
      * @param loginDto The DTO containing login information.
-     * @return A {@link LogInResponseDto} containing the generated JWT token.
+     * @return A String of the generated JWT token.
      * @throws UserDoesNotExistsException If the user does not exist.
      * @throws UserPasswordIsIncorrectException If the password is incorrect.
      * @throws LogValuesAreIncorrectException If the provided login values are incorrect.
      */
-    public LogInResponseDto loginUser(LogInDto loginDto) throws UserDoesNotExistsException, UserPasswordIsIncorrectException, LogValuesAreIncorrectException {
-    	String username = loginDto.getUserName();
-    	String password = loginDto.getPassword();
-    	return loginUser(username, password);
+    public String loginUser(LogInDto loginDto) throws UserDoesNotExistsException, UserPasswordIsIncorrectException, LogValuesAreIncorrectException {
+        String username = loginDto.getUserName();
+        String password = loginDto.getPassword();
+        return loginUser(username, password);
     }
-    
+
     /**
      * Logs in a user with the specified username and password.
      * <p>
@@ -126,32 +132,37 @@ public class UserAuthenticateService {
      * 
      * @param username The username of the user.
      * @param password The password of the user.
-     * @return A {@link LogInResponseDto} containing the generated JWT token.
+     * @return A String of the generated JWT token.
      * @throws UserDoesNotExistsException If the user does not exist.
      * @throws UserPasswordIsIncorrectException If the password is incorrect.
      * @throws LogValuesAreIncorrectException If the provided login values are incorrect.
      */
-    private LogInResponseDto loginUser(String username, String password) throws UserDoesNotExistsException, UserPasswordIsIncorrectException, LogValuesAreIncorrectException {
-    	LogValuesAreIncorrectException.checkForException(username, password);
-    	Optional<User> userOPt = userRepository.findByUsername(username);
-    	//if we can' find the user by his username, then he doesn't exists.
-    	if(userOPt.isEmpty())
-    		throw new UserDoesNotExistsException();
-    	try {
-	        Authentication auth = authenticationManager.authenticate(
-	            new UsernamePasswordAuthenticationToken(username, password, userOPt.get().getAuthorities()));
-	        //set as the current authentication user
-	        SecurityContextHolder.getContext().setAuthentication(auth);
-	        //generate the Jwt token
-	        String token = tokenService.generateJwt(auth);
-	        return new LogInResponseDto(token);
-    } catch(AuthenticationException e) {
-    	//if there is a problem with authenticating the user, then the password is incorrect, because we check that the username exists, so it can only be the password.
-        SecurityContextHolder.getContext().setAuthentication(null);
-        throw new UserPasswordIsIncorrectException();
-    	}
+    private String loginUser(String username, String password) throws UserDoesNotExistsException, UserPasswordIsIncorrectException, LogValuesAreIncorrectException {
+        checkForException(username, password);
+        Optional<User> userOpt = userRepository.findByUsername(username);
+
+        // If we can't find the user by their username, then they don't exist
+        if (userOpt.isEmpty()) {
+            throw new UserDoesNotExistsException();
+        }
+
+        try {
+            Authentication auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(username, password, userOpt.get().getAuthorities()));
+            // Set as the current authentication user
+            SecurityContextHolder.getContext().setAuthentication(auth);
+
+            // Generate the JWT token
+            String token = tokenService.generateJwt(auth);
+            return token;
+        } catch (AuthenticationException e) {
+            // If there is a problem with authenticating the user, the password is incorrect
+        	// Because we check that the username exists, so it can only be the password.
+            SecurityContextHolder.getContext().setAuthentication(null);
+            throw new UserPasswordIsIncorrectException();
+        }
     }
-    
+
     /**
      * Updates the current user's information.
      * <p>
@@ -165,38 +176,46 @@ public class UserAuthenticateService {
      */
     @Transactional
     public void updateUserInformation(UserInformationDto userDto) throws UserNotLoggedInException, UserPasswordIsIncorrectException, LogValuesAreIncorrectException {
-    	//check that the current user is trying to chenge is information, and not a different user.
-    	User authUser = tokenService.getCurretUser();
-    	String username = authUser.getUsername();
-    	if(!Objects.equals(username, userDto.getUsername()))
-    		throw new UserNotLoggedInException("The user:" + userDto.getUsername() + " is not logged, cannot update information");
-    	String password = userDto.getPassword();
-    	String passwordConfirm = userDto.getPasswordConfirm();
-    	//we load the user from the database.
-    	User user = userRepository.findByUsername(username).get();
-    	if(DataUtils.isNotBlank(password) || DataUtils.isNotBlank(passwordConfirm)) {
-    		//if there is a new password, then  check that it is the same as the confirm password
-    		//otherwise throw an exception for the user to know the problem
-    		LogValuesAreIncorrectException.checkForException(userDto);
-	    	if(!Objects.equals(password, userDto.getPasswordConfirm()))
-	    		throw new UserPasswordIsIncorrectException("Password not matching");
-	    	//encode the passwor, and set it for the user
-	    	user.setPassword(encodePassword(userDto.getPassword()));
-    	}
-    	user.setName(userDto.getName());
-    	//after the change we will reloging the user again to a new session with his updated information.
-    	reloadAuthentication(user);
+        // Check that the current user is trying to change their own information
+        User authUser = tokenService.getCurretUser();
+        String username = authUser.getUsername();
+        if (!Objects.equals(username, userDto.getUsername())) {
+            throw new UserNotLoggedInException("The user: " + userDto.getUsername() + " is not logged in, cannot update information");
+        }
+
+        String password = userDto.getPassword();
+        String passwordConfirm = userDto.getPasswordConfirm();
+
+        // Load the user from the database
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new UserNotLoggedInException("User not found"));
+
+        if (DataUtils.isNotBlank(password) || DataUtils.isNotBlank(passwordConfirm)) {
+            // If there is a new password, check that it matches the confirm password
+        	// Otherwise throw an exception for the user to know the problem
+        	checkForException(userDto);
+            if (!Objects.equals(password, passwordConfirm)) {
+                throw new UserPasswordIsIncorrectException("Password not matching");
+            }
+          // After the change we will reloging the user again to a new session with his updated information.
+            user.setPassword(encodePassword(password));
+        }
+
+        user.setName(userDto.getName());
+
+        // After the change, re-login the user again with their updated information
+        reloadAuthentication(user);
     }
-    
+
     /**
      * Verifies if the user is currently logged in by checking the authentication token.
      * 
      * @throws UserNotLoggedInException If no user is logged in.
      */
     public void authenticateLoggedUser() throws UserNotLoggedInException {
-    	tokenService.getCurretUser();
+        tokenService.getCurretUser();
     }
-    
+
     /**
      * Checks if the current user is an admin.
      * <p>
@@ -205,9 +224,9 @@ public class UserAuthenticateService {
      */
     @AuthenticateAdmin
     public void checkIfCurrentUserIsAdmin() {
-    	
+        // Method annotated to check admin status
     }
-    
+
     /**
      * Determines if the current user is an admin.
      * <p>
@@ -217,17 +236,12 @@ public class UserAuthenticateService {
      * @return true if the current user has admin privileges; false otherwise.
      */
     public boolean isCurrentUserAdmin() {
-    	User user = tokenService.getCurretUser();
-		try {
-			Role admin = roleRepository.findByRoleType(RoleType.ROLE_ADMIN).orElseThrow(() -> new EntityNotFoundException("The role ADMIN does not exists"));
-			Collection<? extends GrantedAuthority> roles = user.getAuthorities();
-			return roles != null && roles.contains(admin);
-		} catch (EntityNotFoundException e) {
-			//we only check, therefore if the role does not exists the n we will return false.
-		}
-		return false;
+        User user = tokenService.getCurretUser();
+        Role adminRole = getRoleByType(RoleType.ROLE_ADMIN);
+        Collection<? extends GrantedAuthority> roles = user.getAuthorities();
+        return roles != null && roles.contains(adminRole);
     }
-    
+
     /**
      * Retrieves the UserInformationDto (like username, name) for the currently logged-in user.
      * <p>
@@ -238,9 +252,26 @@ public class UserAuthenticateService {
      * @throws UserNotLoggedInException If no user is logged in.
      */
     public UserInformationDto getCurrentUserDto() throws UserNotLoggedInException {
-    	return convertUserToDto(tokenService.getCurretUser());
+        return convertUserToDto(tokenService.getCurretUser());
     }
     
+    /**
+     * Retrieves a {@link Role} by its type. If the role does not exist, it is created and saved to the repository.
+     * 
+     * @param roleType The type of the role to retrieve.
+     * @return The {@link Role} associated with the given type.
+     */
+    public Role getRoleByType(RoleType roleType) {
+    	// Attempt to find the role in the repository
+        Optional<Role> userRole = roleRepository.findByRoleType(roleType);
+        if(userRole.isPresent())
+        	return userRole.get();
+        // If does not exists, then we will add the role to the database and return it.
+        Role role = new Role(roleType);
+        role = roleRepository.save(role);
+        return role;
+    }
+
     /**
      * Reloads the authentication for the given user.
      * <p>
@@ -255,7 +286,7 @@ public class UserAuthenticateService {
         Authentication auth = new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
-    
+
     /**
      * Validates the user information DTO.
      * <p>
@@ -268,12 +299,13 @@ public class UserAuthenticateService {
      * @throws LogValuesAreIncorrectException If any of the provided values are incorrect.
      */
     private void validateUserDto(UserInformationDto userDto) throws UserPasswordIsIncorrectException, LogValuesAreIncorrectException {
-    	LogValuesAreIncorrectException.checkForException(userDto);
-    	String password = userDto.getPassword();
-    	if(!Objects.equals(password, userDto.getPasswordConfirm()))
-    		throw new UserPasswordIsIncorrectException("Password not matching");
+        checkForException(userDto);
+        String password = userDto.getPassword();
+        if (!Objects.equals(password, userDto.getPasswordConfirm())) {
+            throw new UserPasswordIsIncorrectException("Password confirmation does not match");
+        }
     }
-    
+
     /**
      * Encodes the provided password using a password encoder.
      * <p>
@@ -285,9 +317,9 @@ public class UserAuthenticateService {
      * @return The encoded password as a {@link String}.
      */
     private String encodePassword(String password) {
-    	return passwordEncoder.encode(password);
+        return passwordEncoder.encode(password);
     }
-    
+
     /**
      * Converts a {@link User} entity to a {@link UserInformationDto}.
      * 
@@ -295,9 +327,73 @@ public class UserAuthenticateService {
      * @return The corresponding {@link UserInformationDto}.
      */
     public UserInformationDto convertUserToDto(User user) {
-    	UserInformationDto userDto = new UserInformationDto();
-    	userDto.setUsername(user.getUsername());
-    	userDto.setName(user.getName());
-    	return userDto;
+        UserInformationDto userDto = new UserInformationDto();
+        userDto.setUsername(user.getUsername());
+        userDto.setName(user.getName());
+        return userDto;
+    }
+
+    /**
+     * Checks for missing or incorrect values in the provided username and password.
+     * <p>
+     * This method verifies that both the username and password are not blank. If either value is missing,
+     * an exception is thrown with details about the missing values.
+     * </p>
+     * 
+     * @param username The username to be checked.
+     * @param password The password to be checked.
+     * @throws LogValuesAreIncorrectException if any of the values (username or password) are missing or incorrect.
+     */
+    public static void checkForException(String username, String password) throws LogValuesAreIncorrectException {
+        Set<UserLogInfo> logInfoSet = new HashSet<>();
+        loadExceptions(username, password, logInfoSet);
+        if (!logInfoSet.isEmpty()) {
+            throw new LogValuesAreIncorrectException(logInfoSet, "One or more values are missing");
+        }
+    }
+
+    /**
+     * Checks for missing or incorrect values in the provided UserInformationDto.
+     * <p>
+     * This method verifies that the username, password, and password confirmation fields are not blank. 
+     * If any of these fields are missing, or if the password confirmation does not match, an exception is thrown
+     * with details about the missing values.
+     * </p>
+     * 
+     * @param userInformationDto The UserInformationDto containing user information to be checked.
+     * @throws LogValuesAreIncorrectException if any of the values (username, password, or password confirmation) are missing or incorrect.
+     */
+    public static void checkForException(UserInformationDto userInformationDto) throws LogValuesAreIncorrectException {
+        Set<UserLogInfo> logInfoSet = new HashSet<>();
+        String username = userInformationDto.getUsername();
+        String password = userInformationDto.getPassword();
+        String passwordConfirm = userInformationDto.getPasswordConfirm();
+        loadExceptions(username, password, logInfoSet);
+        if (DataUtils.isBlank(passwordConfirm)) {
+            logInfoSet.add(UserLogInfo.PASSWORD_CONFIRM);
+        }
+        if (!logInfoSet.isEmpty()) {
+            throw new LogValuesAreIncorrectException(logInfoSet, "One or more values are missing or incorrect");
+        }
+    }
+
+    /**
+     * Loads exceptions for missing values based on username and password.
+     * <p>
+     * This helper method adds the appropriate {@link UserLogInfo} values to the provided set if the username or password
+     * are blank. This helps in identifying which values are missing.
+     * </p>
+     * 
+     * @param username The username to be checked.
+     * @param password The password to be checked.
+     * @param logInfoSet The set to be populated with missing value information.
+     */
+    private static void loadExceptions(String username, String password, Set<UserLogInfo> logInfoSet) {
+        if (DataUtils.isBlank(username)) {
+            logInfoSet.add(UserLogInfo.NAME);
+        }
+        if (DataUtils.isBlank(password)) {
+            logInfoSet.add(UserLogInfo.PASSWORD);
+        }
     }
 }

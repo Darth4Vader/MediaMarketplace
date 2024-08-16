@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import backend.controllers.UserAuthenticateController;
-import backend.dto.mediaProduct.CreateMovieDto;
-import backend.dto.mediaProduct.MovieDto;
+import backend.dtos.CreateMovieDto;
+import backend.dtos.MovieDto;
 import backend.exceptions.EntityNotFoundException;
 import backend.tmdb.CanUpdateException;
 import backend.tmdb.CreateMovie;

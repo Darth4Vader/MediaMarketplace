@@ -4,11 +4,11 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 import backend.ActivateSpringApplication;
 import backend.controllers.OrderController;
+import backend.controllers.ProductController;
 import backend.controllers.UserAuthenticateController;
-import backend.dto.cart.CartProductReference;
-import backend.dto.mediaProduct.ProductReference;
-import backend.dto.users.LogInDto;
-import backend.dto.users.LogInResponseDto;
+import backend.dtos.references.CartProductReference;
+import backend.dtos.references.ProductReference;
+import backend.dtos.users.LogInDto;
 import backend.entities.Genre;
 import backend.entities.Movie;
 import backend.entities.User;
@@ -33,23 +33,39 @@ public class WithoutAppLoginAsUser {
 		//LogInDto dto = new LogInDto("frodo", "bag");
 		LogInDto dto = new LogInDto("bilbo", "bag");
 		try {
-			LogInResponseDto d = userAuth.loginUser(dto);
+			userAuth.loginUser(dto);
 			//userAuth.registerUser(new UserInformationDto("frodo", "", "bag", "bag"));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
+		long productId = 40l;
+		
+		ProductController productController = appContext.getBean(ProductController.class);
+		
+		
+		ProductReference productReference2 = new ProductReference();
+		productReference2.setId(productId);
+		productReference2.setMovieId(32l);
+		/*try {
+			productController.addProduct(productReference2);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}*/
+		
 		CartService cartService = appContext.getBean(CartService.class);
 		CartProductReference productReference = new CartProductReference();
 		productReference.setBuying(false);
-		productReference.setProductId(32l);
+		productReference.setProductId(productId);
 		/*try {
 			cartService.addProductToCart(productReference);
 		} catch (Exception e3) {
 			e3.printStackTrace();
 			// TODO: handle exception
 		}*/
+		
 		
 		OrderService orderService = appContext.getBean(OrderService.class);
 		TokenService tokenService = appContext.getBean(TokenService.class);
@@ -64,7 +80,9 @@ public class WithoutAppLoginAsUser {
 		MovieService movieService  =appContext.getBean(MovieService.class);
 		
 		try {
-			Movie movie = movieService.getMovieByID(9l);
+			productController.removeProduct(productId);
+			
+			//Movie movie = movieService.getMovieByID(9l);
 			
 			/*Genre genre1 = genreService.getGenreByName("Action");
 			Genre genre2 = genreService.getGenreByName("Science fiction"); 
