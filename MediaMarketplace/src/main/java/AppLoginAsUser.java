@@ -26,7 +26,7 @@ public class AppLoginAsUser extends App {
 			UserAuthenticateController userAuth = context.getBean(UserAuthenticateController.class);
 			
 			//LogInDto dto = new LogInDto("frodo", "bag");
-			LogInDto dto = new LogInDto("bilbo", "bag");
+			LogInDto dto = new LogInDto("bilbo", "bag2");
 			try {
 				userAuth.loginUser(dto);
 				//userAuth.registerUser(new UserInformationDto("frodo", "", "bag", "bag"));

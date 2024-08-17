@@ -5,6 +5,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
@@ -18,21 +19,28 @@
       </VBox>
       <VBox HBox.hgrow="ALWAYS">
          <children>
-            <HBox>
-               <children>
-                  <Label fx:id="previousPageLbl" onMouseClicked="#previousPage" text="&lt;">
-                     <cursor>
-                        <Cursor fx:constant="HAND" />
-                     </cursor>
-                  </Label>
-                  <Label fx:id="pageLabel" text="1" />
-                  <Label fx:id="nextPageLbl" onMouseClicked="#nextPage" text="&gt;">
-                     <cursor>
-                        <Cursor fx:constant="HAND" />
-                     </cursor>
-                  </Label>
-               </children>
-            </HBox>
+            <BorderPane>
+               <center>
+                  <Label fx:id="noResultFoundLabel" style="-fx-font-weight: bold;" text="No Result Found" visible="false" BorderPane.alignment="CENTER" />
+               </center>
+               <left>
+                  <HBox BorderPane.alignment="CENTER">
+                     <children>
+                        <Label fx:id="previousPageLbl" onMouseClicked="#previousPage" text="&lt;">
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor>
+                        </Label>
+                        <Label fx:id="pageLabel" text="1" />
+                        <Label fx:id="nextPageLbl" onMouseClicked="#nextPage" text="&gt;">
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor>
+                        </Label>
+                     </children>
+                  </HBox>
+               </left>
+            </BorderPane>
             <ListView fx:id="movieListView" VBox.vgrow="ALWAYS" />
          </children>
       </VBox>

@@ -31,17 +31,32 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.util.Callback;
 
+/**
+ * Controller for the Order History page, which displays a list of orders made by the user.
+ */
 @Component
 public class OrderHistoryController {
 	
-	public static final String PATH = "/frontend/userPage/OrderHistory.fxml";
-	
-	@FXML
-	private ListView<OrderDto> ordersPanel;
-	
-	@Autowired
-	private OrderController orderController;
-	
+    /**
+     * The FXML path for the Order History view.
+     */
+    public static final String PATH = "/frontend/userPage/OrderHistory.fxml";
+
+    /**
+     * The ListView displaying the user's orders.
+     */
+    @FXML
+    private ListView<OrderDto> ordersPanel;
+
+    /**
+     * Controller for managing user orders.
+     */
+    @Autowired
+    private OrderController orderController;
+
+    /**
+     * Initializes the order history view by loading the user's orders.
+     */
 	@FXML
 	private void initialize() {
 		ordersPanel.setCellFactory(new Callback<ListView<OrderDto>, ListCell<OrderDto>>() {
@@ -56,14 +71,39 @@ public class OrderHistoryController {
 		ordersPanel.setSelectionModel(null);
 	}
 	
+    /**
+     * Class representing a custom ListCell for displaying individual orders.
+     */
 	private class OrderCell extends ListCell<OrderDto> {
 		
-		private VBox pane;
-		private Text number;
-		private Text purchasedDate;
-		private VBox orderPanel;
-		private Text price;
+	    /**
+	     * The container for the entire cell layout, including order details and total price.
+	     */
+	    private VBox pane;
+
+	    /**
+	     * The text element displaying the order number.
+	     */
+	    private Text number;
+
+	    /**
+	     * The text element displaying the date the order was purchased.
+	     */
+	    private Text purchasedDate;
+
+	    /**
+	     * The container for displaying the list of movies included in the order.
+	     */
+	    private VBox orderPanel;
+
+	    /**
+	     * The text element displaying the total price of the order.
+	     */
+	    private Text price;
 		
+        /**
+         * Constructs an OrderCell with a custom layout for displaying order details.
+         */
 		public OrderCell(){
 			setStyle("-fx-padding: 0px;");
 			pane = new VBox();
@@ -84,6 +124,11 @@ public class OrderHistoryController {
 			pane.getChildren().addAll(orderDescription, orderPanel, totalPrice);
 		}
 		
+        /**
+         * Sets the order details in the cell.
+         * 
+         * @param order The order to display.
+         */
 		private void set(OrderDto order) {
 			number.setText(""+order.getId());
 			purchasedDate.setText(DataUtils.getLocalDateTimeInCurrentZone(order.getPurchasedDate()));
@@ -96,6 +141,9 @@ public class OrderHistoryController {
 			price.setText(""+order.getTotalPrice());
 		}
 		
+        /**
+         * Resets the cell's content to empty.
+         */
 		private void reset() {
 			orderPanel.getChildren().clear();
 			number.setText("");
@@ -103,6 +151,12 @@ public class OrderHistoryController {
 			price.setText("");
 		}
 		
+        /**
+         * Updates the display of the cell based on the provided order.
+         * 
+         * @param item The order to display.
+         * @param empty Whether the cell is empty.
+         */
 	    @Override
 	    public void updateItem(OrderDto item, boolean empty) {
 	        super.updateItem(item, empty);
@@ -117,20 +171,21 @@ public class OrderHistoryController {
 	        setAlignment(Pos.CENTER_LEFT);
 			setBorder(new Border(new BorderStroke(Color.PINK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
 		            new BorderWidths(1))));
-	        //setAlignment(Pos.CENTER);
 	    }
 	}
 	
+    /**
+     * Creates a BorderPane to display the details of a purchased movie.
+     * 
+     * @param moviePurchased The movie purchased details to display.
+     * @return A BorderPane containing the movie details.
+     */
 	private BorderPane getMoviePurchasedPane(MoviePurchasedDto moviePurchased) {
 		BorderPane itemPane = new BorderPane();
 		itemPane.setStyle("-fx-border-color: black");
 		MovieReference movie = moviePurchased.getMovie();
 		TextFlow nameFlow = new TextFlow();
 		String nameStr = movie.getName();
-		
-		/*if(movie.getYear() != null)
-			nameStr += " (" + movie.getYear() + ")";*/
-		
 		Text name = new Text(nameStr);
 		name.setCursor(Cursor.HAND);
 		name.setOnMouseClicked(event -> {
@@ -159,5 +214,4 @@ public class OrderHistoryController {
 		BorderPane.setMargin(priceLbl, val);
 		return itemPane;
 	}
-	
 }

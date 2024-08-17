@@ -1,25 +1,53 @@
 package backend.dtos;
 
+/**
+ * Data Transfer Object for creating a movie with associated details.
+ */
 public class CreateMovieDto {
-	
-	private String tmdbID;
-	
-	private MovieDto movieDto;
 
-	public String getMediaID() {
-		return tmdbID;
-	}
+    /**
+     * The TMDb (The Movie Database) identifier for the movie.
+     */
+    private String tmdbID;
 
-	public void setMediaID(String tmdbID) {
-		this.tmdbID = tmdbID;
-	}
+    /**
+     * The movie details encapsulated in a {@link MovieDto} object.
+     */
+    private MovieDto movieDto;
 
-	public MovieDto getMovieDto() {
-		return movieDto;
-	}
+    /**
+     * Gets the TMDb ID for the movie.
+     * 
+     * @return the TMDb ID as a {@link String}
+     */
+    public String getMediaID() {
+        return tmdbID;
+    }
 
-	public void setMovieDto(MovieDto movieDto) {
-		this.movieDto = movieDto;
-	}
-	
+    /**
+     * Sets the TMDb ID for the movie.
+     * 
+     * @param tmdbID the TMDb ID to set
+     */
+    public void setMediaID(String tmdbID) {
+        this.tmdbID = tmdbID;
+    }
+
+    /**
+     * Gets the movie details.
+     * 
+     * @return the {@link MovieDto} representing the movie details
+     */
+    public MovieDto getMovieDto() {
+        return movieDto;
+    }
+
+    /**
+     * Sets the movie details.
+     * 
+     * @param movieDto the {@link MovieDto} to set
+     */
+    public void setMovieDto(MovieDto movieDto) {
+        this.movieDto = movieDto;
+    }
 }

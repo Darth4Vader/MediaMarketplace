@@ -1,11 +1,8 @@
 package frontend.moviePage;
 
-import java.net.MalformedURLException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,22 +22,15 @@ import backend.dtos.MoviePurchasedDto;
 import backend.dtos.MovieReviewDto;
 import backend.dtos.ProductDto;
 import backend.dtos.references.CartProductReference;
-import backend.dtos.references.MovieRatingReference;
 import backend.dtos.references.MovieReference;
 import backend.dtos.references.MovieReviewReference;
-import backend.exceptions.MovieReviewValuesAreIncorrectException;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
 import backend.exceptions.UserNotLoggedInException;
-import backend.exceptions.enums.MovieReviewTypes;
-import frontend.App;
 import frontend.AppImageUtils;
 import frontend.utils.AppUtils;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -49,7 +39,6 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.DialogEvent;
@@ -58,10 +47,6 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
-import javafx.scene.control.TextFormatter.Change;
-import javafx.scene.control.TextInputControl;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
@@ -81,90 +66,203 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.util.converter.IntegerStringConverter;
 
 @Component
 public class MoviePageController {
 	
+	/**
+	 * The path to the FXML file for the movie page layout.
+	 * <p>This path is used to load the MoviePage.fxml file which defines the user interface for the movie page.</p>
+	 */
 	public static final String PATH = "/frontend/moviePage/MoviePage.fxml";
 	
+	/**
+	 * The main container for the movie page, allowing for scrolling.
+	 * <p>This {@link ScrollPane} holds the primary content of the movie page and supports scrolling for overflow content.</p>
+	 */
 	@FXML
 	private ScrollPane mainPane;
 	
+	/**
+	 * The border pane used to display the background image of the movie.
+	 * <p>This {@link BorderPane} is responsible for showing the movie's backdrop image.</p>
+	 */
 	@FXML
 	private BorderPane backgroundView;
 	
+	/**
+	 * The image view for displaying the movie's poster.
+	 * <p>This {@link ImageView} shows the poster image of the movie.</p>
+	 */
 	@FXML
 	private ImageView posterView;
 	
+	/**
+	 * The VBox that contains product-related options for the movie.
+	 * <p>This {@link VBox} includes buttons for purchasing or renting the movie.</p>
+	 */
 	@FXML
 	private VBox productOptions;
 	
+	/**
+	 * The text area that displays the movie's synopsis.
+	 * <p>This {@link TextArea} shows a detailed description or summary of the movie.</p>
+	 */
 	@FXML
 	private TextArea synopsisArea;
 	
+	/**
+	 * The label that displays the name of the movie.
+	 * <p>This {@link Label} shows the title of the movie.</p>
+	 */
 	@FXML
 	private Label nameLbl;
 	
+	/**
+	 * The text flow that contains the rating button and user rating information.
+	 * <p>This {@link TextFlow} includes the UI components for displaying and interacting with movie ratings.</p>
+	 */
 	@FXML
 	private TextFlow ratingButton;
 	
+	/**
+	 * The label that displays the release year of the movie.
+	 * <p>This {@link Label} shows the year in which the movie was released.</p>
+	 */
 	@FXML
 	private Label yearLbl;
 	
+	/**
+	 * The label that displays the runtime of the movie.
+	 * <p>This {@link Label} shows the total duration of the movie in hours and minutes.</p>
+	 */
 	@FXML
 	private Label rutimeLbl;
 	
+	/**
+	 * The label that displays the number of ratings the movie has received.
+	 * <p>This {@link Label} shows the total count of ratings for the movie.</p>
+	 */
 	@FXML
 	private Label movieRatingNumberLbl;
 	
+	/**
+	 * The HBox that contains options for watching the movie.
+	 * <p>This {@link HBox} includes UI components related to movie viewing options, such as buttons for watching or renting.</p>
+	 */
 	@FXML
 	private HBox watchOptions;
 	
+	/**
+	 * The ListView that displays the list of directors associated with the movie.
+	 * <p>This {@link ListView} shows the directors involved in the movie.</p>
+	 */
 	@FXML
 	private ListView<DirectorDto> directorsListView;
 	
+	/**
+	 * The ListView that displays the list of actors featured in the movie.
+	 * <p>This {@link ListView} shows the actors who performed in the movie.</p>
+	 */
 	@FXML
 	private ListView<ActorDto> actorsListView;
 	
+	/**
+	 * The ListView that displays the list of reviews for the movie.
+	 * <p>This {@link ListView} shows user reviews and ratings for the movie.</p>
+	 */
 	@FXML
 	private ListView<MovieReviewDto> reviewsListView;
 	
+	/**
+	 * Controller for managing movie-related operations.
+	 * <p>This {@link MovieController} handles the retrieval and management of movie data.</p>
+	 */
 	@Autowired
 	private MovieController movieController;
 	
+	/**
+	 * Controller for managing product-related operations.
+	 * <p>This {@link ProductController} handles product details, including buying and renting options.</p>
+	 */
 	@Autowired
 	private ProductController productController;
 	
+	/**
+	 * Controller for managing director-related operations.
+	 * <p>This {@link DirectorController} handles retrieval of director information associated with movies.</p>
+	 */
 	@Autowired
 	private DirectorController directorController;
 	
+	/**
+	 * Controller for managing actor-related operations.
+	 * <p>This {@link ActorController} handles retrieval of actor information associated with movies.</p>
+	 */
 	@Autowired
 	private ActorController actorsController;
 	
+	/**
+	 * Controller for managing movie purchase operations.
+	 * <p>This {@link MoviePurchasedController} handles tracking of movie purchases and rentals by users.</p>
+	 */
 	@Autowired
 	private MoviePurchasedController moviePurchasedController;
 	
+	/**
+	 * Controller for managing shopping cart operations.
+	 * <p>This {@link CartController} handles adding and managing products in the user's cart.</p>
+	 */
 	@Autowired
 	private CartController cartController;
 	
+	/**
+	 * Controller for managing movie reviews.
+	 * <p>This {@link MovieReviewController} handles adding and retrieving movie reviews from users.</p>
+	 */
 	@Autowired
-	private MovieReviewController movieReviewController;
+	MovieReviewController movieReviewController;
 	
-	private MovieDto movie;
+	/**
+	 * The current movie being displayed.
+	 * <p>This {@link MovieDto} object holds the details of the movie currently shown in the UI.</p>
+	 */
+	MovieDto movie;
 	
+	/**
+	 * Timeline for managing the countdown of remaining rental time.
+	 * <p>This {@link Timeline} is used to update and display the remaining time for movie rentals.</p>
+	 */
 	private Timeline remainingRentTime;
 	
+	/**
+	 * List of directors associated with the current movie.
+	 * <p>This {@link ObservableList} contains {@link DirectorDto} objects representing the directors of the movie.</p>
+	 */
 	private ObservableList<DirectorDto> directorsList;
 	
+	/**
+	 * List of actors featured in the current movie.
+	 * <p>This {@link ObservableList} contains {@link ActorDto} objects representing the actors of the movie.</p>
+	 */
 	private ObservableList<ActorDto> actorsList;
 	
+	/**
+	 * List of reviews for the current movie.
+	 * <p>This {@link ObservableList} contains {@link MovieReviewDto} objects representing user reviews of the movie.</p>
+	 */
 	private ObservableList<MovieReviewDto> movieReviewsList;
 	
+	/**
+	 * Flag indicating whether this is the user's first time visiting the movie page.
+	 * <p>This boolean value determines if the user is revisiting the movie page or accessing it for the first time.</p>
+	 */
 	private boolean notFirstTimeInsidePage;
 	
+	/**
+	 * Initializes the controller. Sets up the lists for directors, actors, and reviews,
+	 * and configures their appearance and behavior.
+	 */
 	@FXML
 	private void initialize() {
 		this.notFirstTimeInsidePage = false;
@@ -187,6 +285,22 @@ public class MoviePageController {
 		reviewsListView.prefHeightProperty().bind(mainPane.heightProperty().multiply(0.4));
 	}
 	
+	/**
+	 * <p>Initializes the movie details in the user interface based on the given {@link MovieReference} object.</p>
+	 * 
+	 * <p>This method retrieves the {@link MovieDto} for the movie identified by the ID in the provided {@link MovieReference}
+	 * using the {@link movieController}. It then invokes the {@link #initializeMovie(MovieDto)} method to display the movie
+	 * details in the user interface.</p>
+	 * 
+	 * <p>If the movie cannot be found:</p>
+	 * <ul>
+	 *     <li>Handles the {@link EntityNotFoundException} by showing an error alert to the user with the message from the exception,
+	 *         indicating that there was an issue loading the movie details.</li>
+	 * </ul>
+	 * 
+	 * @param movieReference The {@link MovieReference} object containing the ID of the movie to retrieve and initialize.
+	 * 
+	 */
 	public void initializeMovie(MovieReference movieReference) {
 		try {
 			MovieDto movie = movieController.getMovie(movieReference.getId());
@@ -198,9 +312,24 @@ public class MoviePageController {
 	}
 	
 	/**
-	 * Initializes the movie pane
-	 * @param movie the movie to use
-	 * @throws MalformedURLException
+	 * <p>Initializes the movie details in the user interface based on the provided {@link MovieDto} object.</p>
+	 * 
+	 * <p>This method updates the UI elements to reflect the details of the specified movie, including:</p>
+	 * <ul>
+	 *     <li>Setting the movie's backdrop image, poster, name, synopsis, year, and runtime.</li>
+	 *     <li>Displaying purchase and rental options via the {@link #addPurchaseButtons()} method.</li>
+	 *     <li>Loading and displaying user-specific ratings and reviews if available.</li>
+	 *     <li>Retrieving and displaying lists of directors and actors associated with the movie.</li>
+	 * </ul>
+	 * 
+	 * <p>The method handles cases where data may not be available or where the user is not logged in:</p>
+	 * <ul>
+	 *     <li>If the user has not rated the movie or is not logged in, it shows a default "Rate movie" prompt.</li>
+	 *     <li>If movie-related data such as directors, actors, or reviews cannot be fetched, it handles exceptions gracefully
+	 *         without interrupting the UI updates.</li>
+	 * </ul>
+	 * 
+	 * @param movie The {@link MovieDto} object containing movie details to be displayed.
 	 */
 	public void initializeMovie(MovieDto movie) {
 		if(this.movie == movie)
@@ -296,6 +425,16 @@ public class MoviePageController {
 		}
 	}
 	
+	/**
+	 * <p>Adds purchase and rental buttons to the product options UI based on the current movie's purchase and rental status.</p>
+	 * 
+	 * <p>This method performs the following actions:</p>
+	 * <ul>
+	 *     <li>Checks if the movie has been purchased or rented by the user and updates UI elements accordingly.</li>
+	 *     <li>If the movie is purchased or rented, it adds a "Watch Movie" button. If only rented, it also displays the remaining rental time.</li>
+	 *     <li>If the movie is not purchased, it adds options to buy or rent the movie, with respective prices.</li>
+	 * </ul>
+	 */
 	private void addPurchaseButtons() {
 		boolean isPurchased = false;
 		boolean isRented = false;
@@ -368,6 +507,15 @@ public class MoviePageController {
 		}
 	}
 	
+	/**
+	 * <p>Starts a countdown timer that updates the specified {@link Text} element with the remaining time for a movie rental.</p>
+	 * 
+	 * <p>If the rental period has expired, an alert will be shown informing the user that the rental is over and offering options
+	 * to purchase or rent the movie again. The countdown stops if the rental time is negative or if the user navigates away.</p>
+	 * 
+	 * @param currentRentTime The start time of the rental period.
+	 * @param remainTimeText The {@link Text} element that displays the remaining rental time.
+	 */
 	private void createRentCountdown(LocalDateTime currentRentTime, Text remainTimeText) {
 		if(remainingRentTime != null)
 			remainingRentTime.stop();
@@ -400,6 +548,16 @@ public class MoviePageController {
         remainingRentTime.play();
 	}
 	
+	/**
+	 * <p>Adds a product to the shopping cart with a specified action (buy or rent).</p>
+	 * 
+	 * <p>This method creates a new {@link CartProductReference} with the product's ID and the action type (buy or rent), then 
+	 * attempts to add it to the cart through the {@link cartController}. If the product is already in the cart with the same 
+	 * action type, or if an error occurs while adding the product, an error alert is shown to the user.</p>
+	 * 
+	 * @param product The {@link ProductDto} representing the product to be added to the cart.
+	 * @param isBuying {@code true} if the product is being bought; {@code false} if the product is being rented.
+	 */
 	private void addToCart(ProductDto product, boolean isBuying) {
 		CartProductReference dto = new CartProductReference();
 		dto.setProductId(product.getId());
@@ -416,166 +574,59 @@ public class MoviePageController {
 		}
 	}
 	
+	/**
+	 * <p>Opens a modal window for adding a rating to the current movie.</p>
+	 * 
+	 * <p>This method creates a new instance of {@link MovieReviewPage} configured for adding ratings only. 
+	 * The user will be able to provide a numeric rating for the movie.</p>
+	 */
 	@FXML
 	private void openAddRatingsPage() {
-		new MovieReviewPage(false);
+		new MovieReviewPage(false, this);
 	}
 	
+	/**
+	 * <p>Opens a modal window for adding a review and rating to the current movie.</p>
+	 * 
+	 * <p>This method creates a new instance of {@link MovieReviewPage} configured for adding both a review and rating.
+	 * The user will be able to provide a title, content, and numeric rating for the movie.</p>
+	 */
 	@FXML
 	private void openAddReviewPage() {
-		new MovieReviewPage(true);
+		new MovieReviewPage(true, this);
 	}
 	
-	private class MovieReviewPage extends Stage {
-		
-		private TextField titleField;
-		private TextArea contentArea;
-		private BorderPane titleTextBox;
-		private BorderPane contentTextBox;
-		
-		public MovieReviewPage(boolean isReview) {
-			if(movie == null)
-				return;
-			Integer ratings = null;
-			String reviewTitle = "", reviewContent = "";
-			try {
-				MovieReviewReference moviewReview = movieReviewController.getMovieReviewOfUser(movie.getId());
-				ratings = moviewReview.getRating();
-				reviewTitle = moviewReview.getReviewTitle();
-				reviewContent = moviewReview.getReview();
-			} catch (EntityNotFoundException e) {
-				//it's okay, like if a user never reviewed this movie, then the exception will activate
-				//so we don't need to handle the exception, because it is a possibility 
-			}
-			VBox box = new VBox();
-			Label ratingsText = new Label("Add Ratings");
-			BorderPane ratingsTextBox = new BorderPane(ratingsText);
-			TextField ratingsField = new TextField();
-			ratingsField.setTextFormatter(new TextFormatter<Integer>(new IntegerStringConverter(), null, this::filter));
-			if(ratings != null)
-				ratingsField.setText(""+ratings);
-			box.getChildren().addAll(ratingsTextBox, ratingsField);
-			String btnText;
-			//TextField titleField = null;
-			//TextArea contentArea = null; 
-			//
-			//BorderPane titleTextBox = null, contentTextBox = null;
-			if(isReview) {
-				Label titleText = new Label("Add Titles");
-				titleTextBox = new BorderPane(titleText);
-				titleField = new TextField(reviewTitle);
-				Label contentText = new Label("Write The Review");
-				contentTextBox = new BorderPane(contentText);
-				contentArea = new TextArea(reviewContent);
-				box.getChildren().addAll(titleTextBox, titleField, contentTextBox, contentArea);
-				btnText = "Add Review";
-			}
-			else
-				btnText = "Add Ratings";
-			
-			Button addBtn = new Button(btnText);
-			box.getChildren().addAll(addBtn);
-			Scene scene = new Scene(box);
-			addBtn.setOnAction(e -> {
-				MovieRatingReference movieRatingReference;
-				if(isReview)
-					movieRatingReference = new MovieReviewReference();
-				else
-					movieRatingReference = new MovieRatingReference();
-				movieRatingReference.setMovieId(movie.getId());
-				movieRatingReference.setRating(DataUtils.getIntegerNumber(ratingsField.getText()));
-				try {
-					if(isReview) {
-						if(movieRatingReference instanceof MovieReviewReference) {
-							MovieReviewReference movieReviewReference = (MovieReviewReference) movieRatingReference;
-							movieReviewReference.setReviewTitle(titleField.getText());
-							movieReviewReference.setReview(contentArea.getText());
-							movieReviewController.addMovieReviewOfUser(movieReviewReference);
-						}
-					}
-					else {
-						movieReviewController.addMovieRatingOfUser(movieRatingReference);
-					}
-					initializeMovie(movie);
-					this.close();
-				} catch (MovieReviewValuesAreIncorrectException e1) {
-					//if there is a problem with adding the review, then we will display the user with the reasons
-					Map<MovieReviewTypes, String> map = e1.getMap();
-					for(Entry<MovieReviewTypes, String> entry : map.entrySet()) {
-						String val = entry.getValue();
-						switch (entry.getKey()) {
-						case CREATED_DATE:
-							break;
-						case RATING:
-							bindValidation(ratingsField, ratingsTextBox, val);
-							break;
-						case REVIEW:
-							bindValidation(contentArea, contentTextBox, val);
-							break;
-						case TITLE:
-							bindValidation(titleField, titleTextBox, val);
-							break;
-						default:
-							break;
-						}
-					}
-				} catch (EntityNotFoundException e1) {
-					//can happen if the movie is removed from the database, and the user is trying to add to it a review
-					AppUtils.alertOfError("Review addition Problem", e1.getMessage());
-				}
-			});
-			this.setScene(scene);
-			this.initModality(Modality.APPLICATION_MODAL);
-			this.initOwner(App.getApplicationInstance().getStage());
-			this.show();
-		}
-		
-	    private Change filter(Change change) {
-	    	String text = change.getControlNewText();
-	    	boolean b = true;
-	        if (text.matches("\\d*") && text.length() <= 3) {
-	        	Integer val = DataUtils.getIntegerNumber(text);
-	        	if(val != null && val >= 1 && val <= 100) {
-	        		b = false;
-	        	}
-	        }
-	        if(b)
-	        	change.setText("");
-	        return change;
-	    }
-	    
-		private void bindValidation(TextInputControl textInput, BorderPane pane, String errorMessage) {
-			if(textInput == null || pane == null)
-				return;
-			Label validate = new Label(errorMessage);
-			validate.setVisible(true);
-			validate.setTextFill(Color.RED);
-			pane.setBottom(validate);
-			StringProperty property = textInput.textProperty();
-			ChangeListener<String> listener = new ChangeListener<String>() {
-				
-				@Override
-				public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-					if(DataUtils.isNotBlank(newValue)) {
-						validate.setVisible(false);
-						pane.setBottom(null);
-						property.removeListener(this);
-					}
-				}
-			};
-			property.addListener(listener);
-		}
-	}
-	
+	/**
+	 * <p>A custom cell for displaying a {@link Person} in a {@link ListView}. This cell uses a {@link PersonPane} to render
+	 * the graphical representation of the person object.</p>
+	 * 
+	 * <p>The cell's appearance is updated based on whether the item is null or not. When an item is present, the cell displays
+	 * the {@link PersonPane} with the item's data. When the item is null or the cell is empty, the cell is reset and no graphical
+	 * content is shown.</p>
+	 */
 	private class PersonCell<T> extends ListCell<T> {
 		
 		private PersonPane personPane;
 		
+		/**
+		 * <p>Constructs a {@link PersonCell} instance with a new {@link PersonPane} for rendering the item.</p>
+		 * 
+		 * <p>The cell's padding is set to zero, and a new {@link PersonPane} is initialized using the provided {@link mainPane}.</p>
+		 */
 		public PersonCell() {
 			this.personPane = new PersonPane(mainPane);
 			setStyle("-fx-padding: 0px;");
 		}
 		
+	    /**
+	     * <p>Updates the cell's graphical representation based on the provided item.</p>
+	     * 
+	     * <p>If the item is {@code null} or the cell is empty, the cell's graphic is set to {@code null} and the 
+	     * {@link PersonPane} is reset. Otherwise, the cell displays the {@link PersonPane} with the item's data.</p>
+	     * 
+	     * @param item The item to be displayed in the cell, or {@code null} if the cell is empty.
+	     * @param empty {@code true} if the cell is empty, otherwise {@code false}.
+	     */
 	    @Override
 	    public void updateItem(T item, boolean empty) {
 	        super.updateItem(item, empty);

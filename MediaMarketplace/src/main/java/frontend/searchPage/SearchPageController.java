@@ -32,44 +32,70 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.util.StringConverter;
 
+/**
+ * Controller class for the search page of the application.
+ * <p>This controller handles user input for searching movies, including filtering by genre, year, and rating. It updates the UI with search results.</p>
+ */
 @Component
 public class SearchPageController {
 	
+	/**
+	 * The path to the FXML file that defines the layout for the search page.
+	 * This file is located within the `/frontend/searchPage/` directory and is named `SearchPage.fxml`.
+	 * It is used to load and initialize the user interface for the search functionality.
+	 */
 	public static final String PATH = "/frontend/searchPage/SearchPage.fxml";
 	
+	/** TextField for entering movie names to search. */
 	@FXML
 	private TextField nameField;
 	
+	/** ComboBox for selecting movie genres. */
 	@FXML
 	private ComboBox<String> chooseGenres;
 	
+	/** ListView displaying the selected genres. */
 	@FXML
 	private ListView<String> genresSelectedPane;
 	
+	/** ListView displaying the search results for movies. */
 	@FXML
 	private ListView<MovieRow> movieResultPane;
 	
+	/** HBox containing the main UI components of the search page. */
 	@FXML
 	private HBox mainPane;
 	
+	/** TextField for entering the minimum year for the search filter. */
 	@FXML
 	private TextField yearAbove;
 	
+	/** TextField for entering the maximum year for the search filter. */
 	@FXML
 	private TextField yearBelow;
 	
+	/** TextField for entering the minimum rating for the search filter. */
 	@FXML
 	private TextField ratingAbove;
 	
+	/** TextField for entering the maximum rating for the search filter. */
 	@FXML
 	private TextField ratingBelow;
 	
+	/** Controller for managing genres. */
 	@Autowired
 	private GenreController genreController;
 	
+	/** FilteredList of genres used for dynamic search suggestions. */
 	private FilteredList<String> genresList;
+	
+	/** ObservableList of selected genres for filtering. */
 	private ObservableList<String> genresSelected;
 	
+	/**
+	 * Initializes the search page controller.
+	 * <p>Sets up the UI components, binds listeners to the text fields, and populates the genre ComboBox with genres retrieved from the {@link GenreController}.</p>
+	 */
 	@FXML
 	private void initialize() {
 		genresSelected = FXCollections.observableArrayList();
@@ -81,7 +107,7 @@ public class SearchPageController {
 		ratingAbove.textProperty().addListener(SearchPageUtils.ratingChangeListener(ratingAbove));
 		ratingBelow.textProperty().addListener(SearchPageUtils.ratingChangeListener(ratingBelow));
 		
-		chooseGenres.setCellFactory(listView  -> new GenreListCell());
+		chooseGenres.setCellFactory(listView -> new GenreListCell());
 		chooseGenres.setButtonCell(new GenreListCell());
 		chooseGenres.setEditable(true);
 		chooseGenres.setConverter(new StringConverter<String>() {
@@ -114,14 +140,11 @@ public class SearchPageController {
 					public boolean test(String g) {
 						if(genresSelected.contains(g))
 							return false;
-		                // If filter text is empty, display all persons.
+		                // If filter text is empty, display all genres.
 						if(DataUtils.isBlank(newValue))
 		                    return true;
 		                String lowerCaseFilter = newValue.toLowerCase();
-		                if(g.toLowerCase().contains(lowerCaseFilter)) {
-		                    return true;
-		                }
-		                return false;
+		                return g.toLowerCase().contains(lowerCaseFilter);
 					}
 	            }));
 			}
@@ -144,41 +167,59 @@ public class SearchPageController {
         // 5. Add sorted (and filtered) data to the table.
         */
         chooseGenres.setItems(genresList);
-        //initiate the movie result pane
+        // Initialize the movie result pane as a grid.
         AppUtils.InitiatelistViewAsGridPage(movieResultPane);
 	}
 	
+	/**
+	 * Removes the specified genre from the list of selected genres.
+	 * <p>This method updates the genre filter by removing the genre and refreshing the genre list view.</p>
+	 * 
+	 * @param genre The genre to remove from the selected genres.
+	 */
 	private void removeGenreFromSelected(String genre) {
 		genresSelected.remove(genre);
 		chooseGenres.getEditor().setText("");
 		Platform.runLater(() -> genresList.setPredicate(new Predicate<String>() {
 			@Override
 			public boolean test(String g) {
-				if(genresSelected.contains(g))
-					return false;
-                return true;
+				return !genresSelected.contains(g);
 			}
         }));
 	}
 	
+	/**
+	 * Searches for movies based on the provided search text.
+	 * <p>This method creates a {@link SortDto} with the search text and invokes the search operation.</p>
+	 * 
+	 * @param text The text to search for in movie names.
+	 */
 	public void searchMovies(String text) {
 		SortDto sortDto = new SortDto();
 		sortDto.setName(text);
 		searchMovies(sortDto);
 	}
 	
+	/**
+	 * Searches for movies based on the provided {@link SortDto} criteria.
+	 * <p>This method performs the search operation and updates the movie result pane with the results.</p>
+	 * 
+	 * @param sortDto The {@link SortDto} containing search criteria and filters.
+	 */
 	private void searchMovies(SortDto sortDto) {
 		List<MovieReference> searchList = SearchUtils.searchMoviesSort(sortDto);
 		AppUtils.UpdatelistViewAsGridPage(movieResultPane, searchList);
 	}
 	
+	/**
+	 * Handles the search operation based on user input from various fields.
+	 * <p>This method gathers user input from the text fields and selected genres, creates a {@link SortDto} object, and performs the search.</p>
+	 */
 	@FXML
 	private void searchMovies() {
 		SortDto sortDto = new SortDto();
 		sortDto.setName(nameField.getText());
-		List<String> genresNames = new ArrayList<>();
-		for(String genre : genresSelected)
-			genresNames.add(genre);
+		List<String> genresNames = new ArrayList<>(genresSelected);
 		sortDto.setGenres(genresNames);
 		sortDto.setYearAbove(DataUtils.getNumber(yearAbove.getText()));
 		sortDto.setYearBelow(DataUtils.getNumber(yearBelow.getText()));
@@ -187,25 +228,37 @@ public class SearchPageController {
 		searchMovies(sortDto);
 	}
 	
+	/**
+	 * Custom cell renderer for genres in the {@link ComboBox}.
+	 * <p>This cell renderer displays genre names in the {@link ComboBox}.</p>
+	 */
 	private static class GenreListCell extends ListCell<String> {
 
 	    @Override
 	    public void updateItem(String item, boolean empty) {
 	        super.updateItem(item, empty);
-	        if(item == null || empty)
+	        if(item == null || empty) {
 	            setText(null);
-	        else
-	        	setText(item);
+	        } else {
+	            setText(item);
+	        }
 	    }
 
 	}
 	
+	/**
+	 * Custom cell renderer for selected genres in the {@link ListView}.
+	 * <p>This cell renderer displays selected genre names with a remove button.</p>
+	 */
 	private class SelectedGenreListCell extends ListCell<String> {
 
 		private BorderPane pane;
 		private Label name;
 		private Button remove;
 		
+		/**
+		 * Constructs a new {@link SelectedGenreListCell} with a layout containing a genre name and a remove button.
+		 */
 		public SelectedGenreListCell() {
 			pane = new BorderPane();
 			remove = new Button("x");
@@ -222,15 +275,11 @@ public class SearchPageController {
 	        	setGraphic(null);
 	            remove.setOnAction(null);
 	            name.setText("");
-	        }
-	        else {
+	        } else {
 	        	name.setText(item);
-	        	remove.setOnAction(e -> {
-	        		removeGenreFromSelected(item);
-	        	});
+	        	remove.setOnAction(e -> removeGenreFromSelected(item));
 	        	setGraphic(pane);
 	        }
 	    }
 	}
-	
 }

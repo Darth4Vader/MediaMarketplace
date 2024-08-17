@@ -147,11 +147,11 @@ public class UserAuthenticateService {
         }
 
         try {
+        	// Set as the current authentication user
             Authentication auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(username, password, userOpt.get().getAuthorities()));
+                    new UsernamePasswordAuthenticationToken(username, password, userOpt.get().getAuthorities()));
             // Set as the current authentication user
-            SecurityContextHolder.getContext().setAuthentication(auth);
-
+            setAuthentication(auth);
             // Generate the JWT token
             String token = tokenService.generateJwt(auth);
             return token;
@@ -197,7 +197,7 @@ public class UserAuthenticateService {
             if (!Objects.equals(password, passwordConfirm)) {
                 throw new UserPasswordIsIncorrectException("Password not matching");
             }
-          // After the change we will reloging the user again to a new session with his updated information.
+            // After the change we will reloging the user again to a new session with his updated information.
             user.setPassword(encodePassword(password));
         }
 
@@ -283,7 +283,44 @@ public class UserAuthenticateService {
      * @param user The {@link User} object representing the user to be authenticated.
      */
     private void reloadAuthentication(User user) {
-        Authentication auth = new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
+    	reloadAuthentication(user, user.getPassword(), user.getAuthorities());
+    }
+    
+    /**
+     * Reloads the authentication for the given user principal and returns the new {@link Authentication} object.
+     * <p>
+     * This method creates a new {@link Authentication} object using the provided principal, password, and
+     * authorities, updates the {@link SecurityContextHolder} with the new authentication, and returns it. It is
+     * typically used to refresh the security context after changing user credentials or authorities.
+     * </p>
+     * 
+     * @param principal The principal (user) to be authenticated. This can be any object that represents the user.
+     * @param password The password of the user to be authenticated.
+     * @param authorities A collection of {@link GrantedAuthority} representing the user's authorities.
+     * @return The new {@link Authentication} object that has been set in the {@link SecurityContextHolder}.
+     */
+    private Authentication reloadAuthentication(Object principal, String password, Collection <? extends GrantedAuthority> authorities) {
+        Authentication auth = new UsernamePasswordAuthenticationToken(principal, password, authorities);
+        // Set as the current authentication user
+        setAuthentication(auth);
+        return auth;
+    }
+    
+    /**
+     * Sets the provided {@link Authentication} object as the current authentication user in the
+     * {@link SecurityContextHolder}.
+     * <p>
+     * This method updates the {@link SecurityContextHolder} with the given {@link Authentication} object
+     * and ensures that the security context supports threading of child threads by setting the strategy to
+     * {@link SecurityContextHolder#MODE_INHERITABLETHREADLOCAL}.
+     * </p>
+     * 
+     * @param auth The {@link Authentication} object to be set as the current authentication.
+     */
+    private void setAuthentication(Authentication auth) {
+        // Set that the security context support threading of children.
+        SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
+    	// Set as the current authentication user
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
 

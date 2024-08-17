@@ -10,6 +10,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
@@ -161,6 +162,7 @@ public class CreateMovie {
     
     static {
         LOGGER.setUseParentHandlers(false);
+        LOGGER.setLevel(Level.ALL);
     }
     
     /**
@@ -201,14 +203,16 @@ public class CreateMovie {
         createGenres(movieDto);
         String movieMediaID = createMovieDto.getMediaID();
         //Now we send the dto to the controller in order to add the movie in the database
+        LOGGER.info("Starting to create the movie information");
         try {
-            LOGGER.info("Starting to create the movie information");
             movieController.addMovie(createMovieDto);
         } catch (EntityNotFoundException e) {
             // This exception is expected if a genre does not exist, but we have verified all genres
         } catch (EntityAlreadyExistsException e) {
-            throw new CanUpdateException(createMovieDto, e);
+            //if the movie already exists, then we can notify the user he can update the movie
+        	throw new CanUpdateException(createMovieDto, e);
         }
+        LOGGER.info("The movie information has been created");
         //we add posters and backdrops for the movie
         addMovieImages(movieDb, movieDto, exceptionList);
         //then we add the directors to the movie
@@ -219,6 +223,7 @@ public class CreateMovie {
         if (!exceptionList.isEmpty()) {
             throw new CreateMovieException(exceptionList, "There were exceptions with creating the movie");
         }
+        LOGGER.finer("The Movie has been Added with all of the attributes successfully");
     }
     
     /**
@@ -267,6 +272,7 @@ public class CreateMovie {
         LOGGER.info("Starting to update the movie information");
         //Now we send the dto to the controller in order to update the movie in the database.
         final Long movieId = movieController.updateMovie(createMovieDto);
+        LOGGER.info("The movie information has been updated");
         movieDto.setId(movieId);
         //we add posters and backdrops for the movie
         addMovieImages(movieDb, movieDto, exceptionList);
@@ -298,6 +304,7 @@ public class CreateMovie {
         if (!exceptionList.isEmpty()) {
             throw new CreateMovieException(exceptionList, "There were exceptions with updating the movie");
         }
+        LOGGER.finer("The Movie has been Updated with all of the attributes successfully");
     }
     
     /**
@@ -339,7 +346,7 @@ public class CreateMovie {
      * @see #updateMovieInDatabase(int)
      */
     public void updateMovieInDatabase(MovieReference movieReference) throws EntityNotFoundException, NumberFormatException, CreateMovieException {
-        String mediaId = movieController.getMovieMediaID(movieReference.getId());
+    	String mediaId = movieController.getMovieMediaID(movieReference.getId());
         updateMovieInDatabase(Integer.parseInt(mediaId));
     }
     

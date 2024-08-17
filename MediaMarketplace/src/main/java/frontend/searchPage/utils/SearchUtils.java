@@ -17,17 +17,41 @@ import backend.dtos.MovieDto;
 import backend.dtos.references.MovieReference;
 import backend.exceptions.EntityNotFoundException;
 
+/**
+ * Utility class for performing search operations related to movies, actors, and directors.
+ * Provides methods to search and filter movies based on various criteria.
+ */
 @Component
 public class SearchUtils {
 	
+	/**
+	 * Controller for managing movie data and operations.
+	 */
 	private static MovieController movieController;
-	
+
+	/**
+	 * Controller for managing movie review data and operations.
+	 */
 	private static MovieReviewController movieReviewController;
-	
+
+	/**
+	 * Controller for managing director data and operations.
+	 */
 	private static DirectorController directorController;
-	
+
+	/**
+	 * Controller for managing actor data and operations.
+	 */
 	private static ActorController actorController;
 	
+    /**
+     * Constructs a new {@code SearchUtils} instance with the specified controllers.
+     * 
+     * @param movieReviewController The controller for movie reviews.
+     * @param movieController The controller for movies.
+     * @param directorController The controller for directors.
+     * @param actorController The controller for actors.
+     */
     public SearchUtils(MovieReviewController movieReviewController, MovieController movieController,
     		DirectorController directorController, ActorController actorController) {
         SearchUtils.movieController = movieController;
@@ -36,6 +60,14 @@ public class SearchUtils {
         SearchUtils.actorController = actorController;
     }
 	
+    /**
+     * Searches for movies based on the specified sorting and filtering criteria.
+     * 
+     * <p>It retrieves all movie references and filters them according to the provided {@link SortDto} criteria.</p>
+     * 
+     * @param sortDto The sorting and filtering criteria.
+     * @return A list of {@link MovieReference} that matches the criteria.
+     */
 	public static List<MovieReference> searchMoviesSort(SortDto sortDto) {
 		List<MovieReference> movieList = new ArrayList<>();
 		if(!sortDto.isSortEmpty()) {
@@ -57,6 +89,13 @@ public class SearchUtils {
         return movieList;
 	}
 	
+    /**
+     * Checks if a movie matches the specified sorting and filtering criteria.
+     * 
+     * @param media The {@link MovieDto} to check.
+     * @param sortDto The sorting and filtering criteria.
+     * @return {@code true} if the movie matches the criteria; {@code false} otherwise.
+     */
 	private static boolean searchMovie(MovieDto media, SortDto sortDto) {
 		if(sortDto.isSortEmpty())
 			return false;
@@ -87,6 +126,13 @@ public class SearchUtils {
 		return false;
 	}
 	
+    /**
+     * Checks if any actor's name or role name matches the search criteria.
+     * 
+     * @param actors The list of {@link ActorDto} to check.
+     * @param name The search criteria.
+     * @return {@code true} if any actor matches the criteria; {@code false} otherwise.
+     */
 	public static boolean searchActors(List<ActorDto> actors, String name) {
 		for(ActorDto actor : actors) {
 			if(compare(actor.getRoleName(), name) > 1)
@@ -97,6 +143,13 @@ public class SearchUtils {
 		return false;
 	}
 	
+    /**
+     * Checks if any director's name matches the search criteria.
+     * 
+     * @param directors The list of {@link DirectorDto} to check.
+     * @param name The search criteria.
+     * @return {@code true} if any director matches the criteria; {@code false} otherwise.
+     */
 	public static boolean searchDirectors(List<DirectorDto> directors, String name) {
 		for(DirectorDto director : directors) {
 			if(compare(director.getPerson().getName(), name) > 1)
@@ -105,6 +158,13 @@ public class SearchUtils {
 		return false;
 	}
 	
+    /**
+     * Determines if a movie meets the sorting and filtering criteria.
+     * 
+     * @param movie The {@link MovieDto} to check.
+     * @param sortDto The sorting and filtering criteria.
+     * @return {@code true} if the movie meets the criteria; {@code false} otherwise.
+     */
 	private static boolean sortMovie(MovieDto movie, SortDto sortDto) {
 		boolean check = true;
 		check &= checkBetween(movie.getYear(), sortDto.getYearAbove(), sortDto.getYearBelow());
@@ -113,6 +173,13 @@ public class SearchUtils {
 				&& checkBetween(movieReviewController.getMovieRatings(movie.getId()), sortDto.getRatingAbove(), sortDto.getRatingBelow());
 	}
 	
+    /**
+     * Checks if a movie's genres match the specified genres in the sorting criteria.
+     * 
+     * @param movie The {@link MovieDto} to check.
+     * @param sortDto The sorting criteria containing genres.
+     * @return {@code true} if the genres match; {@code false} otherwise.
+     */
 	private static boolean checkGenres(MovieDto movie, SortDto sortDto) {
 		List<String> genres = sortDto.getGenres();
 		List<String> movieGenres = movie.getGenres();
@@ -125,6 +192,14 @@ public class SearchUtils {
 		return true;
 	}
 	
+    /**
+     * Checks if a value is within the specified range.
+     * 
+     * @param value The value to check.
+     * @param above The lower bound of the range (inclusive).
+     * @param below The upper bound of the range (inclusive).
+     * @return {@code true} if the value is within the range; {@code false} otherwise.
+     */
 	private static boolean checkBetween(Integer value, Double above, Double below) {
 		boolean bol = true;
 		if(above != null) {
@@ -142,7 +217,13 @@ public class SearchUtils {
 		return bol;
 	}
 	
-	public static String getString(String str) {
+    /**
+     * Normalizes a string by converting it to lowercase and replacing various punctuation characters with spaces.
+     * 
+     * @param str The string to normalize.
+     * @return The normalized string.
+     */
+	private static String getString(String str) {
 		str = str.toLowerCase();
 		str = str.replace(',', ' ');
 		str = str.replace('/', ' ');
@@ -153,7 +234,16 @@ public class SearchUtils {
 		return str;
 	}
 	
-	public static int compare(String str1, String str2) {
+    /**
+     * Compares two strings based on their content similarity.
+     * 
+     * <p>The comparison is based on the number of matched substrings between the two strings.</p>
+     * 
+     * @param str1 The first string.
+     * @param str2 The second string.
+     * @return The similarity score between the two strings.
+     */
+	private static int compare(String str1, String str2) {
 		str1 = getString(str1);
 		str2 = getString(str2);
 		List<String> list1 = new ArrayList<>(Arrays.asList(str1.split("\\s+")));
@@ -173,6 +263,13 @@ public class SearchUtils {
 		return mainCount;
 	}
 	
+    /**
+     * Finds the longest substring that matches between two strings.
+     * 
+     * @param str1 The first string.
+     * @param str2 The second string.
+     * @return The longest matching substring.
+     */
 	private static String getSubStringMatched(String str1, String str2) {
 		String st = "";
 		char[] c1 = str1.toCharArray();
@@ -187,62 +284,4 @@ public class SearchUtils {
 			}
 		return st;
 	}
-	
-	public static int compare2(String str1, String str2) {
-		str1 = getString(str1);
-		str2 = getString(str2);
-		List<String> list1 = new ArrayList<>();
-		List<String> list2 = new ArrayList<>();
-		String str = "";
-		char c;
-		for(int i = 0;i < str1.length(); i++) {
-			c = str1.charAt(i);
-			if(c == ' ') {
-				if(str.equals("") != true)
-					list1.add(str);
-				str = "";
-			}
-			else
-				str = str + c;
-			if(str.isEmpty() != true && i == str1.length()-1)
-				list1.add(str);
-		}
-		str = "";
-		for(int i = 0;i < str2.length(); i++) {
-			c = str2.charAt(i);
-			if(c == ' ') {
-				list2.add(str);
-				str = "";
-			}
-			else
-				str = str + c;
-			if(c != ' ' && i == str2.length()-1)
-				list2.add(str);
-		}
-		int mainCount = 0;
-		String st = "";
-		for(int i = 0;i < list1.size(); i++)
-			for(int j = 0;j < list2.size(); j++) {
-				st = "";
-				char[] c1 = list1.get(i).toCharArray();
-				char[] c2 = list2.get(j).toCharArray();
-				for(int m = 0; m < c1.length; m++)
-					for(int n = 0; n < c2.length; n++) {
-						if(c1[m] == c2[n]) {
-							st = st + c2[n];
-							c2[n] = ' ';
-							break;
-						}
-					}
-				if(st.equals(list2.get(j))) {
-					if(list1.get(i).startsWith(st))
-						mainCount++;
-					mainCount++;
-					list2.remove(j);
-					break;
-				}
-			}
-		return mainCount;
-	}
-
 }

@@ -20,15 +20,34 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
+/**
+ * A custom {@link ListCell} for displaying {@link MovieReviewDto} objects in a list.
+ * <p>This cell presents a movie review with user ratings, review title, user information, creation date, and review text.</p>
+ */
 class MovieReviewCell extends ListCell<MovieReviewDto> {
 	
+	/** The main container for the cell's layout. */
 	private VBox box;
+
+	/** Displays the user ratings for the movie. */
 	private Text userRatings;
+
+	/** Displays the review title. */
 	private Text title;
+
+	/** Displays the username of the reviewer. */
 	private Label userName;
+
+	/** Displays the creation date of the review. */
 	private Label createdDateLabel;
+
+	/** Displays the text content of the review. */
 	private Label reviewText;
 	
+	/**
+	 * Constructs a new {@link MovieReviewCell} with default styling and layout.
+	 * <p>This constructor initializes the layout components and styles for displaying movie reviews.</p>
+	 */
 	public MovieReviewCell() {
 		setStyle("-fx-padding: 0px;");
 		box = new VBox();
@@ -48,6 +67,12 @@ class MovieReviewCell extends ListCell<MovieReviewDto> {
 		box.setStyle("-fx-border-color: black; -fx-border-radius: 5;");
 	}
 	
+	/**
+	 * Sets the content of the cell based on the provided {@link MovieReviewDto}.
+	 * <p>This method updates the cell's display to show the review's rating, title, creation date, user name, and review text.</p>
+	 * 
+	 * @param reviewDto The {@link MovieReviewDto} containing review details to be displayed.
+	 */
 	public void set(MovieReviewDto reviewDto) {
 		MovieReviewReference review = reviewDto.getMovieReview();
 		if(review != null) {
@@ -60,6 +85,10 @@ class MovieReviewCell extends ListCell<MovieReviewDto> {
 		}
 	}
 	
+	/**
+	 * Resets the cell's content to be empty.
+	 * <p>This method clears all text fields and labels in the cell.</p>
+	 */
 	public void reset() {
 		userRatings.setText("");
 		title.setText("");
@@ -73,12 +102,10 @@ class MovieReviewCell extends ListCell<MovieReviewDto> {
         super.updateItem(item, empty);
         if (item == null || empty) {
             setGraphic(null);
-            setText(null);
             reset();
         }
         else {
             setGraphic(box);
-            setText(null);
             set(item);
         }
         setAlignment(Pos.CENTER_LEFT);
