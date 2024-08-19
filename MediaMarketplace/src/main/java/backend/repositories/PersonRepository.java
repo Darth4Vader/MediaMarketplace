@@ -22,10 +22,10 @@ import backend.entities.Person;
 public interface PersonRepository extends JpaRepository<Person, Long> {
 
     /**
-     * Finds a {@link Person} entity by their IMDB ID.
+     * Finds a {@link Person} entity by their Media TMDB ID.
      * 
-     * @param personImdbID the IMDB ID of the person
+     * @param personImdbID the Media TMDB ID of the person
      * @return an {@link Optional} containing the found {@link Person} entity, or {@link Optional#empty()} if no person is found
      */
-    Optional<Person> findByPersonImdbId(@Param("person_imdb_id") String personImdbID);
+    Optional<Person> findByMediaId(@Param("media_id") String mediaId);
 }

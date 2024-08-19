@@ -65,15 +65,15 @@ public class ProductService {
      * If the movie associated with the product does not exist, an {@link EntityNotFoundException} is thrown.
      * </p>
      * 
-     * @param productDto The {@link ProductReference} containing information about the product to be added.
+     * @param productReference The {@link ProductReference} containing information about the product to be added.
      * @return The ID of the newly created product.
      * @throws EntityNotFoundException if the movie associated with the product does not exist.
      */
     @AuthenticateAdmin
     @Transactional
-    public Long addProduct(ProductReference productDto) throws EntityNotFoundException {
-        Movie movie = movieService.getMovieByID(productDto.getMovieId());
-        Product product = getProductFromDto(productDto, movie);
+    public Long addProduct(ProductReference productReference) throws EntityNotFoundException {
+        Movie movie = movieService.getMovieByID(productReference.getMovieId());
+        Product product = getProductFromDto(productReference, movie);
         productRepository.save(product);
         return product.getId();
     }
@@ -85,14 +85,14 @@ public class ProductService {
      * the ProductReference. If the product does not exist, an {@link EntityNotFoundException} is thrown.
      * </p>
      * 
-     * @param productDto The {@link ProductReference} containing updated information about the product.
+     * @param productReference The {@link ProductReference} containing updated information about the product.
      * @throws EntityNotFoundException if the product to be updated does not exist.
      */
     @AuthenticateAdmin
     @Transactional
-    public void updateProduct(ProductReference productDto) throws EntityNotFoundException {
-        Product product = getProductByID(productDto.getId());
-        updateProductFromReference(product, productDto);
+    public void updateProduct(ProductReference productReference) throws EntityNotFoundException {
+        Product product = getProductByID(productReference.getId());
+        updateProductFromReference(product, productReference);
         productRepository.save(product);
     }
     

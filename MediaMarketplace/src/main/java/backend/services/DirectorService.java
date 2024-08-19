@@ -80,7 +80,7 @@ public class DirectorService {
     @AuthenticateAdmin
     @Transactional
     public void addDirector(DirectorReference directorReference) throws EntityNotFoundException, EntityAlreadyExistsException {
-    	Person person = personService.getPersonByNameID(directorReference.getPersonMediaID());
+    	Person person = personService.getPersonByMediaID(directorReference.getPersonMediaID());
     	Movie movie = movieService.getMovieByNameID(directorReference.getMovieMediaId());
     	try {
     		// If the director exists, then he can't be added
@@ -112,7 +112,7 @@ public class DirectorService {
     @AuthenticateAdmin
     @Transactional
     public void removeDirector(DirectorReference directorReference) throws EntityNotFoundException {
-    	Person person = personService.getPersonByNameID(directorReference.getPersonMediaID());
+    	Person person = personService.getPersonByMediaID(directorReference.getPersonMediaID());
     	Movie movie = movieService.getMovieByNameID(directorReference.getMovieMediaId());
     	Director director = getDirectorByMovie(movie.getId(), person.getId());
     	List<Director> directors = movie.getDirectors();

@@ -24,7 +24,7 @@ import backend.exceptions.UserNotLoggedInException;
  * </p>
  */
 @Service
-public class TokenService {
+class TokenService {
 	
     @Autowired
     private JwtEncoder jwtEncoder;

@@ -85,7 +85,7 @@ public class ActorService {
     @AuthenticateAdmin
     @Transactional
     public void addActorRole(ActorReference actorReference) throws EntityNotFoundException, EntityAlreadyExistsException {
-        Person person = personService.getPersonByNameID(actorReference.getPersonMediaID());
+        Person person = personService.getPersonByMediaID(actorReference.getPersonMediaID());
         Movie movie = movieService.getMovieByNameID(actorReference.getMovieMediaId());
         try {
             // Check if the actor already exists in the movie
@@ -119,7 +119,7 @@ public class ActorService {
     @AuthenticateAdmin
     @Transactional
     public void removeActor(ActorReference actorReference) throws EntityNotFoundException {
-        Person person = personService.getPersonByNameID(actorReference.getPersonMediaID());
+        Person person = personService.getPersonByMediaID(actorReference.getPersonMediaID());
         Movie movie = movieService.getMovieByNameID(actorReference.getMovieMediaId());
         Actor actor = getActorByMovie(movie.getId(), person.getId());
         List<Actor> actors = movie.getActorsRoles();

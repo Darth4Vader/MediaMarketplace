@@ -27,7 +27,10 @@ import backend.dtos.references.MovieReviewReference;
 import backend.exceptions.EntityAlreadyExistsException;
 import backend.exceptions.EntityNotFoundException;
 import backend.exceptions.UserNotLoggedInException;
+import frontend.App;
 import frontend.AppImageUtils;
+import frontend.auth.LogInUserController;
+import frontend.auth.RegisterUserController;
 import frontend.utils.AppUtils;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -39,6 +42,8 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.DialogEvent;
@@ -66,6 +71,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 @Component
 public class MoviePageController {
@@ -468,6 +475,19 @@ public class MoviePageController {
 				btnTextFlow.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-radius: 5px; -fx-background-radius: 5px;");
 				btnTextFlow.setPadding(new Insets(5));
 				btnTextFlow.setCursor(Cursor.HAND);
+				btnTextFlow.setOnMouseClicked(e -> {
+					//We add a still image of the movie, in order to simulate a watching movie video experience (without needing to load the actual movie video).
+			        Stage watchMoviePage = new Stage();
+		            AppImageUtils.loadAppIconImage(watchMoviePage);
+		            watchMoviePage.initModality(Modality.APPLICATION_MODAL);
+		            watchMoviePage.initOwner(App.getApplicationInstance().getStage());
+		            BorderPane movieVideoStill = new BorderPane();
+		            movieVideoStill.setBackground(backgroundView.getBackground());
+		            Scene scene = new Scene(movieVideoStill);
+		            watchMoviePage.setTitle("Watch Movie: " + nameLbl.getText());
+		            watchMoviePage.setScene(scene);
+		            watchMoviePage.show();
+				});
 				productOptions.getChildren().add(btnTextFlow);
 			}
 		} catch (EntityNotFoundException e) {

@@ -45,8 +45,8 @@ public class Person {
      * 
      * @return the IMDb identifier
      */
-    @Column(name = "person_imdb_id", unique = true)
-    private String personImdbId;
+    @Column(name = "media_id", unique = true)
+    private String mediaId;
     
     /**
      * The name of this person.
@@ -149,21 +149,21 @@ public class Person {
     }
 
     /**
-     * Gets the IMDb identifier for this person.
+     * Gets the Media identifier for this person.
      * 
-     * @return the IMDb identifier
+     * @return the Media identifier
      */
-    public String getPersonImdbId() {
-        return personImdbId;
+    public String getMediaId() {
+        return mediaId;
     }
 
     /**
-     * Sets the IMDb identifier for this person.
+     * Sets the Media identifier for this person.
      * 
-     * @param personImdbId the IMDb identifier to set
+     * @param mediaId the Media identifier to set
      */
-    public void setPersonImdbId(String personImdbId) {
-        this.personImdbId = personImdbId;
+    public void setMediaId(String mediaId) {
+        this.mediaId = mediaId;
     }
 
     /**

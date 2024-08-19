@@ -52,9 +52,9 @@ public class PersonService {
     public void addPerson(PersonDto personDto) throws EntityAlreadyExistsException {
         try {
             // Load the person by media ID.
-            Person person = getPersonByNameID(personDto.getPersonMediaID());
+            Person person = getPersonByMediaID(personDto.getPersonMediaID());
             // If found, the person already exists in the database, so we notify the user.
-            throw new EntityAlreadyExistsException("The Person \"" + person.getPersonImdbId() + "\" already exists");
+            throw new EntityAlreadyExistsException("The Person \"" + person.getMediaId() + "\" already exists");
         } catch (EntityNotFoundException e) {
             // Expected exception if the person does not already exist
         }
@@ -89,13 +89,13 @@ public class PersonService {
     /**
      * Retrieves a person by their media ID.
      * 
-     * @param personID The media ID of the person to retrieve.
+     * @param personMediaId The media ID of the person to retrieve.
      * @return The {@link Person} entity with the specified media ID.
      * @throws EntityNotFoundException if no person with the specified media ID exists.
      */
-    public Person getPersonByNameID(String personID) throws EntityNotFoundException {
-        return personRepository.findByPersonImdbId(personID)
-                .orElseThrow(() -> new EntityNotFoundException("The Person with ID: (" + personID + ") does not exist"));
+    public Person getPersonByMediaID(String personMediaId) throws EntityNotFoundException {
+        return personRepository.findByMediaId(personMediaId)
+                .orElseThrow(() -> new EntityNotFoundException("The Person with media ID: (" + personMediaId + ") does not exist"));
     }
 
     /**
@@ -118,7 +118,7 @@ public class PersonService {
      */
     public static Person getPersonFromDto(PersonDto personDto) {
         Person person = new Person();
-        person.setPersonImdbId(personDto.getPersonMediaID());
+        person.setMediaId(personDto.getPersonMediaID());
         person.setImagePath(personDto.getImagePath());
         person.setName(personDto.getName());
         person.setBirthDate(personDto.getBirthDate());
@@ -133,7 +133,7 @@ public class PersonService {
      */
     public static PersonDto convertPersonToDto(Person person) {
         PersonDto personDto = new PersonDto();
-        personDto.setPersonMediaID(person.getPersonImdbId());
+        personDto.setPersonMediaID(person.getMediaId());
         personDto.setImagePath(person.getImagePath());
         personDto.setName(person.getName());
         personDto.setBirthDate(person.getBirthDate());

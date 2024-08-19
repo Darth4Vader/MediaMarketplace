@@ -20,7 +20,6 @@ import backend.services.GenreService;
 import backend.services.MovieService;
 import backend.services.OrderService;
 import backend.services.ProductService;
-import backend.services.TokenService;
 
 public class WithoutAppLoginAsUser {
 
@@ -68,11 +67,11 @@ public class WithoutAppLoginAsUser {
 		
 		
 		OrderService orderService = appContext.getBean(OrderService.class);
-		TokenService tokenService = appContext.getBean(TokenService.class);
+		//TokenService tokenService = appContext.getBean(TokenService.class);
 		
 		OrderController orderController = appContext.getBean(OrderController.class);
 		
-		User user = tokenService.getCurretUser();
+		//User user = tokenService.getCurretUser();
 		
 		GenreService genreService = appContext.getBean(GenreService.class);
 		

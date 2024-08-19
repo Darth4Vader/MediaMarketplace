@@ -5,7 +5,6 @@ import backend.dtos.users.LogInDto;
 import backend.entities.User;
 import backend.exceptions.PurchaseOrderException;
 import backend.services.OrderService;
-import backend.services.TokenService;
 import frontend.App;
 import frontend.AppImageUtils;
 import frontend.homePage.HomePageController;
@@ -25,8 +24,8 @@ public class AppLoginAsUser extends App {
 		if(context != null) {
 			UserAuthenticateController userAuth = context.getBean(UserAuthenticateController.class);
 			
-			//LogInDto dto = new LogInDto("frodo", "bag");
-			LogInDto dto = new LogInDto("bilbo", "bag2");
+			LogInDto dto = new LogInDto("frodo", "bag");
+			//LogInDto dto = new LogInDto("bilbo", "bag2");
 			try {
 				userAuth.loginUser(dto);
 				//userAuth.registerUser(new UserInformationDto("frodo", "", "bag", "bag"));
