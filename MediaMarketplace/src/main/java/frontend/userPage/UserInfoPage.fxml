@@ -10,7 +10,7 @@
 
 <VBox alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="frontend.userPage.UserInfoPageController">
    <children>
-      <Label text="Label" />
+      <Label text="The Information of the User" />
       <GridPane>
         <columnConstraints>
           <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -34,6 +34,6 @@
          </children>
       </GridPane>
       <Label fx:id="errorLabel" textFill="RED" />
-      <Button mnemonicParsing="false" onMouseClicked="#updateInformation" text="Update" />
+      <Button mnemonicParsing="false" onMouseClicked="#updateInformation" text="Update Information" />
    </children>
 </VBox>

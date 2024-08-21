@@ -46,6 +46,9 @@ public class SearchPageController {
 	 */
 	public static final String PATH = "/frontend/searchPage/SearchPage.fxml";
 	
+	@FXML
+	private Label searchResultsLabel;
+	
 	/** TextField for entering movie names to search. */
 	@FXML
 	private TextField nameField;
@@ -195,6 +198,8 @@ public class SearchPageController {
 	 * @param text The text to search for in movie names.
 	 */
 	public void searchMovies(String text) {
+		//Set the advanced search text to the same as the regular search text.
+		nameField.setText(text);
 		SortDto sortDto = new SortDto();
 		sortDto.setName(text);
 		searchMovies(sortDto);
@@ -208,6 +213,13 @@ public class SearchPageController {
 	 */
 	private void searchMovies(SortDto sortDto) {
 		List<MovieReference> searchList = SearchUtils.searchMoviesSort(sortDto);
+		//tell the user how many results where found, and if none were.
+		String searchResultText;
+		if(searchList != null && !searchList.isEmpty())
+			searchResultText = ""+searchList.size();
+		else
+			searchResultText = "No Results were found";
+		searchResultsLabel.setText(searchResultText);
 		AppUtils.UpdatelistViewAsGridPage(movieResultPane, searchList);
 	}
 	

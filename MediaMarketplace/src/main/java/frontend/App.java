@@ -29,6 +29,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -75,6 +76,12 @@ public class App extends Application {
      * The stage for login or registration dialogs.
      */
     private Stage userLogStage;
+    
+    /**
+     * JavaFX Controller for the application toolbar.
+     * <p>This controller manages the toolbar displayed at the top of the application, providing navigation and actions.</p>
+     */
+    private AppBarController appBarController;
 
     /**
      * Retrieves the singleton instance of the application.
@@ -178,19 +185,41 @@ public class App extends Application {
     public void changeAppPanel(Node component) {
         if (appPane == null) {
             appPane = new BorderPane();
-            Parent toolBar = loadFXML("/frontend/AppBar.fxml");
+            FXMLLoader loader = getFXMLLoader(AppBarController.PATH);
+            Parent toolBar = loadFXML(loader);
             if (toolBar != null) {
+                appBarController = loader.getController();
                 VBox box = new VBox();
                 box.setAlignment(Pos.CENTER);
                 box.getChildren().add(toolBar);
                 appPane.setTop(box);
                 Scene scene = new Scene(appPane);
                 stage.setScene(scene);
+                if(toolBar instanceof Region) {
+                	Region toolBarSizes = (Region) toolBar;
+	                stage.minWidthProperty().bind(toolBarSizes.widthProperty());
+	                stage.minHeightProperty().bind(toolBarSizes.heightProperty());
+                }
             }
         }
         if (component != null) {
+        	refreshToolBar();
             appPane.setCenter(component);
         }
+    }
+    
+    /**
+     * Refreshes the information displayed in the application’s top navigation bar' like the current logged user name.
+     * <p>This method updates the content of the app bar by invoking the {@link AppBarController#loadInformation()} method.
+     * It checks if the {@code appBarController} is not null before performing the update to ensure that the app bar 
+     * information is only refreshed when the controller is available.</p>
+     * 
+     * @see AppBarController#loadInformation()
+     */
+    public void refreshToolBar() {
+    	if(appBarController != null) {
+    		appBarController.loadInformation();
+    	}
     }
 
     /**

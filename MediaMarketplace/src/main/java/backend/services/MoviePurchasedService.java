@@ -39,6 +39,9 @@ public class MoviePurchasedService {
 
     @Autowired
     private TokenService tokenService;
+    
+    @Autowired
+    private UserAuthenticateService userAuthenticateService;
 
     /**
      * Retrieves a list of all active movies purchased by the current user.
@@ -94,6 +97,43 @@ public class MoviePurchasedService {
         }
         return moviePurchasedDtos;
     }
+    
+    /**
+     * Checks if the current user is authorized to watch the specified movie.
+     * <p>
+     * This method first checks if the current user is an admin. Admins are granted permission to watch all movies,
+     * regardless of their purchase status. If the user is not an admin, the method then checks if the user has purchased
+     * the specified movie and if the purchase is still active (i.e., if the rental period has not expired or if the movie 
+     * is owned by the user).
+     * </p>
+     *
+     * @param movieId The ID of the movie to check for viewing permission.
+     * @return {@code true} if the current user is an admin or has an active purchase of the movie; {@code false} otherwise.
+     * @throws EntityNotFoundException if the movie with the specified ID does not exist or if the user has not purchased the movie.
+     */
+    public boolean checkIfCanWatchMovie(Long movieId) throws EntityNotFoundException {
+        // First we will check that the movie exists
+    	Movie movie = movieService.getMovieByID(movieId);
+    	// Now we check if the current user is an admin, because admins can watch all of the movies.
+        try {
+            userAuthenticateService.checkIfCurrentUserIsAdmin();
+            return true;
+        } catch (Throwable e) {
+            // If not logged in, then not definitively an admin
+        }
+        
+        User user = tokenService.getCurretUser();
+        List<MoviePurchased> purchasedList = getUserPurchaseListOfMovie(user, movie);
+        
+        // Then convert the active purchases to MoviePurchasedDto., and return them.
+        for (MoviePurchased purchased : purchasedList) {
+            if (DataUtils.isUseable(purchased.isRented(), getCurrentRentTime(purchased))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     /**
      * Converts a MoviePurchased entity to a MoviePurchasedDto.

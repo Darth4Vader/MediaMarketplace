@@ -4,9 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import backend.controllers.UserAuthenticateController;
+import backend.dtos.users.UserInformationDto;
 import frontend.App;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
+import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 
 /**
@@ -36,10 +38,14 @@ public class UserPageController {
     /**
      * Initializes the user page by authenticating the logged-in user.
      * Ensures that the user is authenticated when the page is loaded.
+     * After that greet the user with a Welcome message calling him by his username.
      */
     @FXML
     private void initialize() {
-        userAuthenticateController.authenticateLoggedUser();
+        UserInformationDto userDto = userAuthenticateController.getCurrentUserDto();
+        String welcomeMessage = "Welcome User \"" + userDto.getUsername() + "\" In to your User Page";
+        Label welcomeLabel = new Label(welcomeMessage);
+        mainPane.setCenter(welcomeLabel);
     }
     
     /**

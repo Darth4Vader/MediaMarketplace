@@ -270,16 +270,24 @@ public class AdminProductPageController {
 
     /**
      * Updates the product prices and discounts in the backend.
-     * <p>This method checks if the product exists, updates it if it does, or creates
-     * a new product if it does not. It also refreshes the product information after
-     * the update or creation.</p>
+     * <p>If a field is not specified (i.e., it is empty or null), its value will default to 0.</p>
+     * <p>This method checks if the product exists:</p>
+     * <ul>
+     *   <li>If the product exists, it updates the product with the provided details.</li>
+     *   <li>If the product does not exist but a movie is specified, it creates a new product associated with the movie.</li>
+     * </ul>
+     * <p>After updating or creating the product, it refreshes the product information.</p>
      */
     @FXML
     private void updateProductPrice() {
         ProductReference productDto = new ProductReference();
         productDto.setId(product != null ? product.getId() : null);
-        productDto.setBuyPrice(DataUtils.getNumber(buyPriceField.getText()));
-        productDto.setRentPrice(DataUtils.getNumber(rentPriceField.getText()));
+        Double buyPrice = DataUtils.getNumber(buyPriceField.getText());
+        buyPrice = buyPrice == null ? 0 : buyPrice;        
+        productDto.setBuyPrice(buyPrice);
+        Double rentPrice = DataUtils.getNumber(rentPriceField.getText());
+        rentPrice = rentPrice == null ? 0 : rentPrice;  
+        productDto.setRentPrice(rentPrice);
         productDto.setBuyDiscount(DataUtils.getBigDecimal(buyDiscountField.getText()));
         productDto.setRentDiscount(DataUtils.getBigDecimal(rentDiscountField.getText()));
 
@@ -297,7 +305,6 @@ public class AdminProductPageController {
                 AppUtils.alertOfError("Create Product Error", e.getMessage());
             }
         }
-
         initializeProduct();
     }
 }

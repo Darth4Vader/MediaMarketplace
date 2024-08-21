@@ -84,7 +84,7 @@ public class DataUtils {
     public static Double getNumber(String str) {
         try {
             return Double.parseDouble(str);
-        } catch (NumberFormatException e) {
+        } catch (Throwable e) {
             return null;
         }
     }

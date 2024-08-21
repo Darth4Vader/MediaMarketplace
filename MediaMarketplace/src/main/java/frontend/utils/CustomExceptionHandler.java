@@ -105,6 +105,10 @@ public class CustomExceptionHandler implements UncaughtExceptionHandler {
         box.getChildren().addAll(signInBtn, registerBtn);
         alert.getDialogPane().setContent(box);
         alert.show();
+        //If the user is not logged in, then we will reset the welcome message.
+        if(app != null) {
+        	app.refreshToolBar();
+        }
 	}
 	
     /**

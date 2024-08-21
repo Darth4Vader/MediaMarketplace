@@ -15,6 +15,7 @@ import backend.controllers.MovieController;
 import backend.controllers.MoviePurchasedController;
 import backend.controllers.MovieReviewController;
 import backend.controllers.ProductController;
+import backend.controllers.UserAuthenticateController;
 import backend.dtos.ActorDto;
 import backend.dtos.DirectorDto;
 import backend.dtos.MovieDto;
@@ -29,8 +30,6 @@ import backend.exceptions.EntityNotFoundException;
 import backend.exceptions.UserNotLoggedInException;
 import frontend.App;
 import frontend.AppImageUtils;
-import frontend.auth.LogInUserController;
-import frontend.auth.RegisterUserController;
 import frontend.utils.AppUtils;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -42,7 +41,6 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -230,6 +228,12 @@ public class MoviePageController {
 	@Autowired
 	MovieReviewController movieReviewController;
 	
+    /**
+     * Controller for user authentication operations.
+     */
+	@Autowired
+	private UserAuthenticateController userAuthenticateController;
+	
 	/**
 	 * The current movie being displayed.
 	 * <p>This {@link MovieDto} object holds the details of the movie currently shown in the UI.</p>
@@ -324,7 +328,7 @@ public class MoviePageController {
 	 * <p>This method updates the UI elements to reflect the details of the specified movie, including:</p>
 	 * <ul>
 	 *     <li>Setting the movie's backdrop image, poster, name, synopsis, year, and runtime.</li>
-	 *     <li>Displaying purchase and rental options via the {@link #addPurchaseButtons()} method.</li>
+	 *     <li>Displaying purchase and rental options via the {@link #checkMovieButtons()} method.</li>
 	 *     <li>Loading and displaying user-specific ratings and reviews if available.</li>
 	 *     <li>Retrieving and displaying lists of directors and actors associated with the movie.</li>
 	 * </ul>
@@ -344,7 +348,7 @@ public class MoviePageController {
 		else
 			this.notFirstTimeInsidePage = false;
 		this.movie = movie;
-		addPurchaseButtons();
+		checkWatchMovieButtons();
 		ratingButton.getChildren().clear();
 		try {
 			MovieReviewReference moviewReview = movieReviewController.getMovieReviewOfUser(movie.getId());
@@ -433,6 +437,38 @@ public class MoviePageController {
 	}
 	
 	/**
+	 * Updates the movie options based on the user's admin status.
+	 * <p>If the user is an admin, a "Watch Movie" button is added to the options.
+	 * Otherwise, purchase buttons are added. The remaining rental time is stopped 
+	 * and existing options are cleared before updating.</p>
+	 * <p>If there's an issue checking the user's admin status, the method assumes 
+	 * the user is not an admin.</p>
+	 */
+	private void checkWatchMovieButtons() {
+		if(remainingRentTime != null)
+			remainingRentTime.stop();
+		productOptions.getChildren().clear();
+		// We check if the user is an admin, and if so, he can watch every movie without needing to purchase it
+		boolean isAdmin = false;
+		try {
+			isAdmin = userAuthenticateController.isCurrentUserAdmin();
+		}
+		catch (Throwable e) {
+			// If the user is not logged, then he defiantly not an admin. 
+		}
+		if(isAdmin) {
+			TextFlow watchMovieButton = new TextFlow();
+			watchMovieButton.getChildren().add(new Text("Watch Movie"));
+			setWatchMovieButton(watchMovieButton);
+			productOptions.getChildren().add(watchMovieButton);
+		}
+		else {
+			// Add purchase buttons for users that are not admins
+			addPurchaseButtons();
+		}
+	}
+	
+	/**
 	 * <p>Adds purchase and rental buttons to the product options UI based on the current movie's purchase and rental status.</p>
 	 * 
 	 * <p>This method performs the following actions:</p>
@@ -462,33 +498,15 @@ public class MoviePageController {
 				}
 			}
 			if(isPurchased || isRented) {
-				TextFlow btnTextFlow = new TextFlow();
-				btnTextFlow.getChildren().add(new Text("Watch Movie"));
+				TextFlow watchMovieButton = new TextFlow();
+				watchMovieButton.getChildren().add(new Text("Watch Movie"));
 				if(!isPurchased && isRented) {
 					Text remainTimeText = new Text();
-					btnTextFlow.getChildren().addAll(new Text(" (Rent)\nRemaining Time: "), remainTimeText);
+					watchMovieButton.getChildren().addAll(new Text(" (Rent)\nRemaining Time: "), remainTimeText);
 					createRentCountdown(currentRentTime, remainTimeText);
 				}
-				
-				btnTextFlow.setBorder(new Border(new BorderStroke(Color.PINK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
-			            new BorderWidths(1))));
-				btnTextFlow.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-radius: 5px; -fx-background-radius: 5px;");
-				btnTextFlow.setPadding(new Insets(5));
-				btnTextFlow.setCursor(Cursor.HAND);
-				btnTextFlow.setOnMouseClicked(e -> {
-					//We add a still image of the movie, in order to simulate a watching movie video experience (without needing to load the actual movie video).
-			        Stage watchMoviePage = new Stage();
-		            AppImageUtils.loadAppIconImage(watchMoviePage);
-		            watchMoviePage.initModality(Modality.APPLICATION_MODAL);
-		            watchMoviePage.initOwner(App.getApplicationInstance().getStage());
-		            BorderPane movieVideoStill = new BorderPane();
-		            movieVideoStill.setBackground(backgroundView.getBackground());
-		            Scene scene = new Scene(movieVideoStill);
-		            watchMoviePage.setTitle("Watch Movie: " + nameLbl.getText());
-		            watchMoviePage.setScene(scene);
-		            watchMoviePage.show();
-				});
-				productOptions.getChildren().add(btnTextFlow);
+				setWatchMovieButton(watchMovieButton);
+				productOptions.getChildren().add(watchMovieButton);
 			}
 		} catch (EntityNotFoundException e) {
 			//This is okay, no need to add exception handling, the product will not be owned by the user
@@ -525,6 +543,45 @@ public class MoviePageController {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Configures the appearance and behavior of the "Watch Movie" button.
+	 * <p>This method styles the button with a pink border, white background, and rounded corners. 
+	 * It also sets up an event handler to open a modal window displaying a still image of the movie 
+	 * when the button is clicked. The event handler verifies that the user is allowed to watch the movie 
+	 * and handles any errors if the movie is not found or if the user cannot watch it.</p>
+	 * 
+	 * @param watchMovieButton the {@link TextFlow} element to be styled and configured
+	 */
+	private void setWatchMovieButton(TextFlow watchMovieButton) {
+		watchMovieButton.setBorder(new Border(new BorderStroke(Color.PINK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
+	            new BorderWidths(1))));
+		watchMovieButton.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-radius: 5px; -fx-background-radius: 5px;");
+		watchMovieButton.setPadding(new Insets(5));
+		watchMovieButton.setCursor(Cursor.HAND);
+		watchMovieButton.setOnMouseClicked(e -> {
+			if(movie == null)
+				return;
+			Long movieId = movie.getId();
+			try {
+				// We will verify again that the current user can watch the movie.
+				moviePurchasedController.checkIfCanWatchMovie(movieId);
+				// We add a still image of the movie, in order to simulate a watching movie video experience (without needing to load the actual movie video).
+				Stage watchMoviePage = new Stage();
+	            AppImageUtils.loadAppIconImage(watchMoviePage);
+	            watchMoviePage.initModality(Modality.APPLICATION_MODAL);
+	            watchMoviePage.initOwner(App.getApplicationInstance().getStage());
+	            BorderPane movieVideoStill = new BorderPane();
+	            movieVideoStill.setBackground(backgroundView.getBackground());
+	            Scene scene = new Scene(movieVideoStill);
+	            watchMoviePage.setTitle("Watch Movie: " + nameLbl.getText());
+	            watchMoviePage.setScene(scene);
+	            watchMoviePage.show();
+			} catch (EntityNotFoundException e1) {
+				AppUtils.alertOfError("Can't Watch Movie", "The Movie with id \""+movieId+"\" is not found or the user can't watch it (No Active Purchases)");
+			}
+		});
 	}
 	
 	/**

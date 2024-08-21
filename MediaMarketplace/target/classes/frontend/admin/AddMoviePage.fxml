@@ -14,7 +14,7 @@
       <VBox>
          <children>
             <TextField fx:id="searchField" />
-            <Button mnemonicParsing="false" onAction="#searchMovies" text="Button" />
+            <Button mnemonicParsing="false" onAction="#searchMovies" text="Search Movies" />
          </children>
       </VBox>
       <VBox HBox.hgrow="ALWAYS">

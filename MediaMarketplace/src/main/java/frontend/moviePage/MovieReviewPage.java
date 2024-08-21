@@ -12,6 +12,7 @@ import backend.exceptions.EntityNotFoundException;
 import backend.exceptions.MovieReviewValuesAreIncorrectException;
 import backend.exceptions.enums.MovieReviewTypes;
 import frontend.App;
+import frontend.AppImageUtils;
 import frontend.utils.AppUtils;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
@@ -150,6 +151,7 @@ public class MovieReviewPage extends Stage {
 				AppUtils.alertOfError("Review addition Problem", e1.getMessage());
 			}
 		});
+		AppImageUtils.loadAppIconImage(this);
 		this.setScene(scene);
 		this.initModality(Modality.APPLICATION_MODAL);
 		this.initOwner(App.getApplicationInstance().getStage());
