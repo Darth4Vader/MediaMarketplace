@@ -42,8 +42,9 @@ import javafx.stage.Stage;
  */
 @Component
 public class App extends Application {
-
-    //--module-path "C:\JavaFX\lib" --add-modules javafx.controls,javafx.fxml
+	
+	//use this if activate with JavaFX components
+	//--module-path "C:\JavaFX_22.02\lib" --add-modules javafx.controls,javafx.fxml
     
     /**
      * The Spring application context used for dependency injection and managing Spring beans.
@@ -115,7 +116,7 @@ public class App extends Application {
      */
     @Override
     public void init() throws Exception {
-        // We will set the uncaught exception handler to a custom handler
+    	// We will set the uncaught exception handler to a custom handler
         // in order to handle certain exception types with JavaFX
         // For example: caught every user operation a guest tries to activate
         Thread curThread = Thread.currentThread();

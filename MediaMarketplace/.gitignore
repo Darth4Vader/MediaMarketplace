@@ -2,3 +2,5 @@
 /people/
 /backdrops/
 /actors/
+/target/
+target/classes/*
