@@ -16,14 +16,8 @@ import backend.exceptions.UserNotLoggedInException;
 import frontend.App;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.paint.Color;
 
 /**
  * A custom exception handler that manages uncaught exceptions across threads.
@@ -256,11 +250,9 @@ public class CustomExceptionHandler implements UncaughtExceptionHandler {
         Button registerBtn = createSignButton(alert, false);
         HBox box = new HBox();
         box.setSpacing(10);
-		box.setBorder(new Border(new BorderStroke(Color.PINK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
-	            new BorderWidths(1))));
         box.getChildren().addAll(signInBtn, registerBtn);
         alert.getDialogPane().setContent(box);
-        alert.show();
+        alert.showAndWait();
         //If the user is not logged in, then we will reset the welcome message.
         if(app != null) {
         	app.refreshToolBar();

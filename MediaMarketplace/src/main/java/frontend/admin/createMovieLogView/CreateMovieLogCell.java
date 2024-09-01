@@ -4,11 +4,6 @@ import java.util.logging.Level;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.ListCell;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -99,7 +94,5 @@ public class CreateMovieLogCell extends ListCell<LoggerRecord> {
             set(item);
         }
         setAlignment(Pos.CENTER_LEFT);
-        setBorder(new Border(new BorderStroke(Color.PINK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
-                new BorderWidths(1))));
     }
 }

@@ -1,6 +1,8 @@
 package frontend;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
@@ -20,6 +22,7 @@ import frontend.moviePage.MoviePageController;
 import frontend.searchPage.SearchPageController;
 import frontend.utils.AppUtils;
 import frontend.utils.CustomExceptionHandler;
+import frontend.utils.UserChangeInterface;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -67,6 +70,11 @@ public class App extends Application {
      * The main layout pane for the application.
      */
     private BorderPane appPane;
+    
+    /**
+     * The current JavaFX controllers that are in use.
+     */
+    private List<Object> currentControllerOfPanes;
 
     /**
      * Controller for user authentication operations.
@@ -142,6 +150,7 @@ public class App extends Application {
     @Override
     public void start(Stage stage) {
         this.stage = stage;
+        this.currentControllerOfPanes = new ArrayList<>();
         if (appContext != null) {
             userAuth = appContext.getBean(UserAuthenticateController.class);
             // Set the stage icon to our marketplace icon
@@ -173,6 +182,7 @@ public class App extends Application {
      * @param fxmlPath Path to the FXML file to load.
      */
     public void changeAppPanel(String fxmlPath) {
+    	currentControllerOfPanes.clear();
         changeAppPanel(loadFXML(fxmlPath));
     }
 
@@ -183,7 +193,7 @@ public class App extends Application {
      * 
      * @param component The Node component to display in the main panel.
      */
-    public void changeAppPanel(Node component) {
+    public boolean changeAppPanel(Node component) {
         if (appPane == null) {
             appPane = new BorderPane();
             FXMLLoader loader = getFXMLLoader(AppBarController.PATH);
@@ -206,7 +216,9 @@ public class App extends Application {
         if (component != null) {
         	refreshToolBar();
             appPane.setCenter(component);
+            return true;
         }
+        return false;
     }
     
     /**
@@ -218,6 +230,11 @@ public class App extends Application {
      * @see AppBarController#loadInformation()
      */
     public void refreshToolBar() {
+    	//refresh the components that have current user information.
+    	if(!currentControllerOfPanes.isEmpty())
+    		for(Object object : currentControllerOfPanes)
+    			if(object instanceof UserChangeInterface)
+    				((UserChangeInterface) object).refreshAllUserInformationInPane();
     	if(appBarController != null) {
     		appBarController.loadInformation();
     	}
@@ -264,6 +281,7 @@ public class App extends Application {
                     UserInformationDto userDto = userAuth.getCurrentUserDto();
                     AppUtils.alertOfInformation("User Logged Successfully", "Welcome " + userDto.getUsername());
                 }
+                refreshToolBar();
             }
         }
     }
@@ -281,6 +299,7 @@ public class App extends Application {
         if (root != null) {
             SearchPageController controller = loader.getController();
             controller.searchMovies(searchMovie);
+    		currentControllerOfPanes.clear();
             changeAppPanel(root);
         }
     }
@@ -317,10 +336,15 @@ public class App extends Application {
         } catch (UserNotLoggedInException e) {
             // Don't need to handle this exception, let guests view the movie product page.
         }
+        List<Object> currentControllers = new ArrayList<>();
         VBox box = new VBox();
         Button goBack = new Button("← Go Back");
         Node previous = appPane.getCenter();
-        goBack.setOnAction(event -> changeAppPanel(previous));
+        goBack.setOnAction(event -> {
+    		currentControllerOfPanes.removeAll(currentControllers);
+    		currentControllers.clear();
+        	changeAppPanel(previous);
+        });
         box.getChildren().add(goBack);
         if (isAdmin) {
             // Let admin view his own movie page, and the default movie page
@@ -330,6 +354,7 @@ public class App extends Application {
                 AdminProductPageController controller = loader.getController();
                 controller.initializeProduct(movie);
                 box.getChildren().add(root);
+                currentControllers.add(controller);
             }
         }
         FXMLLoader loader = getFXMLLoader(MoviePageController.PATH);
@@ -338,7 +363,9 @@ public class App extends Application {
             MoviePageController controller = loader.getController();
             controller.initializeMovie(movie);
             box.getChildren().add(root);
-            changeAppPanel(box);
+            currentControllers.add(controller);
+            if(changeAppPanel(box))
+            	currentControllerOfPanes.addAll(currentControllers);
         }
     }
 

@@ -3,13 +3,20 @@ package frontend.userPage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import backend.DataUtils;
 import backend.controllers.UserAuthenticateController;
 import backend.dtos.users.UserInformationDto;
 import frontend.App;
+import frontend.homePage.HomePageController;
+import frontend.utils.AppUtils;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 
 /**
  * Controller class for managing the user page layout and navigation.
@@ -45,7 +52,32 @@ public class UserPageController {
         UserInformationDto userDto = userAuthenticateController.getCurrentUserDto();
         String welcomeMessage = "Welcome User \"" + userDto.getUsername() + "\" In to your User Page";
         Label welcomeLabel = new Label(welcomeMessage);
-        mainPane.setCenter(welcomeLabel);
+        Button signOut = new Button("Sign Out");
+        signOut.setOnAction(e -> {
+        	try {
+        		userAuthenticateController.signOutFromCurrentUser();
+        		//if successful then notify the user.
+        		String username = userDto.getUsername();
+        		String message;
+        		if(DataUtils.isNotBlank(username))
+        			message = "The user \"" + username + "\"";
+        		else
+        			message = "The current user";
+        		message += " has logged out successfully";
+        		Alert alert = AppUtils.createAlertOfInformation("User Logged Out", message);
+        		alert.showAndWait();
+        		App.getApplicationInstance().changeAppPanel(HomePageController.PATH);
+        	}
+        	catch (Exception exp) {
+        		//if there is a problem, then let the uncaught exception manager to handle it.
+				throw exp;
+			}
+        });
+        VBox mainUserPane = new VBox();
+        mainUserPane.setSpacing(7);
+        mainUserPane.setAlignment(Pos.CENTER);
+        mainUserPane.getChildren().addAll(welcomeLabel, signOut);
+        mainPane.setCenter(mainUserPane);
     }
     
     /**

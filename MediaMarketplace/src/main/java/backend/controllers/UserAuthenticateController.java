@@ -93,6 +93,18 @@ public class UserAuthenticateController {
     }
     
     /**
+     * Signs out the currently logged-in user.
+     * <p>
+     * This endpoint triggers the user sign-out process by calling the {@link UserAuthService#signOutFromCurrentUser()} method.
+     * </p>
+     * @throws UserNotLoggedInException if no user is currently logged in
+     */
+    @GetMapping("/sign_out")
+    public void signOutFromCurrentUser() throws UserNotLoggedInException {
+    	userAuthService.signOutFromCurrentUser();
+    }
+    
+    /**
      * Checks if the current user is an administrator.
      * <p>
      * This endpoint checks the current user's role to determine if they are an administrator.
