@@ -13,6 +13,7 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 
 import backend.exceptions.EntityAccessException;
 import backend.exceptions.UserNotLoggedInException;
+import backend.tmdb.TMDBKeyLoadingException;
 import frontend.App;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -164,6 +165,9 @@ public class CustomExceptionHandler implements UncaughtExceptionHandler {
 		else if(isRuntimeExceptionOfDatabaseDriverFailure(throwable)) {
 			//we alerted the user that the database url is incorrect (not the needed driver, in this case jdbc,mysql)
 			//we did the alert already in the functions, therefore, we don't need to do anything.
+		}
+		else if((throwable2 = getCausedBy(throwable, TMDBKeyLoadingException.class)) != null) {
+			AppUtils.alertOfError("TMDB api key Exception", throwable2.getMessage());
 		}
 		else {
             String name = "";

@@ -70,9 +70,9 @@
 
 
 <dependency>
-    <groupId>mysql</groupId>
-    <artifactId>mysql-connector-java</artifactId>
-    <version>8.0.33</version>
+    <groupId>com.mysql</groupId>
+    <artifactId>mysql-connector-j</artifactId>
+    <version>9.2.0</version>
 </dependency>
 
 
@@ -86,43 +86,43 @@
   <dependency>
     <groupId>org.openjfx</groupId>
     <artifactId>javafx-controls</artifactId>
-    <version>23-ea+22</version>
+    <version>25-ea+8</version>
   </dependency>
   
 	<dependency>
 	    <groupId>org.openjfx</groupId>
 	    <artifactId>javafx-fxml</artifactId>
-	    <version>23-ea+22</version>
+	    <version>25-ea+8</version>
 </dependency>
 	<dependency>
     <groupId>org.openjfx</groupId>
     <artifactId>javafx-graphics</artifactId>
-    <version>23-ea+22</version>
+    <version>25-ea+8</version>
 </dependency>
 <dependency>
     <groupId>org.openjfx</groupId>
     <artifactId>javafx-base</artifactId>
-    <version>23-ea+22</version>
+    <version>25-ea+8</version>
 </dependency>
 <dependency>
     <groupId>org.openjfx</groupId>
     <artifactId>javafx-swing</artifactId>
-    <version>23-ea+22</version>
+    <version>25-ea+8</version>
 </dependency>
 <dependency>
     <groupId>org.openjfx</groupId>
     <artifactId>javafx-web</artifactId>
-    <version>23-ea+22</version>
+    <version>25-ea+8</version>
 </dependency>
 <dependency>
     <groupId>org.openjfx</groupId>
     <artifactId>javafx-media</artifactId>
-    <version>23-ea+22</version>
+    <version>25-ea+8</version>
 </dependency>
 <dependency>
     <groupId>org.openjfx</groupId>
     <artifactId>javafx</artifactId>
-    <version>23-ea+22</version>
+    <version>25-ea+8</version>
     <type>pom</type>
 </dependency>
 
