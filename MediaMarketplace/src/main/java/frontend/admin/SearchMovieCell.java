@@ -14,10 +14,6 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -116,8 +112,7 @@ class SearchMovieCell extends ListCell<CreateMovieDto> {
         moviePane.getChildren().add(infoBox);
         HBox.setHgrow(infoBox, Priority.ALWAYS);
         
-        moviePane.setBorder(Border.stroke(Color.BLUE));
-        infoBox.setBorder(Border.stroke(Color.GREEN));
+        moviePane.setBorder(Border.stroke(Color.BLACK));
     }
 
     /**
@@ -170,7 +165,5 @@ class SearchMovieCell extends ListCell<CreateMovieDto> {
             set(item);
         }
         setAlignment(Pos.CENTER_LEFT);
-        setBorder(new Border(new BorderStroke(Color.PINK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
-                new BorderWidths(1))));
     }
 }

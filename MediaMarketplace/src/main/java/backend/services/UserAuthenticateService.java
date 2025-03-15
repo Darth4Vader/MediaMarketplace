@@ -206,6 +206,22 @@ public class UserAuthenticateService {
         // After the change, re-login the user again with their updated information
         reloadAuthentication(user);
     }
+    
+    /**
+     * Signs out the currently logged-in user by invalidating their authentication token.
+     * 
+     * This method first checks if there is a currently logged-in user by attempting to retrieve
+     * the current user's token. If a user is logged in, their authentication state is set to null,
+     * effectively signing them out. If no user is logged in, a {@link UserNotLoggedInException} 
+     * is thrown to indicate that there is no active session to terminate.
+     * 
+     * @throws UserNotLoggedInException if no user is currently logged in
+     */
+    public void signOutFromCurrentUser() throws UserNotLoggedInException {
+        // Check if there is a logged user in order to allow sign out.
+        tokenService.getCurretUser();
+        setAuthentication(null);
+    }
 
     /**
      * Verifies if the user is currently logged in by checking the authentication token.

@@ -39,6 +39,7 @@ import info.movito.themoviedbapi.TmdbSearch;
 import info.movito.themoviedbapi.model.Genre;
 import info.movito.themoviedbapi.model.MovieDb;
 import info.movito.themoviedbapi.model.core.MovieResultsPage;
+import info.movito.themoviedbapi.model.core.ResponseStatusException;
 import info.movito.themoviedbapi.model.people.Person;
 import info.movito.themoviedbapi.model.people.PersonCast;
 import info.movito.themoviedbapi.model.people.PersonCrew;
@@ -63,7 +64,7 @@ public class CreateMovie {
     /**
      * TMDb API key for authentication.
      */
-    public static final String TMDB_API_KEY = "1ebdc434f5ee818a93a99347f02a76bf";
+    public static final String TMDB_API_KEY = TMDBUtils.loadApiKey();
     
     /**
      * Job title for director in TMDb.
@@ -134,7 +135,17 @@ public class CreateMovie {
      *         </ul>
      */
     public MovieDtoSearchResult searchMovie(String text, Integer page) {
-        TmdbApi tmdbApi = new TmdbApi(TMDB_API_KEY);
+    	TmdbApi tmdbApi;
+    	try {
+        	tmdbApi = new TmdbApi(TMDB_API_KEY);
+        }
+        catch (ResponseStatusException e) {
+        	// if the API key is invalid, throw a specific exception
+			if(e.getResponseStatus().getStatusCode() == 7)
+				throw new TMDBKeyLoadingException("The API key is invalid");
+			else
+				throw e;
+		}
         TmdbSearch tmdbSearch = tmdbApi.getSearch();
         //we search for all of the results in the given page
         MovieResultsPage movieResultsPage = tmdbSearch.searchMovie(text, null, "en-US", false, page);

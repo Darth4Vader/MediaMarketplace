@@ -84,8 +84,6 @@ public class MovieTableCellEditor extends ListCell<MovieRow> {
 			this.box.add(cell.b, i, 0);
 		}
     	box.prefWidthProperty().bind(sizePane.widthProperty().subtract(40));
-		box.setBorder(new Border(new BorderStroke(Color.GREEN, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
-	            new BorderWidths(1))));
 		setStyle("-fx-padding: 0px;");
 	}
 	
@@ -123,8 +121,6 @@ public class MovieTableCellEditor extends ListCell<MovieRow> {
             setGraphic(box);
         }
         setAlignment(Pos.CENTER_LEFT);
-		setBorder(new Border(new BorderStroke(Color.PINK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
-	            new BorderWidths(1))));
     }
     
     /**
@@ -182,7 +178,7 @@ public class MovieTableCellEditor extends ListCell<MovieRow> {
 			name = new Label();
 			name.setWrapText(true);
 			b.getChildren().add(name);
-			b.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
+			b.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
 		            new BorderWidths(1))));
 		}
 		

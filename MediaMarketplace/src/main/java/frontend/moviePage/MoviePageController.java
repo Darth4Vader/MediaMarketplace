@@ -31,6 +31,7 @@ import backend.exceptions.UserNotLoggedInException;
 import frontend.App;
 import frontend.AppImageUtils;
 import frontend.utils.AppUtils;
+import frontend.utils.UserChangeInterface;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
@@ -73,7 +74,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 @Component
-public class MoviePageController {
+public class MoviePageController implements UserChangeInterface {
 	
 	/**
 	 * The path to the FXML file for the movie page layout.
@@ -281,13 +282,13 @@ public class MoviePageController {
 		directorsListView.setCellFactory(x -> new PersonCell<DirectorDto>());
 		directorsListView.setItems(directorsList);
 		directorsListView.setSelectionModel(null);
-		directorsListView.prefHeightProperty().bind(mainPane.heightProperty().multiply(0.3).add(80));
+		directorsListView.prefHeightProperty().bind(mainPane.heightProperty().multiply(0.3).add(60));
 		
 		actorsList = FXCollections.observableArrayList();
 		actorsListView.setCellFactory(x ->  new PersonCell<ActorDto>());
 		actorsListView.setItems(actorsList);
 		actorsListView.setSelectionModel(null);
-		actorsListView.prefHeightProperty().bind(mainPane.heightProperty().multiply(0.3).add(80));
+		actorsListView.prefHeightProperty().bind(mainPane.heightProperty().multiply(0.3).add(60));
 		
 		movieReviewsList = FXCollections.observableArrayList();
 		reviewsListView.setCellFactory(x -> new MovieReviewCell());
@@ -348,21 +349,7 @@ public class MoviePageController {
 		else
 			this.notFirstTimeInsidePage = false;
 		this.movie = movie;
-		checkWatchMovieButtons();
-		ratingButton.getChildren().clear();
-		try {
-			MovieReviewReference moviewReview = movieReviewController.getMovieReviewOfUser(movie.getId());
-			ratingButton.getChildren().addAll(MoviePageUtils.getUserRating(moviewReview));
-			ratingButton.getChildren().add(new Text("  Your Rating"));
-		} catch (EntityNotFoundException|UserNotLoggedInException e) {
-			// EntityNotFoundException: the logged user didn't rate already
-			// UserNotLoggedInException: a guest can still see the user page, but cannot rate
-			Text star = new Text("☆");
-			star.setFill(Color.BLUE);
-			star.setFont(Font.font(star.getFont().getSize()+3));
-			Text rateText = new Text("Rate movie");
-			ratingButton.getChildren().addAll(star, rateText);
-		}
+		refreshAllUserInformationInPane();
 		String backdropPath = movie.getBackdropPath(); 
 		if(DataUtils.isNotBlank(backdropPath)) {
 			Image backgroundImage = AppImageUtils.loadImageFromClass(movie.getBackdropPath());
@@ -434,6 +421,13 @@ public class MoviePageController {
 		} catch (EntityNotFoundException e) {
 			//it's okay, a movie can be not reviewed
 		}
+	}
+	
+
+	@Override
+	public void refreshAllUserInformationInPane() {
+		checkWatchMovieButtons();
+		setRatingsLabel();
 	}
 	
 	/**
@@ -555,7 +549,7 @@ public class MoviePageController {
 	 * @param watchMovieButton the {@link TextFlow} element to be styled and configured
 	 */
 	private void setWatchMovieButton(TextFlow watchMovieButton) {
-		watchMovieButton.setBorder(new Border(new BorderStroke(Color.PINK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
+		watchMovieButton.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
 	            new BorderWidths(1))));
 		watchMovieButton.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-radius: 5px; -fx-background-radius: 5px;");
 		watchMovieButton.setPadding(new Insets(5));
@@ -623,6 +617,29 @@ public class MoviePageController {
 		remainingRentTime.getKeyFrames().addAll(keyFrame, new KeyFrame(javafx.util.Duration.seconds(1)));
         remainingRentTime.setCycleCount(Timeline.INDEFINITE);
         remainingRentTime.play();
+	}
+	
+	/**
+	 * Updates the ratings label displayed on the `ratingButton`. This method clears the existing children of the button,
+	 * then attempts to fetch and display the user's rating for the current movie. If the user's rating is found, it is
+	 * displayed along with the text "Your Rating". If the user has not rated the movie or is not logged in, a default
+	 * message inviting the user to rate the movie is shown instead.
+	 */
+	private void setRatingsLabel() {
+		ratingButton.getChildren().clear();
+		try {
+			MovieReviewReference moviewReview = movieReviewController.getMovieReviewOfUser(movie.getId());
+			ratingButton.getChildren().addAll(MoviePageUtils.getUserRating(moviewReview));
+			ratingButton.getChildren().add(new Text("  Your Rating"));
+		} catch (EntityNotFoundException|UserNotLoggedInException e) {
+			// EntityNotFoundException: the logged user didn't rate already
+			// UserNotLoggedInException: a guest can still see the user page, but cannot rate
+			Text star = new Text("☆");
+			star.setFill(Color.BLUE);
+			star.setFont(Font.font(star.getFont().getSize()+3));
+			Text rateText = new Text("Rate movie");
+			ratingButton.getChildren().addAll(star, rateText);
+		}
 	}
 	
 	/**
@@ -718,8 +735,6 @@ public class MoviePageController {
 	            personPane.set(item);
 	        }
 	        setAlignment(Pos.CENTER_LEFT);
-			setBorder(new Border(new BorderStroke(Color.PINK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
-		            new BorderWidths(1))));
 	    }
 	}
 }

@@ -13,17 +13,12 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 
 import backend.exceptions.EntityAccessException;
 import backend.exceptions.UserNotLoggedInException;
+import backend.tmdb.TMDBKeyLoadingException;
 import frontend.App;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.paint.Color;
 
 /**
  * A custom exception handler that manages uncaught exceptions across threads.
@@ -171,6 +166,9 @@ public class CustomExceptionHandler implements UncaughtExceptionHandler {
 			//we alerted the user that the database url is incorrect (not the needed driver, in this case jdbc,mysql)
 			//we did the alert already in the functions, therefore, we don't need to do anything.
 		}
+		else if((throwable2 = getCausedBy(throwable, TMDBKeyLoadingException.class)) != null) {
+			AppUtils.alertOfError("TMDB api key Exception", throwable2.getMessage());
+		}
 		else {
             String name = "";
             if(thread != null)
@@ -256,11 +254,9 @@ public class CustomExceptionHandler implements UncaughtExceptionHandler {
         Button registerBtn = createSignButton(alert, false);
         HBox box = new HBox();
         box.setSpacing(10);
-		box.setBorder(new Border(new BorderStroke(Color.PINK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY,
-	            new BorderWidths(1))));
         box.getChildren().addAll(signInBtn, registerBtn);
         alert.getDialogPane().setContent(box);
-        alert.show();
+        alert.showAndWait();
         //If the user is not logged in, then we will reset the welcome message.
         if(app != null) {
         	app.refreshToolBar();
